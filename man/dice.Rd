@@ -2,7 +2,7 @@
 \alias{dice}
 \docType{data}
 \title{
-Data: Roll a dice (100 times).
+Data: Roll a die (100 times).
 }
 \description{
 Data frame with events as result.
@@ -32,6 +32,6 @@ See \code{\link{events}.}
 }
 \examples{
 data(dice)
-head(dice, 10)
+head(dice,10)
 }
 \keyword{datasets}

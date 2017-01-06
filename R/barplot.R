@@ -18,30 +18,36 @@ barplot.create <- function(bar, language = c("en","es"), dir = "barplot"){
   createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"barplot.js"), barplotJSON(bar))
 }
 
-barCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "incidences", coincidences = "coincidences", minor = NULL, language = c("en","es"), dir = NULL){
-  options <- list(name = name, coincidences = coincidences, incidences = incidences)
-  if(!is.null(minor))
-    options[["minor"]] <- minor
-  if(!is.null(label))
-    options[["label"]] <- label
-  if(!is.null(text))
-    options[["text"]] <- text
-  bar <- barplot.start(nodes, links, options)
-  if (!is.null(dir)) barplot.create(bar,language=language,dir=dir)
-  return(bar)
+barCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "frequency", coincidences = "coincidences", minor = NULL, language = c("en","es"), dir = NULL){
+  if (name %in% names(nodes) & incidences %in% names(nodes) & coincidences %in% names(links)) {
+    options <- list(name = name, coincidences = coincidences, incidences = incidences)
+    if(!is.null(minor))
+      options[["minor"]] <- minor
+    if(!is.null(label))
+      options[["label"]] <- label
+    if(!is.null(text))
+      options[["text"]] <- text
+    bar <- barplot.start(nodes, links, options)
+    if (!is.null(dir)) barplot.create(bar,language=language,dir=dir)
+    return(bar)
+  }
+  else warning("name, incidences or coincidences are not in nodes or links data frames")
 }
 
-cbarCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "incidences", coincidences = "coincidences", expected = "expected", confidence.interval = NULL,  minor = NULL, language = c("en","es"), dir = NULL){
-  options <- list(name = name, coincidences = coincidences, incidences = incidences, expected = expected)
-  if(!is.null(minor))
-    options[["minor"]] <- minor
-  if(!is.null(label))
-    options[["label"]] <- label
-  if(!is.null(text))
-    options[["text"]] <- text
-  if(!is.null(confidence.interval))
-    options[["line"]] <- confidence.interval
-  bar <- barplot.start(nodes, links, options)
-  if (!is.null(dir)) barplot.create(bar,language=language,dir=dir)
-  return(bar)
+cbarCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "frequency", coincidences = "coincidences", expected = "expected", confidence.interval = NULL,  minor = NULL, language = c("en","es"), dir = NULL){
+  if (name %in% names(nodes) & incidences %in% names(nodes) & coincidences %in% names(links) & expected %in% names(links)) {
+    options <- list(name = name, coincidences = coincidences, incidences = incidences, expected = expected)
+    if(!is.null(minor))
+      options[["minor"]] <- minor
+    if(!is.null(label))
+      options[["label"]] <- label
+    if(!is.null(text))
+      options[["text"]] <- text
+    if(!is.null(confidence.interval))
+      options[["line"]] <- confidence.interval
+    bar <- barplot.start(nodes, links, options)
+    if (!is.null(dir)) barplot.create(bar,language=language,dir=dir)
+    return(bar)
+  }
+  else warning("name, incidences, coincidences or expected are not in nodes or links data frames")
 }

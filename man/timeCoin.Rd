@@ -29,3 +29,8 @@ timeCoin(nodes, name = "name", start = "start", end = "end",
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}
 }
 
+\examples{
+# Database of 19th century sociologists
+data(sociologists)
+timeCoin(sociologists,"name","birth","death","birthcountry", dir="./timeline")
+}

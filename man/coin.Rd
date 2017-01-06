@@ -9,7 +9,9 @@ A coincidence object consists of a list with two elements: 1) the number of scen
 }
 \usage{
 coin(incidences, minimum = 1, maximum = nrow(incidences),
-     sort = FALSE, decreasing = TRUE)
+     sort = FALSE, decreasing = TRUE, 
+     total=FALSE, subsample=FALSE,
+     weight=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,6 +20,9 @@ coin(incidences, minimum = 1, maximum = nrow(incidences),
   \item{maximum}{maximum frequency to be considered}
   \item{sort}{sort the coincidence matrix according to frequency of events}
   \item{decreasing}{decreasing or increasing sort of the matrix}
+  \item{total}{add one first row and column with total}
+  \item{subsample}{retrict the analysis to scenarios with at least one event}
+  \item{weight}{a vector of weights. Optimal for data.framed tables}
 }
 \details{
 Produce a matrix of coincidences from a matrix of incidences.
@@ -36,4 +41,10 @@ I <- matrix(rbinom(100, 1, .5), nrow = 25, ncol = 4,
             dimnames = list(NULL, c("A", "B", "C", "D")))
 coin(I, sort = TRUE)
 
+## Hair by Eye by Sex table from M. Friendly (2000)
+data(HairEyeColor)
+H<-as.data.frame(HairEyeColor)
+W<-H$Freq
+I<-dichotomize(H,c("Hair","Eye","Sex"),add=FALSE)
+coin(I,w=W)
 }

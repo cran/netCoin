@@ -1,6 +1,5 @@
 \name{multigraph.create}
 \alias{multigraph.create}
-\alias{multinet.create}
 \title{Produce interactive network.}
 \author{
 David Barrios and Carlos Prieto. Bioinformatics Service of Nucleus, University of Salamanca. See \url{http://bioinfo.usal.es/}
@@ -11,7 +10,6 @@ The function creates a folder in your computer with an HTML document named index
 
 \usage{
 multigraph.create(..., language = c("en","es"), dir = "MultiGraph")
-multinet.create(..., language = c("en","es"), dir = "MultiGraph")
 }
 \arguments{
 \item{...}{network objects.}
@@ -22,4 +20,20 @@ multinet.create(..., language = c("en","es"), dir = "MultiGraph")
 }
 \description{
 \code{multigraph.create} produce an interactive multi network.
+}
+\examples{
+# A character column (with separator)
+frame <- data.frame(A = c("Man; Women", "Women; Women",
+                        "Man; Man", "Undet.; Women; Man"))
+data <- dichotomize(frame, "A", sep = "; ")[2:4]
+C <- coin(data) # coincidence matrix
+N <- as.nodes(C) # node data frame
+E <- edgeList(C,c("frequency","expected","haberman")) # edge data frame
+bC<- barCoin(N,E) # barplot object
+cC<- cbarCoin(N,E) # barplot object
+nC<- netCoin(N,E) # network object
+multigraph.create("Bar graph"=bC,
+                  "Conditional bar graph"=cC, 
+                  "Net graph"=nC, 
+                  dir="./example") # See ./example/index.html file
 }

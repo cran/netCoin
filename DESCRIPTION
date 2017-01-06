@@ -1,7 +1,7 @@
 Package: netCoin
 Type: Package
-Version: 0.2.1
-Date: 2016-12-19
+Version: 0.2.2
+Date: 2017-01-06
 Title: Interactive Networks with R
 Description: Create interactive networked coincidences. It joins the data analysis power of R to study coincidences and the visualization libraries of JavaScript in one package.
 License: CC BY-NC-SA 4.0
@@ -13,6 +13,6 @@ Author: Modesto Escobar <modesto@usal.es>,
   David Barrios <metal@usal.es>,
   Luis Martinez-Uribe <lmartinez@usal.es>.
 Maintainer: Modesto Escobar <modesto@usal.es>
-Packaged: 2016-12-19 17:45:20 UTC; Modesto
+Packaged: 2017-01-06 11:13:18 UTC; Modesto
 Repository: CRAN
-Date/Publication: 2016-12-21 08:30:38
+Date/Publication: 2017-01-06 16:37:53

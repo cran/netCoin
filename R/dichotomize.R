@@ -1,8 +1,8 @@
-dichotomize <- function(Data,variables, sep="", min=1, length=0, values=NULL,
+dichotomize <- function(data,variables, sep="", min=1, length=0, values=NULL,
                         sparse=FALSE, add=TRUE, sort=TRUE) {
-    if(is.data.frame(Data)){
-      if (min>0 & min<1) min = min*nrow(Data)
-      cn <- colnames(Data)
+    if(is.data.frame(data)){
+      if (min>0 & min<1) min = min*nrow(data)
+      cn <- colnames(data)
       names(cn) <- cn
       if (length(sep)!=length(variables))
          sep = rep(sep[1],length(variables))
@@ -10,15 +10,15 @@ dichotomize <- function(Data,variables, sep="", min=1, length=0, values=NULL,
          
       for(c in variables){
         if (sep[c]!="")
-           L <- lapply(strsplit(as.character(Data[[c]]), sep[c]), paste, sep[c] ,sep="") # Sep at the end of each element
+           L <- lapply(strsplit(as.character(data[[c]]), sep[c]), paste, sep[c] ,sep="") # Sep at the end of each element
         else {
-           L <- Data[[c]]
+           L <- data[[c]]
         }
         if (is.null(values)) Z <- valuesof(L,length,min,sort,sep)
         else                 Z <- paste(values, sep[c],sep="")
       Z <- paste(sep[c],Z,sep="") # To search
-      C <- paste(sep[c],Data[[c]],sep[c],sep="")  # Searched    
-      Q <- Matrix(0,nrow=length(Z),ncol=nrow(Data),sparse=TRUE) # Result
+      C <- paste(sep[c],data[[c]],sep[c],sep="")  # Searched    
+      Q <- Matrix(0,nrow=length(Z),ncol=nrow(data),sparse=TRUE) # Result
 
       for(X in 1:length(Z)) {
         N <- grep(Z[X],C,fixed=TRUE)
@@ -47,14 +47,19 @@ dichotomize <- function(Data,variables, sep="", min=1, length=0, values=NULL,
       if (sparse==TRUE) {
         Q<-t(Q)
         colnames(Q)<-Z
-        Data<-Q
+        if (!exists("Data")) Data<-Q
+        else Data<-cbind(Data,Q)
       }
       else {
         W <- as.data.frame(t(as.data.frame(as.matrix(Q), row.names=Z)))
-        if (add==TRUE) Data <- cbind(Data,W)
-        else Data<-W
+        if (add==TRUE) data <- cbind(data,W)
+        else {
+          if (!exists("Data")) Data<-W
+          else Data<-cbind(Data,W)
+        }
       }
-    }
+      }
+    if (!exists("Data")) Data<-data
     return(Data)
   }else
     warning("You must pass a data frame!")

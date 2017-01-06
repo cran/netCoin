@@ -10,7 +10,7 @@ Object of class \code{barplot}.
 
 \usage{
 cbarCoin(nodes, links, name = "name", label = NULL, text = NULL,
-         incidences = "incidences", coincidences = "coincidences",
+         incidences = "frequency", coincidences = "coincidences",
          expected = "expected", confidence.interval = NULL,
          minor = NULL, language = c("en","es"), dir = NULL)
 }
@@ -31,4 +31,13 @@ cbarCoin(nodes, links, name = "name", label = NULL, text = NULL,
 \author{
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}
 }
-
+\examples{
+# A character column (with separator)
+frame <- data.frame(A = c("Man; Women", "Women; Women",
+                        "Man; Man", "Undet.; Women; Man"))
+data <- dichotomize(frame, "A", sep = "; ")[2:4]
+C <- coin(data) # coincidence matrix
+N <- as.nodes(C) # node data frame
+E <- edgeList(C,"frequency","expected") # edge data frame
+cbarCoin(N,E) # barplot object
+}

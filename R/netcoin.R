@@ -42,7 +42,7 @@ netCoin<-function (nodes, links, name="name",
 
   #images
   if (!is.null(image)) 
-    net <- network.nodeImage(net,image)
+    net <- network.nodeImage(net,nodes[[image]],image)
 
   #layout
   if(!is.null(layout))
@@ -90,12 +90,12 @@ edgeList <- function(data, procedures="Haberman", criteria="Z", Bonferroni=FALSE
 # Last transformations: c.Conditional c.Probable and sort
  
   if(length(Mat)>0) {
-    if (!is.null(Mat$c.Conditional)) 
-      Mat$c.Conditional<-factor(Mat$c.Conditional,levels=c(0:8),
+    if (!is.null(Mat$c.conditional)) 
+      Mat$c.conditional<-factor(Mat$c.conditional,levels=c(0:8),
                                 labels=c("Null","Mere","Conditional","Significant","Quite significant","Very significant","Subtotal","Suptotal","Total"))
-    if (!is.null(Mat$c.Probable)) 
-      Mat$c.Probable<-factor(Mat$c.Probable,levels=c(0:8),
-                             labels=c("Null","Mere","Conditional","Significant","Quite significant","Very significant","Subtotal","Suptotal","Total"))
+    if (!is.null(Mat$c.probable)) 
+      Mat$c.probable<-factor(Mat$c.probable,levels=c(0:8),
+                             labels=c("Null","Mere","Probable","Significant","Quite significant","Very significant","Subtotal","Suptotal","Total"))
     if (!is.null(sort)) {
       if (substr(tolower(procedures)[1],1,2)!="sh") Mat<-Mat[order(Mat[[i.method(c.method(sort))]],decreasing = decreasing),]
       else Mat<-Mat[order(Mat$value,decreasing=decreasing),]
@@ -122,10 +122,10 @@ c.method<-function(method) {
 }
 
 i.method<-function(method) {
-  similarities<-matrix(c("Matching","Rogers","Gower","Sneath", "Anderberg",
-                         "Jaccard","Dice", "antiDice","Ochiai","Kulczynski",
-                         "Hamann", "Yule", "Pearson", "Odds", "Russell", "Expected", "Haberman", "Confidence", "Z",
-                         "Coincidences", "Relative", "Conditional","c.Conditional","c.Probable","Tetrachoric","HyperGeometric"), 
+  similarities<-matrix(c("matching","Rogers","Gower","Sneath", "Anderberg",
+                         "Jaccard","dice", "antiDice","Ochiai","Kulczynski",
+                         "Hamann", "Yule", "Pearson", "odds", "Russell", "expected", "Haberman", "confidence", "Z",
+                         "coincidences", "relative", "conditional","c.conditional","c.probable","tetrachoric","hyperGeometric"), 
                        nrow=1, dimnames=list("Similarity",
                                              c("M","T","G","S","B","J","D","A","O","K","N","Y","P","C","R","E","H","L","Z","F","X","I","U","Q","V","W")))
   return(similarities[,method])
@@ -152,13 +152,13 @@ sim<-function (input,procedures="Jaccard",distance=FALSE, minimum=1, maximum=Inf
   d=N-a-b-c
   s<-new.env()
   
-  if ("M" %in% method) s$Matching <- distant((a + d)/(a + b + c + d),distance)
+  if ("M" %in% method) s$matching <- distant((a + d)/(a + b + c + d),distance)
   if ("T" %in% method) s$Rogers <- distant((a + d)/(a + 2 * (b + c) + d), distance)
   if ("G" %in% method) s$Gower <- distant(a * d/sqrt((a + b) * (a + c) * (d + b) * (d + c)),distance)
   if ("S" %in% method) s$Sneath <- distant(2*(a+d)/(2*(a+d)+(b+c)),distance)
   if ("B" %in% method) s$Anderberg <-distant((a/(a+b)+a/(a+c)+d/(c+d)+d/(b+d))/4,distance)
   if ("J" %in% method) s$Jaccard <- distant(a/(a + b + c),distance)
-  if ("D" %in% method) s$Dice <- distant(2 * a/(2 * a + b + c), distance)
+  if ("D" %in% method) s$dice <- distant(2 * a/(2 * a + b + c), distance)
   if ("A" %in% method) s$antiDice <- distant(a/(a + 2 * (b + c)),distance)
   if ("O" %in% method) s$Ochiai <- distant(a/sqrt((a + b) * (a + c)),distance)
   if ("K" %in% method) s$Kulczynski <- distant((a/(a+b)+a/(a+c))/2, distance)
@@ -166,36 +166,40 @@ sim<-function (input,procedures="Jaccard",distance=FALSE, minimum=1, maximum=Inf
   if ("Y" %in% method) s$Yule <- distant((a*d-b*c)/(a*d+b*c))
   if ("P" %in% method) s$Pearson <- distant((a * d - b * c)/sqrt((a + b) * (a + c) * (b + d) *  (d + c)),distance)
   if ("V" %in% method) {
-    s$Tetrachoric<-((a*d/(b*c))^(pi/4)-1)/((a*d/(b*c))^(pi/4)+1)
-    diag(s$Tetrachoric)<-1
+    s$tetrachoric<-((a*d/(b*c))^(pi/4)-1)/((a*d/(b*c))^(pi/4)+1)
+    diag(s$tetrachoric)<-1
   }
   if ("C" %in% method) {
-    s$Odds <- (pmax(a,.5)*pmax(d,.5))/(pmax(b,.5)*pmax(c,.5))
-    if (distance) s$Odds<--s$Odds
-    diag(s$Odds)<-ifelse(distance,-Inf,Inf)
+    s$odds <- (pmax(a,.5)*pmax(d,.5))/(pmax(b,.5)*pmax(c,.5))
+    if (distance) s$odds<--s$odds
+    diag(s$odds)<-ifelse(distance,-Inf,Inf)
   }
   if ("R" %in% method) {
     s$Russell <- distant(a/(a + b + c + d),distance)
     if (!distance) diag(s$Russell) <- 1
   }
-  if ("E" %in% method) s$Expected <- (a+b)*(a+c)/N
+  if ("E" %in% method) s$expected <- (a+b)*(a+c)/N
   if ("L" %in% method) {
     signo<-2*(((a+b)*(a+c)/N)<a)-1
-    s$Confidence <- pmax((a+b)*(a+c)/N+signo*1.64*sqrt(((a+b)*(a+c)/N)*((1-(a+b)/N)*(1-(a+c)/N))),0)
-    diag(s$Confidence) <- diag(a)
+    s$confidence <- pmax((a+b)*(a+c)/N+signo*1.64*sqrt(((a+b)*(a+c)/N)*((1-(a+b)/N)*(1-(a+c)/N))),0)
+    diag(s$confidence) <- diag(a)
   }
   if ("H" %in% method) {
     s$Haberman <- sqrt(N) * (a * d - b * c)/sqrt((a + b) * (a + c) * (b + d) *  (d + c))
+    s$Haberman[is.na(s$Haberman)]<-sqrt(N)
     if (distance) s$Haberman<-(N+s$Haberman)/(2*N)
   }
-  if ("Z" %in% method) s$Z <- 1-pt(sqrt(N) * (a * d - b * c)/sqrt((a + b) * (a + c) * (b + d) *  (d + c)),N)
-  if ("W" %in% method) s$HyperGeometric<-1-phyper(a-1,pmin((a+b),(a+c)),N-pmin((a+b),(a+c)),pmax((a+b),(a+c)))
-  if ("F" %in% method) s$Coincidences <- a
-  if ("X" %in% method) s$Relative <- a/N*100
-  if ("I" %in% method) s$Conditional <-t(a/diag(a)*100)
+  if ("Z" %in% method) {
+    s$Z <- 1-pt(sqrt(N) * (a * d - b * c)/sqrt((a + b) * (a + c) * (b + d) *  (d + c)),N)
+    s$Z[is.na(s$Z)]<-0
+  }
+  if ("W" %in% method) s$hyperGeometric<-1-phyper(a-1,pmin((a+b),(a+c)),N-pmin((a+b),(a+c)),pmax((a+b),(a+c)))
+  if ("F" %in% method) s$coincidences <- a
+  if ("X" %in% method) s$relative <- a/N*100
+  if ("I" %in% method) s$conditional <-t(a/diag(a)*100)
   if ("U" %in% method) {
     Z <- 1-pt(sqrt(N) * (a * d - b * c)/sqrt((a + b) * (a + c) * (b + d) *  (d + c)),N)
-    s$c.Conditional<-matrix(ifelse(b+c==0, 8,
+    s$c.conditional<-matrix(ifelse(b+c==0, 8,
                              ifelse(c==0,  7,                        
                               ifelse(b==0,  6,
                                ifelse(Z<.001,5,
@@ -206,7 +210,7 @@ sim<-function (input,procedures="Jaccard",distance=FALSE, minimum=1, maximum=Inf
   }
   if ("Q" %in% method) {
     Z <- 1-pt((a/(a+c)-.50)/(1/(2*sqrt(a+c))),(a+c))
-    s$c.Probable<-matrix(ifelse(b+c==0, 8,
+    s$c.probable<-matrix(ifelse(b+c==0, 8,
                                 ifelse(c==0,   7,                        
 #                                ifelse(b==0,  "Subtotal",
                                   ifelse(Z<.001, 5,
@@ -241,17 +245,33 @@ lower<-function(matrix,decimals=3) { # Add an option to hiden diagonal
 
 # List of coincidences
 
-coin<-function(incidences,minimum=1, maximum=nrow(incidences), sort=FALSE, decreasing=TRUE) {
+coin<-function(incidences,minimum=1, maximum=nrow(incidences), sort=FALSE, decreasing=TRUE,
+               total=FALSE, subsample=FALSE, weight=NULL) {
   incidences<-na.omit(incidences)
-  n<-nrow(incidences)
-  names(n)<-"n"
-  f<-crossprod(as.matrix(incidences))
-  if (is.null(colnames(f))) dimnames(f)<-list(paste("X",1:ncol(f),sep=""),paste("X",1:ncol(f),sep=""))
-  d<-diag(f)
-  if (sort) d<-sort(d,decreasing=decreasing)
-  S<-names(d[(d>=minimum &  d<maximum)])
-  if (length(S)>0) structure(list(n=n,f=f[S,S]),class="coin")
-  else cat("No variables left")
+  if (subsample){
+    vector<-apply(incidences,1,sum)
+    incidences<-incidences[vector>0,]
+  }
+  if (total & is.null(weight)) incidences<-data.frame(Total=1,incidences)
+  if (all(incidences==0 | incidences==1)) {
+    n<-nrow(incidences)
+    names(n)<-"n"
+    if (is.null(weight)) f<-crossprod(as.matrix(incidences))
+    else {
+      if (length(weight)!=dim(incidences)[1]) warning("weight has not the appropiate length!")
+        f<-crossprod(t(crossprod(as.matrix(incidences),diag(weight,length(weight)))),as.matrix(incidences))
+        n<-maximum<-sum(weight)
+    }    
+    if (is.null(colnames(f))) dimnames(f)<-list(paste("X",1:ncol(f),sep=""),paste("X",1:ncol(f),sep=""))
+    d<-diag(f)
+    if (sort) d<-sort(d,decreasing=decreasing)
+    S<-names(d[(d>=minimum &  d<=maximum)])
+    if (total & is.null(weight)) S<-c("Total",S)
+    if (total & !is.null(weight)) warning("total cannot be applied in weighted tables")
+    if (length(S)>0) structure(list(n=n,f=f[S,S]),class="coin")
+    else cat("No variables left")
+  }
+  else warning("All data in incidence matrix has to be dichotomous.")
 }
 print.coin<-function(x, ...) {
   cat("n= ",x$n,"\n",sep="")
@@ -259,10 +279,19 @@ print.coin<-function(x, ...) {
 }
 print <- function(x, ...) UseMethod("print")
 # Transform a coin object into a data frame with name and frequency
-as.nodes<-function(C){
-  if (class(C)=="coin") data.frame(name=as.character(colnames(C$f)),frequency=diag(C$f))
-  else if (min(c("source", "target") %in% names(C))) data.frame(name=sort(union(C$source,C$target)))
+as.nodes<-function(C,frequency=TRUE,percentages=FALSE,language="en"){
+  if (class(C)=="coin") {
+    if (!percentages & frequency) nodes<-data.frame(name=as.character(colnames(C$f)),frequency=diag(C$f))
+    else if (!frequency) nodes<-data.frame(name=as.character(colnames(C$f)),"%"=diag(C$f)/C$n*100,check.names=FALSE)
+    else nodes<-data.frame(name=as.character(colnames(C$f)),frequency=diag(C$f), "%"=diag(C$f)/C$n*100,check.names=FALSE)
+    if (language=="es") {
+       colnames(nodes)[colnames(nodes)=="frequency"]<-"frecuencia"
+       colnames(nodes)[colnames(nodes)=="name"]<-"nombre"
+    }       
+  }
+  else if (min(c("source", "target") %in% names(C))) nodes<-data.frame(name=sort(union(C$source,C$target)))
   else warning("Is neither a coin object or an edge data frame")
+  return(nodes)
 }
 
 asIgraph <- function(net){
@@ -298,7 +327,7 @@ asIgraph <- function(net){
   return(g)
 }
 
-expectedList<- function(data, names=NULL, min=1) {
+expectedList<- function(data, names=NULL, min=1, confidence=FALSE) {
   if (class(data)!="coin") stop("Error: input must be a coin object")
   if (!is.null(names)) colnames(data$f)<-rownames(data$f)<-names
   a<-data$f
@@ -308,8 +337,19 @@ expectedList<- function(data, names=NULL, min=1) {
   data$e<-(a+b)*(a+c)/(a+b+c+d)
   E<-edgeList(data$e,"shape",min=0,max=Inf)
   F<-edgeList(data$f,"shape",min=0,max=Inf)
-  dataL<-cbind(F,E[,3])[F[,3]>=min,]
-  colnames(dataL)[3:4]<-c("coincidences","expected")
+  if (!confidence) {
+    dataL<-cbind(F,E[,3])[F[,3]>=min,]
+    colnames(dataL)[3:4]<-c("coincidences","expected")
+  }
+  else {
+    N<-a+b+c+d
+    signo<-2*(((a+b)*(a+c)/N)<a)-1
+    data$l <- pmax((a+b)*(a+c)/N+signo*1.64*sqrt(((a+b)*(a+c)/N)*((1-(a+b)/N)*(1-(a+c)/N))),0)
+    diag(data$l) <- diag(a)
+    L<-edgeList(data$l,"shape",min=-Inf,max=Inf)
+    dataL<-cbind(F,E[,3],L[,3])[F[,3]>=min,]
+    colnames(dataL)[3:5]<-c("coincidences","expected","confidence")
+  }
   return(dataL)
 }
 

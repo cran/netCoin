@@ -8,13 +8,13 @@ Dichotomize.
 This converts factor(s) o character(s) column(s) of a data frame into a set of dichotomous columns. Their names will correspond to the labels or text of every category.
 }
 \usage{
-dichotomize(Data, variables,
+dichotomize(data, variables,
             sep = "", min = 1, length = 0, values = NULL,
             sparse = FALSE, add = TRUE, sort = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{Data}{a data frame with a factor or textual column which can be simple (only one value for each scenario) or multiple if components are delinited with a separator.}
+  \item{data}{a data frame with a factor or textual column which can be simple (only one value for each scenario) or multiple if components are delinited with a separator.}
   \item{variables}{vector of column names that have to be converted into dichotomous vectors.}
   \item{sep}{vector of characters used to divide columns with multiple events. If this separator is "", every unique cell of every column is converted into a dichotomus data frame's column.}
   \item{min}{convert to dichotomous vectors only label or text that has a frequency less or equal to the value of this parameter. If the value of min is between 0 and 1, its value is interpreted as a percentage}
