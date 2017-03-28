@@ -2,17 +2,17 @@
 \alias{cbarCoin}
 \title{Networked coincidences.}
 \description{
-\code{cbarCoin} produces a barplot object. 
+\code{cbarCoin} produces a barCoin object. 
 }
 \value{
-Object of class \code{barplot}.
+Object of class \code{barCoin}.
 }
 
 \usage{
 cbarCoin(nodes, links, name = "name", label = NULL, text = NULL,
          incidences = "frequency", coincidences = "coincidences",
          expected = "expected", confidence.interval = NULL,
-         minor = NULL, language = c("en","es"), dir = NULL)
+         note = NULL, language = c("en","es"), dir = NULL)
 }
 \arguments{
 \item{nodes}{a data frame with at least two vectors of names and incidences.}
@@ -24,7 +24,7 @@ cbarCoin(nodes, links, name = "name", label = NULL, text = NULL,
 \item{incidences}{name of the vector with incidences in the nodes data frame.}
 \item{expected}{name of the vector with expected coincidences in the links data frame.}
 \item{confidence.interval}{name of the vector with confidence interval in the links data frame.}
-\item{minor}{lower title of the graph.}
+\item{note}{lower title of the graph.}
 \item{language}{a character vector (es=spanish; en=english).}
 \item{dir}{a "character" string representing the directory where the web files will be saved.}
 }
@@ -37,7 +37,7 @@ frame <- data.frame(A = c("Man; Women", "Women; Women",
                         "Man; Man", "Undet.; Women; Man"))
 data <- dichotomize(frame, "A", sep = "; ")[2:4]
 C <- coin(data) # coincidence matrix
-N <- as.nodes(C) # node data frame
+N <- asNodes(C) # node data frame
 E <- edgeList(C,"frequency","expected") # edge data frame
-cbarCoin(N,E) # barplot object
+cbarCoin(N,E) # barCoin object
 }

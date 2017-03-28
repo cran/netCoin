@@ -1,11 +1,65 @@
 ## Programs to apply net coin analysis
 # Image is a files vector with length and order equal to nrow(nodes). Place as nodes field
 # Batch
+
+allNet<-function(incidences, weight=NULL, subsample=FALSE,
+                 minimum=1, maximum=nrow(incidences), sort=FALSE, decreasing=TRUE,
+                 nodes=NULL, frequency=FALSE, percentages=TRUE,
+                 name="name", label = NULL, ntext = NULL, 
+                 size = "%", color = NULL, shape = NULL, group = NULL, community = NULL, 
+                 procedures="Haberman", criteria="Z", Bonferroni=FALSE,
+                 support=-Inf, minL=-Inf, maxL=Inf,
+                 directed=FALSE, diagonal=FALSE, sortL=NULL, decreasingL=TRUE,
+                 lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
+                 nodeFilter = NULL, linkFilter = NULL,
+                 main = NULL, note = NULL, help = NULL,
+                 layout = NULL, language = "en", 
+                 image = NULL,  dir = NULL,
+                 igraph=FALSE 
+){
+  incidences<-na.omit(incidences)
+  if (all(incidences==0 | incidences==1)) {
+    C<-coin(incidences, minimum, maximum, sort, decreasing, weight=weight, subsample)
+    if (is.null(nodes)) {
+        O<-asNodes(C,frequency,percentages,language)
+        if (language=="es" & name=="name") name<-"nombre"
+    }
+    else O<-nodes
+    E<-edgeList(C, procedures, criteria, Bonferroni, minL, maxL, support, 
+                directed, diagonal, sortL, decreasing)
+    if (!is.null(layout)) {
+      if (class(layout)=="matrix") layout<-layout
+      else { 
+        layout<-layoutControl(layout)
+        xNx<-netCoin(O,E,name=name,weight=lweight)
+        layout<-coords[[layout]](asIgraph(xNx))
+      }
+    }
+    if (!is.null(community)) {
+      commun<-congloControl(community)
+      if (!exists("xNx")) xNx<-netCoin(O,E,name=name,weight=lweight)
+      O$community<-as.character(membership(conglos[[commun]](asIgraph(xNx))))
+      group<-"community"
+    }    
+    xNx<-netCoin(O,E,
+                 name, label, 
+                 size, color, shape, group, ntext, 
+                 lwidth, lweight, lcolor, ltext,
+                 nodeFilter, linkFilter,
+                 main, note, help,
+                 layout, language, 
+                 image,  dir)
+  }
+  else warning("Input is not a dichotomous matrix of incidences")
+  if (igraph) return(asIgraph(xNx))
+  else return(xNx)
+}
+
 netCoin<-function (nodes, links, name="name",
                    label = NULL, size = NULL, color = NULL, shape = NULL, group = NULL, ntext = NULL, 
                    width = NULL, weight = NULL, lcolor = NULL, ltext = NULL,
                    nodeFilter = NULL, linkFilter = NULL,
-                   main = NULL, minor = NULL, help = NULL,
+                   main = NULL, note = NULL, help = NULL,
                    layout = NULL, language = c("en", "es"), 
                    image = NULL,  dir = NULL)
 {
@@ -14,7 +68,7 @@ netCoin<-function (nodes, links, name="name",
 
   # graph options
   if (!is.null(main)) options[["main"]] <- main
-  if (!is.null(minor)) options[["minor"]] <- minor
+  if (!is.null(note)) options[["note"]] <- note
   if (!is.null(help)) options[["help"]] <- help
 
   # node options
@@ -38,19 +92,84 @@ netCoin<-function (nodes, links, name="name",
   if (!is.null(linkFilter))
     links$noShow <- !with(links,eval(parse(text=linkFilter)))
 
-  net <- structure(list(links=links,nodes=nodes,options=options,call=match.call()),class="network")
+  net <- structure(list(links=links,nodes=nodes,options=options,call=match.call()),class="netCoin")
 
   #images
-  if (!is.null(image)) 
-    net <- network.nodeImage(net,nodes[[image]],image)
+  if (!is.null(image)){
+    net$nodes[[image]] <- NULL
+    net <- netNodeImage(net,nodes[[image]],image)
+  }
 
   #layout
   if(!is.null(layout))
-    net <- network.addLayout(net,layout)
+    net <- netAddLayout(net,layout)
 
-  if (!is.null(dir)) network.create(net,dir=dir,language=language)
+  if (!is.null(dir)) netCreate(net,dir=dir,language=language)
   return(net)
 }
+
+# Program to apply nets to correlations
+
+netCorr<-function(variables, weight=NULL,
+                  minimum=-Inf, maximum=Inf, sort=FALSE, decreasing=TRUE,
+                  nodes=NULL, frequency=FALSE, means=TRUE,
+                  name="name", label = NULL, ntext = NULL, 
+                  size = "mean", color = NULL, shape = NULL, group = NULL, community = NULL, 
+                  method="pearson", criteria="p", Bonferroni=FALSE,
+                  minL=0, maxL=Inf,
+                  sortL=NULL, decreasingL=TRUE,
+                  lwidth = "value", lweight = "value", lcolor = NULL, ltext = NULL,
+                  nodeFilter = NULL, linkFilter = NULL,
+                  main = NULL, note = NULL, help = NULL,
+                  layout = NULL, language = "en", 
+                  image = NULL,  dir = NULL,
+                  igraph=FALSE 
+){
+  variables<-na.omit(variables)
+  cases<-nrow(variables)
+  if (criteria=="p" & maxL==Inf)  maxL<-.5
+  if (criteria=="p" & Bonferroni) maxL<-maxL/choose(cases,2)
+  if (is.null(nodes)) {
+    O<-data.frame(name=colnames(variables),
+                  mean=round(apply(variables,2,mean),2),
+                  std=round(sqrt(apply(variables,2,var)),2),
+                  min=apply(variables,2,min),
+                  max=apply(variables,2,max))
+  }
+  else O<-nodes
+  R<-cor(variables[,O[,2]>=minimum & O[,2]<=maximum],method=method)
+  E<-edgeList(R, "shape", min=-1, max=1, directed=FALSE, diagonal=FALSE)
+  E$z<-E$value*sqrt(cases)
+  E$p<-1-pt(E$z,cases-1)
+  E<-E[E[[criteria]]>=minL & E[[criteria]]<=maxL,]
+  if (!is.null(sortL)) E<-E[order((-1*decreasingL+!decreasingL)*E[[sortL]]),]
+  
+  if (!is.null(layout)) {
+    if (class(layout)=="matrix") layout<-layout
+    else { 
+      layout<-layoutControl(layout)
+      xNx<-netCoin(O,E,name=name,weight=lweight)
+      layout<-coords[[layout]](asIgraph(xNx))
+    }
+  }
+  if (!is.null(community)) {
+    commun<-congloControl(community)
+    if (!exists("xNx")) xNx<-netCoin(O,E,name=name,weight=lweight)
+    O$community<-as.character(membership(conglos[[commun]](asIgraph(xNx))))
+    group<-"community"
+  }    
+  xNx<-netCoin(O,E,
+               name, label, 
+               size, color, shape, group, ntext, 
+               lwidth, lweight, lcolor, ltext,
+               nodeFilter, linkFilter,
+               main, note, help,
+               layout, language, 
+               image,  dir)
+  if (igraph) return(asIgraph(xNx))
+  else return(xNx)
+}
+
 
 # Links. See below funcs="shape"
 edgeList <- function(data, procedures="Haberman", criteria="Z", Bonferroni=FALSE, min=-Inf, max=Inf, support=-Inf, 
@@ -273,13 +392,29 @@ coin<-function(incidences,minimum=1, maximum=nrow(incidences), sort=FALSE, decre
   }
   else warning("All data in incidence matrix has to be dichotomous.")
 }
+
 print.coin<-function(x, ...) {
   cat("n= ",x$n,"\n",sep="")
   print(lower(x$f,0))
 }
+
+print.netCoin<-function(x, ...) {
+  cat("Title:",x$options$main,"\n")
+  cat("\nNodes:\n")
+  print(head(x$nodes))
+  if (nrow(x$nodes)>6) cat("...\n")
+  cat("\nLinks:\n")
+  print(head(x$links))
+  if (nrow(x$links)>6) cat("...\n")
+  cat("\n")
+  cat(x$options$note)
+  cat("\n")
+}
+
 print <- function(x, ...) UseMethod("print")
+
 # Transform a coin object into a data frame with name and frequency
-as.nodes<-function(C,frequency=TRUE,percentages=FALSE,language="en"){
+asNodes<-function(C,frequency=TRUE,percentages=FALSE,language="en"){
   if (class(C)=="coin") {
     if (!percentages & frequency) nodes<-data.frame(name=as.character(colnames(C$f)),frequency=diag(C$f))
     else if (!frequency) nodes<-data.frame(name=as.character(colnames(C$f)),"%"=diag(C$f)/C$n*100,check.names=FALSE)
@@ -295,36 +430,39 @@ as.nodes<-function(C,frequency=TRUE,percentages=FALSE,language="en"){
 }
 
 asIgraph <- function(net){
-  nodes <- net$nodes
-  links <- net$links
-  options <- net$options
+  if (class(net)=="netCoin"){
+    nodes <- net$nodes
+    links <- net$links
+    options <- net$options
+
+    g <- graph.empty(0, directed=FALSE)
+
+    for(i in seq_len(nrow(nodes))){
+      attr <- list()
+      if(!is.null(options[["nodeLabel"]]))
+        attr[['label']] <- as.character(nodes[i,options[["nodeLabel"]]])
+      else
+        attr[['label']] <- as.character(nodes[i,options[["nodeName"]]])
+      if(!is.null(options[["nodeColor"]]))
+        attr[['color']] <- as.character(nodes[i,options[["nodeColor"]]])
+      if(!is.null(options[["nodeSize"]]))
+        attr[['size']] <- nodes[i,options[["nodeSize"]]]
+      g <- add.vertices(g, 1, attr = attr)
+    }
   
-  g <- graph.empty(0, directed=FALSE)
+    for(i in seq_len(nrow(links))){
+      edges <- c(which(links[i,'source']==nodes[,net$options$nodeName]),which(links[i,'target']==nodes[,net$options$nodeName]))
+      attr <- list()
+      if(!is.null(options[["linkWidth"]]))
+        attr[['width']] <- links[i,options[["linkWidth"]]]
+      if(!is.null(options[["linkColor"]]))
+        attr[['color']] <- as.character(links[i,options[["linkColor"]]])
+      g <- add.edges(g, edges, attr = attr)
+    }
   
-  for(i in seq_len(nrow(nodes))){
-    attr <- list()
-    if(!is.null(options[["nodeLabel"]]))
-      attr[['label']] <- as.character(nodes[i,options[["nodeLabel"]]])
-    else
-      attr[['label']] <- as.character(nodes[i,options[["nodeName"]]])
-    if(!is.null(options[["nodeColor"]]))
-      attr[['color']] <- as.character(nodes[i,options[["nodeColor"]]])
-    if(!is.null(options[["nodeSize"]]))
-      attr[['size']] <- nodes[i,options[["nodeSize"]]]
-    g <- add.vertices(g, 1, attr = attr)
+    return(g)
   }
-  
-  for(i in seq_len(nrow(links))){
-    edges <- c(which(links[i,'source']==nodes[,net$options$nodeName]),which(links[i,'target']==nodes[,net$options$nodeName]))
-    attr <- list()
-    if(!is.null(options[["linkWidth"]]))
-      attr[['width']] <- links[i,options[["linkWidth"]]]
-    if(!is.null(options[["linkColor"]]))
-      attr[['color']] <- as.character(links[i,options[["linkColor"]]])
-    g <- add.edges(g, edges, attr = attr)
-  }
-  
-  return(g)
+  else warning("Is not a netCoin object")
 }
 
 expectedList<- function(data, names=NULL, min=1, confidence=FALSE) {
@@ -392,3 +530,55 @@ mats2edges<-function(data,list=NULL,criteria=1,min=-Inf,max=Inf,support=-Inf,dir
   else return(NULL)
 }
 
+coords<-list(
+  da=function(...)layout.davidson.harel(...),
+  dr=function(...)layout.drl(...),
+  ci=function(...)layout.circle(...),
+  fr=function(...)layout.fruchterman.reingold(...),
+  ge=function(...)layout.gem(...),
+  gr=function(...)layout.grid(...),
+  ka=function(...)layout.kamada.kawai(...),
+  lg=function(...)layout.lgl(...),
+  md=function(...)layout.mds(...),
+  ra=function(...)layout.random(...),
+  re=function(...)layout.reingold.tilford(...),
+  st=function(...)layout.star(...),
+  su=function(...)layout.sugiyama(...)
+)
+
+conglos<-list(
+  ed=function(...)cluster_edge_betweenness(...),
+  fa=function(...)cluster_fast_greedy(...),
+  la=function(...)cluster_label_prop(...),
+  le=function(...)cluster_leading_eigen(...),
+  lo=function(...)cluster_louvain(...),
+  op=function(...)cluster_optimal(...),
+  sp=function(...)cluster_spinglass(...),
+  wa=function(...)cluster_walktrap(...)
+)
+
+layoutControl<-function(layout){
+  if (!is.null(layout)){
+    layouts<-c("da","dr","ci","fr","ge","gr","ka","lg","md","ra","re","st","su")
+    layout<-(tolower(substr(layout,1,2)))
+    if (layout %in% layouts) return (layout)
+    else {
+      text<-paste(layout, "is not a valid layout")
+      warning(text)
+      return(NULL)
+    }
+  }
+}
+
+congloControl<-function(conglo){
+  if (!is.null(conglo)){
+    conglos<-c("ed","fa","la","le","lo","op","sp","wa")
+    conglo<-(tolower(substr(conglo,1,2)))
+    if (conglo %in% conglos) return (conglo)
+    else {
+      text<-paste(conglo, "is not a valid layout")
+      warning(text)
+      return(NULL)
+    }
+  }
+}

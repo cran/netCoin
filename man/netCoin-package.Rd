@@ -65,7 +65,7 @@ To obtain similarity and other measures matrices, the function \code{\link{sim}}
 1 \tab X1     \tab X3     \tab 0.8660254 \tab 0.22509243\cr
 2 \tab X2     \tab X4     \tab 1.7320508 \tab 0.09084506\cr 
 }
-In order to make a graph, two data frames are needed: a nodes data frames with names and other nodes attributes (see \code{\link{as.nodes}}) and an edge data frame (see \code{\link{edgeList}}). For more information go to \code{\link{netCoin}}.
+In order to make a graph, two data frames are needed: a nodes data frames with names and other nodes attributes (see \code{\link{asNodes}}) and an edge data frame (see \code{\link{edgeList}}). For more information go to \code{\link{netCoin}}.
 }
 % \section{Introduction}{Introduction example}
 \section{Author}{Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}

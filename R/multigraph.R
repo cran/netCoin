@@ -8,11 +8,11 @@ for(i in seq_along(multi)){
   graph <- multi[[i]]
   gClass <- class(graph)
   jsongraph <- "{}"
-  if(gClass == "network")
+  if(gClass == "netCoin")
     jsongraph <- networkJSON(graph)
-  if(gClass == "timeline")
+  if(gClass == "timeCoin")
     jsongraph <- timelineJSON(graph)
-  if(gClass == "barplot")
+  if(gClass == "barCoin")
     jsongraph <- barplotJSON(graph)
   json[i] <- paste0('"',multinames[i],'":["',gClass,'",',jsongraph,']')
 }
@@ -21,7 +21,7 @@ return(json)
 }
 
 #create html wrapper for multigraph
-multigraph.create <- multinet.create <- function(..., language = c("en","es"), dir = "MultiGraph"){
+multigraphCreate <- function(..., language = c("en","es"), dir = "MultiGraph"){
 multi <- list(...)
 if(language[1]=="es")
   language <- "es.js"

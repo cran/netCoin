@@ -20,7 +20,7 @@ Data frame with the attributes of the events of dice.
 \source{
 data(dice)
 coin.dice<-coin(dice)
-as.nodes(coin.dice)
+asNodes(coin.dice)
 }
 \references{
 See \code{\link{dice}}.

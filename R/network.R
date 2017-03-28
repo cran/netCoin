@@ -29,7 +29,7 @@ return(toJSON(json))
 }
 
 #start a network graph
-network.start <- function(nodes,links,name="name",main=NULL,minor=NULL,help=NULL){
+netStart <- function(nodes,links,name="name",main=NULL,note=NULL,help=NULL){
 
 links <- data.frame(source = links[,1],target = links[,2])
 nodes <- data.frame(nodes)
@@ -37,16 +37,16 @@ names(nodes) <- name
 options <- list(nodeName=name)
 if(!is.null(main))
   options$main <- main
-if(!is.null(minor))
-  options$minor <- minor
+if(!is.null(note))
+  options$note <- note
 if(!is.null(help))
   options$help <- help
 
-structure(list(links = links, nodes = nodes, options = options, call = match.call()), class = "network")
+structure(list(links = links, nodes = nodes, options = options, call = match.call()), class = "netCoin")
 }
 
 # add link attributes
-network.addLinkAttr <- function(net,values,source="source",target="target",width=NULL,weight=NULL,color=NULL,text=NULL){
+netAddLinkAttr <- function(net,values,source="source",target="target",width=NULL,weight=NULL,color=NULL,text=NULL){
 if(nrow(net$links)>0){
   net$links <- merge(net$links,values,by.x=c("source","target"),by.y=c(source,target),all.x=TRUE,sort=FALSE)
   if(!is.null(width))
@@ -64,7 +64,7 @@ return(net)
 } 
 
 # add node attributes
-network.addNodeAttr <- function(net,values,name="name",label=NULL,group=NULL,size=NULL,color=NULL,shape=NULL,text=NULL){
+netAddNodeAttr <- function(net,values,name="name",label=NULL,group=NULL,size=NULL,color=NULL,shape=NULL,text=NULL){
 net$nodes <- merge(net$nodes,values,by.x=net$options$nodeName,by.y=name,all.x=TRUE,sort=FALSE)
 if(!is.null(label))
   net$options[["nodeLabel"]] <- label
@@ -82,7 +82,7 @@ return(net)
 }
 
 # add images to nodes
-network.nodeImage <- function(net,image,name="images"){
+netNodeImage <- function(net,image,name="images"){
   if(length(image)==nrow(net$nodes)){
     net$images <- as.vector(image)
     net$options[["nodeItem"]] <- "image"
@@ -93,7 +93,7 @@ network.nodeImage <- function(net,image,name="images"){
 }
 
 # add pie charts to nodes
-network.nodePie <- function(net,pie){
+netNodePie <- function(net,pie){
   if(nrow(pie)==nrow(net$nodes)){
     net$nodes[["pie"]] <- apply(data.matrix(pie),1,function(x) paste0("[",paste0(x,collapse=","),"]"))
     net$options[["nodeItem"]] <- "pie"
@@ -104,7 +104,7 @@ network.nodePie <- function(net,pie){
 }
 
 # add layout
-network.addLayout <- function(net,layout){
+netAddLayout <- function(net,layout){
   if(nrow(layout)==nrow(net$nodes)){
     net$options[["stopped"]] <- TRUE
     net$nodes[["x"]] <- layout[,1]
@@ -116,7 +116,7 @@ network.addLayout <- function(net,layout){
 }
 
 # apply a filter to nodes
-network.addNodeFilter <- function(net,...){
+netAddNodeFilter <- function(net,...){
   filter <- list(...)
   filter <- paste0("(net$nodes$",filter,")",collapse="&")
   net$nodes$noShow <- !eval(parse(text=filter))
@@ -124,7 +124,7 @@ network.addNodeFilter <- function(net,...){
 }
 
 # apply a filter to links
-network.addLinkFilter <- function(net,...){
+netAddLinkFilter <- function(net,...){
   filter <- list(...)
   filter <- paste0("(net$links$",filter,")",collapse="&")
   net$links$noShow <- !eval(parse(text=filter))
@@ -133,13 +133,13 @@ network.addLinkFilter <- function(net,...){
 
 #copy images to net graph
 images2net <- function(images,dir){
-  dir.create(paste(dir,"images",sep="/"), showWarnings = FALSE) 
+  dir.create(paste(dir,"images",sep="/"), showWarnings = FALSE)
   file.copy(images, paste(dir, "images", sep = "/"))
   return(sapply(strsplit(images,"/"),function(x) paste("images",x[length(x)],sep="/")))
 }
 
 #create html wrapper for network graph
-network.create <- function(net, language = c("en","es"), dir = "Network"){
+netCreate <- function(net, language = c("en","es"), dir = "netCoin"){
 if(language[1]=="es")
   language <- "es.js"
 else
@@ -152,23 +152,31 @@ createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip
 }
 
 #meta function
-network.all <- function(nodes,links,name="name",source="source",target="target",layout=NULL,language=c("en","es"),dir="Network"){
-net <- network.start(nodes[,name],links[,c(source,target)],name)
-net <- network.addLinkAttr(net,links,source=source,target=target)
-net <- network.addNodeAttr(net,nodes,name=name)
-if(!is.null(layout))
-  net <- network.addLayout(net,layout)
-network.create(net, language, dir)
+netAll <- function(nodes,links,name="name",source="source",target="target",layout=NULL){
+  net <- netStart(nodes[,name],links[,c(source,target)],name)
+  net <- netAddLinkAttr(net,links,source=source,target=target)
+  net <- netAddNodeAttr(net,nodes,name=name)
+  if(!is.null(layout))
+    net <- netAddLayout(net,layout)
+  return(net)
 }
 
 #meta function for igraph objects
-network.fromIgraph <- function(G,layout=NULL,language=c("en","es"),dir="Network"){
-nodes <- data.frame(name=V(G)$name)
-links <- get.edgelist(G)
-links <- data.frame(source=links[,1],target=links[,2])
-for(i in list.vertex.attributes(G))
-  nodes[[i]] <- get.vertex.attribute(G,i)
-for(i in list.edge.attributes(G))
-  links[[i]] <- get.edge.attribute(G,i)
-network.all(nodes,links,layout=layout,language=language,dir=dir)
+fromIgraph <- function(G, layout=NULL, language = c("en","es"), dir=NULL){
+  if (class(G)=="igraph"){
+    nodeNames <- V(G)$name
+    if(is.null(nodeNames))
+      nodeNames <- as.character(seq_along(V(G)))
+    nodes <- data.frame(name=nodeNames)
+    links <- get.edgelist(G)
+    links <- data.frame(source=links[,1],target=links[,2])
+    for(i in list.vertex.attributes(G))
+      nodes[[i]] <- get.vertex.attribute(G,i)
+    for(i in list.edge.attributes(G))
+      links[[i]] <- get.edge.attribute(G,i)
+    net <- netAll(nodes,links,layout=layout)
+    if (!is.null(dir)) netCreate(net,language=language,dir=dir)
+    return(net)
+  }
+  else warning("Is not an igraph object")
 }

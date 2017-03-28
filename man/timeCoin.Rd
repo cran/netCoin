@@ -2,15 +2,15 @@
 \alias{timeCoin}
 \title{Networked coincidences.}
 \description{
-\code{timeCoin} produces a timeline object. 
+\code{timeCoin} produces a timeCoin object. 
 }
 \value{
-Object of class \code{timeline}.
+Object of class \code{timeCoin}.
 }
 
 \usage{
 timeCoin(nodes, name = "name", start = "start", end = "end",
-         group = NULL, text = NULL, main = NULL, minor = NULL,
+         group = NULL, text = NULL, main = NULL, note = NULL,
          language = c("en","es"), dir = NULL)
 }
 \arguments{
@@ -21,7 +21,7 @@ timeCoin(nodes, name = "name", start = "start", end = "end",
 \item{group}{name of the vector with groups in the nodes data frame.}
 \item{text}{name of the vector with html text in the nodes data frame.}
 \item{main}{upper title of the graph.}
-\item{minor}{lower title of the graph.}
+\item{note}{lower title of the graph.}
 \item{language}{a character vector (es=spanish; en=english).}
 \item{dir}{a "character" string representing the directory where the web files will be saved.}
 }

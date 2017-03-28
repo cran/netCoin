@@ -3,47 +3,39 @@ wwwDirectory = function(){
   return(path)
 }
 
-
 createHTML <- function(directory, styles, dependencies, json){
-  if(dir.exists(directory))
+  if(file.exists(directory))
     unlink(directory, recursive = TRUE)
-  if(dir.exists(directory)){
-    warning("The directory already exists and can not be deleted. Make sure the files are not locked.")
-  }else{
-    dir.create(directory)
-    if(dir.exists(directory)){
-      if(length(dependencies))
-        dir.create(paste(directory, "scripts", sep = "/"))
-      if(length(styles))
-        dir.create(paste(directory, "styles", sep = "/"))
-      www <- wwwDirectory()
-      html <- scan(file = paste(www, "template.html", sep = "/"), what = character(0), sep = "\n", quiet = TRUE)
-      name <- strsplit(directory,"/")[[1]]
-      name <- name[length(name)]
-      html <- sub("titulo", name, html)
+  dir.create(directory)
 
-      scripts <- "<!--scripts-->";
-      for(i in dependencies){
-        scripts <- paste(scripts, paste0("<script src=\"scripts/",i,"\"></script>"), sep = "\n");
-        file.copy(paste(www, i, sep = "/"), paste(directory, "scripts", sep = "/"))
-      }
-      html <- sub("<!--scripts-->", scripts, html)
+  www <- wwwDirectory()
+  html <- scan(file = paste(www, "template.html", sep = "/"), what = character(0), sep = "\n", quiet = TRUE)
+  name <- strsplit(directory,"/")[[1]]
+  name <- name[length(name)]
+  html <- sub("titulo", name, html)
 
-      scripts <- "<!--scripts-->";
-      for(i in styles){
-        scripts <- paste(scripts, paste0("<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/",i,"\"></link>"), sep = "\n");
-        file.copy(paste(www, i, sep = "/"), paste(directory, "styles", sep = "/"))
-      }
-      html <- sub("<!--scripts-->", scripts, html)
-
-      if(is.function(json))
-        json <- json()
-      html <- sub("<!--json-->",paste0('<script type="application/json" id="data">',json,'</script>'),html)
-      write(html, paste(directory, "index.html", sep = "/"))
-    }else{
-      warning("Can not create the directory.")
-    }
+  if(length(dependencies))
+    dir.create(paste(directory, "scripts", sep = "/"),FALSE)
+  scripts <- "<!--scripts-->";
+  for(i in dependencies){
+    scripts <- paste(scripts, paste0("<script src=\"scripts/",i,"\"></script>"), sep = "\n");
+    file.copy(paste(www, i, sep = "/"), paste(directory, "scripts", sep = "/"))
   }
+  html <- sub("<!--scripts-->", scripts, html)
+
+  if(length(styles))
+    dir.create(paste(directory, "styles", sep = "/"),FALSE)
+  scripts <- "<!--scripts-->";
+  for(i in styles){
+    scripts <- paste(scripts, paste0("<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/",i,"\"></link>"), sep = "\n");
+    file.copy(paste(www, i, sep = "/"), paste(directory, "styles", sep = "/"))
+  }
+  html <- sub("<!--scripts-->", scripts, html)
+
+  if(is.function(json))
+    json <- json()
+  html <- sub("<!--json-->",paste0('<script type="application/json" id="data">',json,'</script>'),html)
+  write(html, paste(directory, "index.html", sep = "/"))
 }
 
 
