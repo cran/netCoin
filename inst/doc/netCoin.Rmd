@@ -1,6 +1,6 @@
 ---
 title: "netCoin package"
-author: "Modesto Escobar, Luis Martínez-Uribe, Carlos Prieto and David Barrios (University of Salamanca)"
+author: "Modesto Escobar, Luis Martinez-Uribe, Carlos Prieto and David Barrios (University of Salamanca)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >

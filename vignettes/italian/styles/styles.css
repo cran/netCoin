@@ -1,0 +1,201 @@
+body {
+  font-family: sans-serif;
+  font-size: 10px;
+  color: #333;
+}
+
+a {
+  color: #47c0c0;
+}
+ul {
+  list-style-type: none;
+  background: #fff;
+}
+button, input, select {
+  border: solid 1px #aaa;
+  margin: 2px;
+  font-family: sans-serif;
+  font-size: 10px;
+  color: #333;
+  background-color: #ddd;
+}
+select {
+  background-color: #fff;
+}
+table {
+  color: #444;
+  border-collapse: collapse;
+} 
+td, th {
+  border: solid 0px #fff;
+  padding: 4px;
+} 
+tr.selected {
+  background-color: #fffacd !important;
+}
+tr:nth-child(even) {
+  background-color: #eee;
+}
+tr:nth-child(odd) {
+  background-color: #fff;
+}
+th {
+  background-color: #ddd;
+  padding: 6px;
+  text-align: left;
+}
+.tables {
+  background-color: #f5f5f5;
+  padding: 6px 10px;
+}
+.tables h2 {
+  font-size: 16px;
+  margin: 0 10px;
+  padding-top: 10px;
+}
+.tables div.nodes,
+.tables div.links {
+  margin: 10px;
+}
+.tables table {
+  cursor: initial;
+  max-width: 99%;
+}
+.tables td {
+  white-space: nowrap;
+}
+img.icon {
+  cursor: pointer;
+  float: right;
+  margin: 3px;
+}
+.selectButton{
+  padding: 5px 10px;
+}
+.selectButton>div{
+  border-radius:3px;
+  background:#ddd;
+  border:solid 1px #aaa;
+  padding:2px 8px;
+  color:#333;
+  display:inline-block;
+  margin:0 5px 5px 0;
+  cursor:pointer;
+}
+div.main {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 8px;
+}
+div.minor {
+  font-size: 18px;
+  padding: 10px 20px;
+}
+.sidebar {
+  width: 175px;
+  margin-left: 10px;
+}
+.sidebar h2 {
+  margin: 0 0 6px 2px;
+  color: #bbb;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.sidebar h3 {
+  margin: 0 0 4px 2px;
+  color: #666;
+  font-size: 12px;
+}
+.sidebar h4 {
+  margin: 0 0 2px 2px;
+  font-size: 10px;
+}
+.sidebar svg {
+  margin-left: -8px;
+}
+.subSidebar {
+  width: 88%;
+  background-color: #f5f5f5;
+  padding: 6px 6%;
+  margin: 10px 0%;
+}
+.subSidebar>div {
+  margin-bottom: 6px;
+}
+.subSidebar select {
+  width: 97%;
+}
+.subSidebar button {
+  width: 72px;
+  overflow: hidden;
+}
+textarea[name=query] {
+  font-family: monospace;
+  width: 87%; resize: none;
+  margin: 0 1.4%;
+}
+.panel {
+  position: absolute;
+  top: 0px;
+  left: 190px;
+}
+div.window {
+  font-size: 14px;
+}
+div.topbar {
+  margin: 10px;
+  background-color: #f5f5f5;
+  padding: 6px 10px;
+}
+.topbar h3 {
+  display: inline;
+  padding-right: 4px;
+  color: #999;
+  font-size: 12px;
+}
+.topbar select {
+  margin-right: 20px;
+}
+ul.picker>li{
+  cursor: pointer;
+  width: 80px;
+  margin: 5px 0;
+}
+
+/* svg buttons and brush */
+.close-button {
+  background: #fff;
+  font-size: 20px;
+  width: 17px;
+  height: 17px;
+  border-radius: 13px;
+  text-align: center;
+  cursor: pointer;
+}
+svg .buttons rect,
+svg .handle {
+  fill: #888;
+  stroke: #666;
+  stroke-width: 1.5px;
+  cursor: pointer;
+}
+svg .buttons text {
+  pointer-events: none;
+  stroke-width: 0.5px;
+  font-size: 10px;
+  fill: #444;
+}
+svg .axis.brushSlider .domain {
+  stroke: #666;
+  stroke-width: 4px;
+  stroke-linecap: round;
+}
+svg .brush.net .extent {
+  fill-opacity: .1;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+svg .brushSlider text {
+  font: 10px sans-serif;
+}
