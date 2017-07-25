@@ -47,5 +47,31 @@ window.onload = function(){
     case 'timeCoin':
       timeline(json[1]);
       break;
+    case 'iFrame':
+      displayIframe(json[1]);
+      break;
   }
 }
+
+function displayIframe(url){
+
+  var vp = viewport(),
+      height = vp.height - 60;
+
+  var body = d3.select('body');
+
+  var topBar = body.append("div")
+    .attr("class","topbar")
+
+  topBar.append("h3").text(texts.netselection + ":")
+  multiGraph.graphSelect(topBar);
+
+  body.append("iframe")
+    .attr("src",url+"/index.html")
+    .attr("width","100%")
+    .attr("height",height)
+    .attr("frameborder",0)
+    .attr("marginwidth",0)
+    .attr("marginheight",0)
+}
+

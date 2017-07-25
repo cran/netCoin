@@ -15,7 +15,7 @@ netCoin(nodes, links, name = "name", label = NULL, size = NULL,
         width = NULL, weight = NULL, lcolor = NULL, ltext = NULL,
         nodeFilter = NULL, linkFilter = NULL,
         main = NULL, note = NULL, help = NULL, layout = NULL,
-        language = c("en","es"), image = NULL, dir = NULL)
+        language = c("en","es"), image = NULL, dir = NULL, show = TRUE)
 }
 \arguments{
 \item{nodes}{a data frame with at least one vector of names.}
@@ -40,6 +40,7 @@ netCoin(nodes, links, name = "name", label = NULL, size = NULL,
 \item{layout}{a matrix with two columns.}
 \item{language}{a character vector (es=spanish; en=english).}
 \item{dir}{a "character" string representing the directory where the web files will be saved.}
+\item{show}{a logical value true if the graph is to be shown. Default = TRUE.}
 }
 \author{
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}

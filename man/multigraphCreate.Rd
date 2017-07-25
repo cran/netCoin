@@ -9,14 +9,15 @@ The function creates a folder in your computer with an HTML document named index
 }
 
 \usage{
-multigraphCreate(..., language = c("en","es"), dir = "MultiGraph")
+multigraphCreate(..., language = c("en","es"), dir = "MultiGraph", show = TRUE)
 }
 \arguments{
-\item{...}{coin graphs (netCoin, barCoin, timeCoin) objects.}
+\item{...}{coin graphs (netCoin, barCoin, timeCoin) objects or html "directories".}
 
 \item{language}{a character vector.}
 
 \item{dir}{a "character" string representing the directory where the graph will be saved.}
+\item{show}{a logical value true if the graph is to be shown. Default = TRUE.}
 }
 \description{
 \code{multigraphCreate} produce an interactive multi graph.
@@ -32,8 +33,8 @@ E <- edgeList(C,c("frequency","expected","haberman")) # edge data frame
 bC<- barCoin(N,E) # barCoin object
 cC<- cbarCoin(N,E) # barCoin object
 nC<- netCoin(N,E) # netCoin object
-multigraphCreate("Bar graph"=bC,
-                  "Conditional bar graph"=cC, 
+multigraphCreate("Bar graph" = bC,
+                  "Conditional bar graph" = cC, 
                   "Net graph"=nC, 
-                  dir="./example") # See ./example/index.html file
+                  dir="./example", show = FALSE) # See ./example/index.html file
 }

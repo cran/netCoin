@@ -23,7 +23,7 @@ netCorr(variables, weight=NULL,
                    nodeFilter = NULL, linkFilter = NULL,
                    main = NULL, note = NULL, help = NULL,
                    layout = NULL, language = "en", 
-                   image = NULL,  dir = NULL,
+                   image = NULL,  dir = NULL, show = TRUE,
                    igraph=FALSE 
                    )
 }
@@ -66,6 +66,7 @@ netCorr(variables, weight=NULL,
 \item{image}{name of the vector with image files in the nodes data frame.}
 \item{dir}{a "character" string representing the directory where the web files will be saved.}
 \item{igraph}{Produces an igraph object instead of a netCoin object if TRUE}
+\item{show}{a logical value true if the graph is to be shown. Default = TRUE.}
 }
 \author{
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}

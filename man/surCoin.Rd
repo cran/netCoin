@@ -1,31 +1,35 @@
-\name{allNet}
-\alias{allNet}
-\title{Networked coincidences from incidences data.}
+\name{surCoin}
+\alias{surCoin}
+\title{Networked coincidences from a data frame.}
 \description{
-\code{allNet} produces a network object of coincidences from a data frame or a matrix with dichotomous values. 
+\code{surCoin} produces a network object of coincidences from a data frame converting variables into dichotomies. 
 }
 \value{
 This function creates a netCoin object (or igraph) and, if stated, a folder in the computer with an HTML document named index.html which contains the produced graph. This file can be directly opened with your browser and sent to a web server to work properly.
 }
 
 \usage{
-allNet  (incidences, weight = NULL, subsample = FALSE,
-         minimum = 1, maximum = nrow(incidences), sort = FALSE, decreasing = TRUE,
-         nodes = NULL, frequency = FALSE, percentages = TRUE,
-         name = "name", label = NULL, ntext = NULL, 
+surCoin  (data, variables=names(data), exogenous=NULL, commonlabel=NULL,
+         weight=NULL, subsample=FALSE,
+         minimum=1, maximum=nrow(data), sort=FALSE, decreasing=TRUE,
+         nodes=NULL, frequency=FALSE, percentages=TRUE,
+         name="name", label = NULL, ntext = NULL, 
          size = "\%", color = NULL, shape = NULL, group = NULL, community = NULL, 
-         procedures = "Haberman", criteria = "Z", Bonferroni = FALSE,
-         support = -Inf, minL = -Inf, maxL = Inf,
-         directed = FALSE, diagonal = FALSE, sortL = NULL, decreasingL = TRUE,
+         procedures="Haberman", criteria="Z", Bonferroni=FALSE,
+         support=-Inf, minL=-Inf, maxL=Inf,
+         directed=FALSE, diagonal=FALSE, sortL=NULL, decreasingL=TRUE,
          lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
          nodeFilter = NULL, linkFilter = NULL,
          main = NULL, note = NULL, help = NULL,
          layout = NULL, language = "en", 
-         image = NULL,  dir = NULL, show = TRUE, 
-         igraph = FALSE)
+         image = NULL,  dir = NULL, show = TRUE,
+         igraph=FALSE)
 }
 \arguments{
-  \item{incidences}{an incidence matrix or data frame with only 0/1 variables}
+  \item{data}{a data frame}
+  \item{variables}{a vector of variables included in the previous data frame}
+  \item{exogenous}{a vector of variables whose relations amongst them are of no interest. None by default}
+  \item{commonlabel}{a vector of variables whose names are to be included in nodes labels}
   \item{weight}{a vector of weights. Optimal for data.framed tables}
   \item{subsample}{retrict the analysis to scenarios with at least one event}
   \item{minimum}{minimum frequency to be considered}
@@ -33,8 +37,8 @@ allNet  (incidences, weight = NULL, subsample = FALSE,
   \item{sort}{sort the coincidence matrix according to frequency of events}
   \item{decreasing}{decreasing or increasing sort of the matrix}
   \item{nodes}{a data frame with at least one vector of names.}
-  \item{frequency}{a logical value true if frequencies are to be shown. Default = FALSE.}
-  \item{percentages}{a logical value true if percentages are to be shown. Default = TRUE.}
+  \item{frequency}{a logical value true if frequencies are to be shown. Default=FALSE.}
+  \item{percentages}{a logical value true if percentages are to be shown. Default=TRUE.}
   \item{name}{name of the vector with names in the nodes data frame. Important if nodes are specified}
   \item{label}{name of the vector with labels in the nodes data frame.}
   \item{ntext}{name of the vector with html text in the nodes data frame.}
@@ -68,7 +72,7 @@ drl("da"), circle("ci"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kama
 \item{image}{name of the vector with image files in the nodes data frame.}
 \item{dir}{a "character" string representing the directory where the web files will be saved.}
 \item{show}{a logical value true if the graph is to be shown. Default = TRUE.}
-\item{igraph}{Produces an igraph object instead of a netCoin object if TRUE.}
+\item{igraph}{Produces an igraph object instead of a netCoin object if TRUE}
 }
 \details{
 Possible measures in procedures are 
@@ -88,10 +92,9 @@ Possible measures in procedures are
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}
 }
 \examples{
-# A character column (with separator)
-frame <- data.frame(A = c("Man; Women", "Women; Women",
-                        "Man; Man", "Undet.; Women; Man"))
-data <- dichotomize(frame, "A", sep = "; ")[2:4]
-allNet(data) # network object
+# A data frame with two variables Gender and Opinion
+frame<-data.frame(Gender=c(rep("Man",3),rep("Woman",3)),
+                  Opinion=c("Yes","Yes","No","No","No","Yes"))
+surCoin(frame,commonlabel="") # network object
 }
 

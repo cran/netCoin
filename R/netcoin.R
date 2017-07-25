@@ -2,20 +2,20 @@
 # Image is a files vector with length and order equal to nrow(nodes). Place as nodes field
 # Batch
 
-allNet<-function(incidences, weight=NULL, subsample=FALSE,
-                 minimum=1, maximum=nrow(incidences), sort=FALSE, decreasing=TRUE,
-                 nodes=NULL, frequency=FALSE, percentages=TRUE,
-                 name="name", label = NULL, ntext = NULL, 
+allNet<-function(incidences, weight = NULL, subsample = FALSE,
+                 minimum=1, maximum = nrow(incidences), sort = FALSE, decreasing = TRUE,
+                 nodes = NULL, frequency = FALSE, percentages = TRUE,
+                 name = "name", label = NULL, ntext = NULL, 
                  size = "%", color = NULL, shape = NULL, group = NULL, community = NULL, 
-                 procedures="Haberman", criteria="Z", Bonferroni=FALSE,
-                 support=-Inf, minL=-Inf, maxL=Inf,
-                 directed=FALSE, diagonal=FALSE, sortL=NULL, decreasingL=TRUE,
+                 procedures = "Haberman", criteria = "Z", Bonferroni = FALSE,
+                 support = -Inf, minL = -Inf, maxL = Inf,
+                 directed = FALSE, diagonal = FALSE, sortL = NULL, decreasingL = TRUE,
                  lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
                  nodeFilter = NULL, linkFilter = NULL,
                  main = NULL, note = NULL, help = NULL,
                  layout = NULL, language = "en", 
-                 image = NULL,  dir = NULL,
-                 igraph=FALSE 
+                 image = NULL,  dir = NULL, show = TRUE, 
+                 igraph = FALSE 
 ){
   incidences<-na.omit(incidences)
   if (all(incidences==0 | incidences==1)) {
@@ -48,7 +48,7 @@ allNet<-function(incidences, weight=NULL, subsample=FALSE,
                  nodeFilter, linkFilter,
                  main, note, help,
                  layout, language, 
-                 image,  dir)
+                 image,  dir, show)
   }
   else warning("Input is not a dichotomous matrix of incidences")
   if (igraph) return(asIgraph(xNx))
@@ -61,7 +61,7 @@ netCoin<-function (nodes, links, name="name",
                    nodeFilter = NULL, linkFilter = NULL,
                    main = NULL, note = NULL, help = NULL,
                    layout = NULL, language = c("en", "es"), 
-                   image = NULL,  dir = NULL)
+                   image = NULL,  dir = NULL, show = TRUE)
 {
   links<-links[links$source%in%nodes[[name]]&links$target%in%nodes[[name]],]
   options=list(nodeName=name)
@@ -104,7 +104,11 @@ netCoin<-function (nodes, links, name="name",
   if(!is.null(layout))
     net <- netAddLayout(net,layout)
 
-  if (!is.null(dir)) netCreate(net,dir=dir,language=language)
+  if (!is.null(dir)) {
+     netCreate(net,dir=dir,language=language)
+     if(identical(show,TRUE))
+       browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
+  }
   return(net)
 }
 
@@ -122,7 +126,7 @@ netCorr<-function(variables, weight=NULL,
                   nodeFilter = NULL, linkFilter = NULL,
                   main = NULL, note = NULL, help = NULL,
                   layout = NULL, language = "en", 
-                  image = NULL,  dir = NULL,
+                  image = NULL,  dir = NULL, show = TRUE,
                   igraph=FALSE 
 ){
   variables<-na.omit(variables)
@@ -165,7 +169,7 @@ netCorr<-function(variables, weight=NULL,
                nodeFilter, linkFilter,
                main, note, help,
                layout, language, 
-               image,  dir)
+               image,  dir, show)
   if (igraph) return(asIgraph(xNx))
   else return(xNx)
 }
