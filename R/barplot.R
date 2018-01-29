@@ -3,7 +3,7 @@ barplotJSON <- function(bar){
 }
 
 barStart <- function(nodes, links, options){
-  lNames <- unique(links$source,links$target)
+  lNames <- unique(links$Source,links$Target)
   notListed <- length(setdiff(lNames,nodes[[options$name]]))
   if(notListed!=0)
     stop(paste(notListed," node link(s) not defined in nodes data frame."))
@@ -15,15 +15,15 @@ barCreate <- function(bar, language = c("en","es"), dir = "barCoin", show = TRUE
     language <- "es.js"
   else
     language <- "en.js"
-  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"barplot.js"), barplotJSON(bar))
+  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"colorScales.js","barplot.js"), barplotJSON(bar))
   if(identical(show,TRUE))
     browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
 }
 
 barCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "frequency", coincidences = "coincidences", note = NULL, 
-                    language = c("en","es"), dir = NULL, show = TRUE){
+                    cex = 1, language = c("en","es"), dir = NULL, show = TRUE){
   if (name %in% names(nodes) & incidences %in% names(nodes) & coincidences %in% names(links)) {
-    options <- list(name = name, incidences = incidences, coincidences = coincidences)
+    options <- list(name = name, incidences = incidences, coincidences = coincidences, cex = as.numeric(cex))
     if(!is.null(note))
       options[["note"]] <- note
     if(!is.null(label))
@@ -38,9 +38,9 @@ barCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, inci
 }
 
 cbarCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "frequency", coincidences = "coincidences", expected = "expected", confidence.interval = NULL,  note = NULL, 
-                     language = c("en","es"), dir = NULL, show = TRUE){
+                     cex = 1, language = c("en","es"), dir = NULL, show = TRUE){
   if (name %in% names(nodes) & incidences %in% names(nodes) & coincidences %in% names(links) & expected %in% names(links)) {
-    options <- list(name = name, coincidences = coincidences, incidences = incidences, expected = expected)
+    options <- list(name = name, coincidences = coincidences, incidences = incidences, expected = expected, cex = as.numeric(cex))
     if(!is.null(note))
       options[["note"]] <- note
     if(!is.null(label))

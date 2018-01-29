@@ -18,8 +18,8 @@ Data frame with the attributes of the events of dice.
   }
 }
 \source{
-data(dice)
-coin.dice<-coin(dice)
+data(dice);
+coin.dice<-coin(dice);
 asNodes(coin.dice)
 }
 \references{

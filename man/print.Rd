@@ -1,19 +1,22 @@
 \name{print}
 \alias{print.coin}
+\alias{print.cooc}
 \alias{print.netCoin}
+\alias{print.barCoin}
+\alias{print.timeCoin}
 \alias{print}
 \title{
-Print a coin or netCoin object.
+Print a coin, netCoin, barCoin or timeCoin object.
 }
 \description{
-Print n and a coincidence lower triangle matrix for \code{coin} objects.
+Print n and a coincidence lower triangle matrix for \code{coin} and \code{cooc} objects.
 Print title, nodes and links heads, and note for \code{netCoin} objects.
 }
 \usage{
 print(x, ...)
 }
 \arguments{
-  \item{x}{A coin object (see \code{\link{coin})} or netCoin object (see \code{\link{coin})}}
+  \item{x}{A coin object (see \code{\link{coin}}), netCoin object (see \code{\link{netCoin}}), barCoin object (see \code{\link{barCoin}}), timeCoin object (see \code{\link{timeCoin}}), cooc object (see \code{\link{coocur}})}
   \item{...}{Additional args}
 }
 

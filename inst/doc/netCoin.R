@@ -23,9 +23,8 @@ Net <- netCoin(N,E) # network object
 ## ----eval=FALSE----------------------------------------------------------
 #  Net <- netCoin(N,E,dir="dice")
 
-## ----echo=FALSE----------------------------------------------------------
-library(knitr)
-include_url("dice/index.html", height = "500px")
+## ----echo=FALSE, out.width='100%'----------------------------------------
+knitr::include_graphics("Dice.png")
 
 ## ------------------------------------------------------------------------
 data("families")
@@ -51,9 +50,8 @@ library(igraph)
 ## ---- echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----------------
 #  multigraphCreate(Marriage=G,Business=H,dir="italian")
 
-## ----echo=FALSE----------------------------------------------------------
-library(knitr)
-include_url("italian/index.html", height = "500px")
+## ----echo=FALSE, out.width='100%'----------------------------------------
+knitr::include_graphics("Padgett.png")
 
 ## ---- echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----------------
 #  data("Galapagos")
@@ -65,9 +63,8 @@ include_url("italian/index.html", height = "500px")
 #          size="frequency", image="species", layout="mds",
 #          main="Species coincidences in Galapagos Islands",
 #          note="Data source: Sanderson (2000)")
-#  multigraphCreate("Galapagos Islands"=Net,dir="sanderson")
+#  plot(Net)
 
-## ----echo=FALSE----------------------------------------------------------
-library(knitr)
-include_url("sanderson/index.html", height = "500px")
+## ----echo=FALSE, out.width='100%'----------------------------------------
+knitr::include_graphics("Finches.png")
 

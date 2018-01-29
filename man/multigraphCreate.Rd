@@ -9,13 +9,13 @@ The function creates a folder in your computer with an HTML document named index
 }
 
 \usage{
-multigraphCreate(..., language = c("en","es"), dir = "MultiGraph", show = TRUE)
+multigraphCreate(..., parallel = FALSE, language = c("en","es"),
+                 dir = "MultiGraph", show = TRUE)
 }
 \arguments{
 \item{...}{coin graphs (netCoin, barCoin, timeCoin) objects or html "directories".}
-
+\item{parallel}{a logical value true to show all graphs simultaneously. Default = FALSE.}
 \item{language}{a character vector.}
-
 \item{dir}{a "character" string representing the directory where the graph will be saved.}
 \item{show}{a logical value true if the graph is to be shown. Default = TRUE.}
 }

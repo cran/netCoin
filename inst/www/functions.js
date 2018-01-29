@@ -194,73 +194,71 @@ function displayWindow(txt){
 }
 
 function brushSlider(sel,domain,current,callback,baseWidth){
-  var margin = {top: 36, right: 17, bottom: 0, left: 17},
+  var cex = parseInt(sel.style("font-size"))/10,
+      margin = {top: 21 + 15*cex, right: 17, bottom: 0, left: 17},
       width = baseWidth - margin.left - margin.right,
-      height = 57 - margin.top - margin.bottom;
+      height = 21;
 
   if(!current)
     current = domain;
 
   var x = d3.scale.linear()
       .range([0, width])
-      .domain(domain);
+      .domain(domain)
+	  .clamp(true);
 
-  var brush = d3.svg.brush()
-      .x(x)
-      .extent(current)
-      .on("brush", brushmove);
+  sel.style({height: height+margin.top+margin.bottom + "px"});
+  
+  var slider = sel.append("div")
+    .attr("class", "slider")
+    .style({width: width + "px", height: height + "px", position: "relative", top: margin.top+"px", left: margin.left+"px"});
+	
+  var sliderTray = slider.append("div")
+    .attr("class", "slider-tray");
+	
+  var sliderExtent = slider.append("span")
+    .attr("class","slider-extent")
+    .style("width",(x(current[1])-x(current[0]))+"px")
+	.style("left",x(current[0])+"px")
 
-  var svg = sel.append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom);
+  slider.append("span")
+    .attr("class","slider-min")
+	.style({"left": -5*cex+"px", "top": -20*cex + "px"})
+	.text(d3.round(domain[0],2))
 
-  var brushg = svg.append("g")
-      .attr("class", "axis brushSlider")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-      .call(d3.svg.axis()
-        .scale(x)
-        .orient("top")
-        .tickValues(domain)
-        .tickFormat(formatter)
-        .tickSize(0)
-        .tickPadding(12));
+  slider.append("span")
+    .attr("class","slider-max")
+	.style({"left": width-5*cex+"px", "top": -20*cex + "px"})
+	.text(d3.round(domain[1],2))
 
-  brushg.selectAll("text")
-    .style("text-anchor", "middle");
+  var sliderHandle = slider.selectAll(".slider-handle")
+    .data(current)
+	.enter().append("div")
+    .attr("class", "slider-handle")
+	.style({position: "absolute", top: "3px", left: function(d){ return x(d)+"px"; } });
+	
+  sliderHandle.append("div")
+    .attr("class", "slider-handle-icon")
 
-  brushg.append("g")
-      .attr("class","brush")
-      .call(brush);
+  sliderHandle.append("span")
+    .attr("class","slider-text")
+	.style({"top": -22*cex + "px", "left": -4*cex+"px"})
+	.text(function(d){ return d3.round(d,2); })
 
-  brushg.selectAll(".resize>rect").remove();
-
-  brushg.selectAll(".resize").append("circle")
-      .attr("class", "handle")
-      .attr("r",6)
-
-  brushg.selectAll(".resize").append("path")
-      .attr("d","m -12,-22 c -1,0 -2,1 -2,2 l 0,8 c 0,1 1,2 2,2 l 10,0 2,2 2,-2 10,0 c 1,0 2,-1 2,-2 l 0,-8 c 0,-1 -1,-2 -2,-2 l -24,0 z")
-      .style({"visibility":null,"fill":"#ddd","stroke":"#aaa"})
-
-  var cloudText = brushg.selectAll(".resize")
-      .append("text")
-      .attr("x",0)
-      .attr("y",-12)
-      .style("text-anchor","middle")
-      .text(function(d,i){ return d3.round(current[+!i],1); });
-
-  brushg.select(".extent")
-      .attr("y",-3)
-      .attr("height", 6)
-      .style({"fill-opacity": ".8", "stroke": "none", "fill": "#47c0c0"});
-
-  brushg.select(".background").remove();
-
-  function brushmove() {
-    var extent = brush.extent();
-    cloudText.text(function(d,i){ return d3.round(extent[+!i],1); })
-    callback(extent);
-  }
+  sliderHandle.each(function(d, i){
+	var self = d3.select(this);
+    self.call(d3.behavior.drag()
+    .on("drag", function() {
+      var value = x.invert(d3.mouse(sliderTray.node())[0]);
+	  self.style("left", x(value) + "px");
+	  self.select(".slider-text").text(d3.round(value,2));
+	  current[i] = value;
+	  var extent = d3.extent(current);
+      sliderExtent.style("width", (x(extent[1])-x(extent[0]))+"px")
+	    .style("left",x(extent[0])+"px");
+	  callback(extent);
+    }));
+  })
 }
 
 function selectedValues2str(selectedValues,data){
@@ -301,11 +299,11 @@ function topFilter(topBar,data,name,displayGraph){
         if(typeof data[0][val] == 'number'){
           var extent = d3.extent(data, function(d){ return d[val]; }),
               tempValues;
-          brushSlider(panel,extent,selectedValues[val],function(s){ tempValues = s; },vp.width/3);
+          brushSlider(panel.append("div"),extent,selectedValues[val],function(s){ tempValues = s; },vp.width/3);
         }else{
           var valSelector = panel.append("select")
             .attr("multiple","multiple")
-            .attr("size",Math.ceil(vp.height/40))
+            .attr("size",dat.length)
             .style({"width":vp.width/3+"px"});
 
           valSelector.selectAll("option").data(dat.sort())

@@ -5,8 +5,8 @@ links <- net$links
 nodes <- net$nodes
 options <- net$options
 
-sourcenames <- as.vector(links$source)
-targetnames <- as.vector(links$target)
+sourcenames <- as.vector(links$Source)
+targetnames <- as.vector(links$Target)
 name <- nodes[[options$nodeName]]
 
 nodesid <- (1:length(name))-1
@@ -20,8 +20,8 @@ for(i in seq_len(nlinks)){
   target[i] <- uniqueid[(targetnames[i]==uniqueid[,2]),1]
 }
 
-links$source <- source
-links$target <- target
+links$Source <- source
+links$Target <- target
 
 json <- list(nodes = nodes, links = links, options = options)
   
@@ -31,7 +31,7 @@ return(toJSON(json))
 #start a network graph
 netStart <- function(nodes,links,name="name",main=NULL,note=NULL,help=NULL){
 
-links <- data.frame(source = links[,1],target = links[,2])
+links <- data.frame(Source = links[,1],Target = links[,2])
 nodes <- data.frame(nodes)
 names(nodes) <- name
 options <- list(nodeName=name)
@@ -46,9 +46,9 @@ structure(list(links = links, nodes = nodes, options = options, call = match.cal
 }
 
 # add link attributes
-netAddLinkAttr <- function(net,values,source="source",target="target",width=NULL,weight=NULL,color=NULL,text=NULL){
+netAddLinkAttr <- function(net,values,source="Source",target="Target",width=NULL,weight=NULL,color=NULL,text=NULL){
 if(nrow(net$links)>0){
-  net$links <- merge(net$links,values,by.x=c("source","target"),by.y=c(source,target),all.x=TRUE,sort=FALSE)
+  net$links <- merge(net$links,values,by.x=c("Source","Target"),by.y=c(source,target),all.x=TRUE,sort=FALSE)
   if(!is.null(width))
     net$options[["linkWidth"]] <- width
   if(!is.null(weight))
@@ -115,44 +115,40 @@ netAddLayout <- function(net,layout){
   return(net)
 }
 
-# apply a filter to nodes
-netAddNodeFilter <- function(net,...){
-  filter <- list(...)
-  filter <- paste0("(net$nodes$",filter,")",collapse="&")
-  net$nodes$noShow <- !eval(parse(text=filter))
-  return(net)
-}
-
-# apply a filter to links
-netAddLinkFilter <- function(net,...){
-  filter <- list(...)
-  filter <- paste0("(net$links$",filter,")",collapse="&")
-  net$links$noShow <- !eval(parse(text=filter))
-  return(net)
-}
-
 #copy images to net graph
 images2net <- function(images,dir){
-  dir.create(paste(dir,"images",sep="/"), showWarnings = FALSE)
-  file.copy(images, paste(dir, "images", sep = "/"))
-  return(sapply(strsplit(images,"/"),function(x) paste("images",x[length(x)],sep="/")))
+  imgDir <- paste(dir,"images",sep="/")
+  dir.create(imgDir, showWarnings = FALSE)
+  file.copy(images, imgDir)
+  if(length(images)==1)
+    return(paste("images",sub("^.*/","",images),sep="/"))
+  else
+    return(sapply(strsplit(images,"/"),function(x) paste("images",x[length(x)],sep="/")))
+}
+
+imgWrapper <- function(net,dir){
+  if("images" %in% names(net))
+    net$nodes[["image"]] <- images2net(net$images,dir)
+  if(!is.null(net$options[["background"]]) && file.exists(net$options[["background"]]))
+    net$options[["background"]] <- paste0('url("',images2net(net$options[["background"]],dir),'")')
+  return(networkJSON(net))
 }
 
 #create html wrapper for network graph
-netCreate <- function(net, language = c("en","es"), dir = "netCoin"){
+netCreate <- function(net, language = c("en","es"), dir = "netCoin", show = FALSE){
 if(language[1]=="es")
   language <- "es.js"
 else
   language <- "en.js"
 createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip.min.js","functions.js",language,"colorScales.js","network.js"),function(){
-  if("images" %in% names(net))
-    net$nodes[["image"]] <- images2net(net$images,dir)
-  return(networkJSON(net))
+  return(imgWrapper(net,dir))
 })
+if(identical(show,TRUE))
+  browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
 }
 
 #meta function
-netAll <- function(nodes,links,name="name",source="source",target="target",layout=NULL){
+netAll <- function(nodes,links,name="name",source="Source",target="Target",layout=NULL){
   net <- netStart(nodes[,name],links[,c(source,target)],name)
   net <- netAddLinkAttr(net,links,source=source,target=target)
   net <- netAddNodeAttr(net,nodes,name=name)
@@ -169,7 +165,7 @@ fromIgraph <- function(G, layout=NULL, language = c("en","es"), dir=NULL){
       nodeNames <- as.character(seq_along(V(G)))
     nodes <- data.frame(name=nodeNames)
     links <- get.edgelist(G)
-    links <- data.frame(source=links[,1],target=links[,2])
+    links <- data.frame(Source=links[,1],Target=links[,2])
     for(i in list.vertex.attributes(G))
       nodes[[i]] <- get.vertex.attribute(G,i)
     for(i in list.edge.attributes(G))

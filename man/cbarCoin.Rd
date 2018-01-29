@@ -11,8 +11,8 @@ Object of class \code{barCoin}.
 \usage{
 cbarCoin(nodes, links, name = "name", label = NULL, text = NULL,
          incidences = "frequency", coincidences = "coincidences",
-         expected = "expected", confidence.interval = NULL,
-         note = NULL, language = c("en","es"), dir = NULL, show = TRUE)
+         expected = "expected", confidence.interval = NULL, note = NULL,
+         cex = 1, language = c("en","es"), dir = NULL, show = TRUE)
 }
 \arguments{
 \item{nodes}{a data frame with at least two vectors of names and incidences.}
@@ -25,6 +25,7 @@ cbarCoin(nodes, links, name = "name", label = NULL, text = NULL,
 \item{expected}{name of the vector with expected coincidences in the links data frame.}
 \item{confidence.interval}{name of the vector with confidence interval in the links data frame.}
 \item{note}{lower title of the graph.}
+\item{cex}{number indicating the amount by which plotting text should be scaled relative to the default. Default = 1.}
 \item{language}{a character vector (es=spanish; en=english).}
 \item{dir}{a "character" string representing the directory where the web files will be saved.}
 \item{show}{a logical value true if the graph is to be shown. Default = TRUE.}

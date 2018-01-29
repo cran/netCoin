@@ -52,9 +52,9 @@ toJSON <- function(x){
 	if(is.numeric(x))
 	  json <- x
 	if(is.logical(x)){
-	  if(identical(x,TRUE))
+	  if(x)
 	    json <- "true"
-	  if(identical(x,FALSE))
+	  else
 	    json <- "false"
 	}
 	if(is.character(x))

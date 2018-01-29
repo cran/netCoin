@@ -5,6 +5,11 @@ function timeline(json){
 
   var body = d3.select("body");
 
+  if(options.cex)
+    body.style("font-size", 10*options.cex + "px")
+  else
+    options.cex = 1;
+
   // top bar
   var topBar = body.append("div")
         .attr("class","topbar")
@@ -30,12 +35,13 @@ function timeline(json){
   //styles
   d3.select("head")
       .append("style")
-      .text(".laneLines {  shape-rendering: crispEdges; }"+
-    ".mini text { font: 9px sans-serif; }"+
+      .text("text { font-family: sans-serif; font-size: "+body.style("font-size")+"; } "+
+    ".laneLines {  shape-rendering: crispEdges; }"+
+    ".mini text { font-size:  90%; }"+
     ".mini .miniItem { fill-opacity: .7; stroke-width: 6;  }"+
     ".brush .extent { stroke: gray;  fill: dodgerblue; fill-opacity: .365; }"+
     ".axis path, .axis line { fill: none; stroke: #000; shape-rendering: crispEdges; }"+
-    ".main text { font: 12px sans-serif; }"+
+    ".main text { font-size:  120%; }"+
     ".main .miniItem { stroke-width: 6; }")
 
   displayGraph();
@@ -80,15 +86,15 @@ function timeline(json){
 
     //sizes
     var vp = viewport(),
-      m = [20, 15, 20, 120], //top right bottom left
+      m = [20, 15, 20*options.cex, 120*options.cex], //top right bottom left
       w = vp.width - 30 - m[1] - m[3],
-      miniHeight = laneLength * 12 + 50,
+      miniHeight = laneLength * (12*options.cex) + 50,
       mainHeight = 10;
 
     //scales
-    var color = d3.scale.category10();
+    var color = d3.scale.ordinal().range(categoryColors.slice(0,10));
     if(laneLength>10)
-      color = d3.scale.category20();
+      color = d3.scale.ordinal().range(categoryColors);
     color.domain(d3.range(0,laneLength));
 
     var x = d3.scale.linear()
@@ -187,7 +193,7 @@ function timeline(json){
       .attr("class", "laneText")
       .text(String)
       .attr("x", 0)
-      .attr("y", 16)
+      .attr("y", 4 + 12*options.cex)
 
     main.append("g")
       .attr("clip-path", function(d,i){ return "url(#clip"+i+")"; });
@@ -206,7 +212,7 @@ function timeline(json){
       .attr("height", miniHeight - 1);
 
     var yearGuideTop = 53+parseInt(body.select("div.plot>svg:first-child").style("height")),
-        yearGuide = body.append("div")
+        yearGuide = plot.append("div")
       .attr("class","year-guide")
       .style({position:"absolute", top:yearGuideTop+"px", left:((w/2)+m[3])+"px", width:0, height:0, "border-left":"dashed 1px #000", "z-index":-1}),
     pYear = body.append("p")
@@ -271,7 +277,7 @@ function timeline(json){
           rectsEnter.append("rect")
             .attr("height", 10)
           rectsEnter.append("text")
-            .attr("y", 22)
+            .attr("y", 10 + 12*options.cex)
 
           tooltip(rectsEnter,options.text);
 
@@ -305,7 +311,7 @@ function timeline(json){
                 lines.push(-Infinity);
             }
             lines[i] = selfCoords.x+selfCoords.width;
-            return "translate(0,"+(30+i*30)+")";
+            return "translate(0,"+((30+i*30)*options.cex)+")";
           });
 
           height =  Math.ceil(this.getBBox().height);

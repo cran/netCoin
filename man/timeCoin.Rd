@@ -10,7 +10,7 @@ Object of class \code{timeCoin}.
 
 \usage{
 timeCoin(nodes, name = "name", start = "start", end = "end",
-         group = NULL, text = NULL, main = NULL, note = NULL,
+         group = NULL, text = NULL, main = NULL, note = NULL, cex = 1,
          language = c("en","es"), dir = NULL, show = TRUE)
 }
 \arguments{
@@ -22,6 +22,7 @@ timeCoin(nodes, name = "name", start = "start", end = "end",
 \item{text}{name of the vector with html text in the nodes data frame.}
 \item{main}{upper title of the graph.}
 \item{note}{lower title of the graph.}
+\item{cex}{number indicating the amount by which plotting text should be scaled relative to the default. Default = 1.}
 \item{language}{a character vector (es=spanish; en=english).}
 \item{dir}{a "character" string representing the directory where the web files will be saved.}
 \item{show}{a logical value true if the graph is to be shown. Default = TRUE.}

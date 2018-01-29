@@ -1,6 +1,6 @@
 ---
 title: "netCoin package"
-author: "Modesto Escobar, Luis Martinez-Uribe, Carlos Prieto and David Barrios (University of Salamanca)"
+author: "Modesto Escobar, David Barrios, Carlos Prieto and Luis Martinez-Uribe(University of Salamanca)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -71,7 +71,7 @@ large         |     -4.766506 |      4.766506 |  -10.000000   |   10.000000
 The function `edgeList` generates a collecion of edges composed by a list of similarity measures whenever a criterium (generally p(Z)<.50) is met.
 
 
-source | target | Haberman | P(z)
+Source | Target | Haberman | P(z)
 ------------- | ------------- | ------------- | -------------
 odd  | small | 4.766506 | 3.18645e-06
 even | large | 4.766506 | 3.18645e-06
@@ -124,9 +124,8 @@ Net <- netCoin(N,E,dir="dice")
 ```
 
 
-```{r echo=FALSE}
-library(knitr)
-include_url("dice/index.html", height = "500px")
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics("Dice.png")
 ```
 
 ###<a id="multi"> Multigraph coincidence analysis with data of families of Renaissance Italy </a>
@@ -177,9 +176,8 @@ Once the two networks are ready, the function `multigraphCreate` generates both 
 multigraphCreate(Marriage=G,Business=H,dir="italian")
 ```
 
-```{r echo=FALSE}
-library(knitr)
-include_url("italian/index.html", height = "500px")
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics("Padgett.png")
 ```
 
 ###<a id="sanderson"> netCoin applied to Sanderson´s analysis of species co-ocurrences </a>
@@ -205,10 +203,9 @@ Net<-allNet(Galapagos,nodes=finches, criteria="hyp", maxL=.05,
         size="frequency", image="species", layout="mds",
         main="Species coincidences in Galapagos Islands",
         note="Data source: Sanderson (2000)")
-multigraphCreate("Galapagos Islands"=Net,dir="sanderson")
+plot(Net)
 ```
 
-```{r echo=FALSE}
-library(knitr)
-include_url("sanderson/index.html", height = "500px")
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics("Finches.png")
 ```

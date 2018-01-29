@@ -15,7 +15,7 @@ button, input, select {
   border: solid 1px #aaa;
   margin: 2px;
   font-family: sans-serif;
-  font-size: 10px;
+  font-size: 100%;
   color: #333;
   background-color: #ddd;
 }
@@ -48,10 +48,14 @@ th {
   background-color: #f5f5f5;
   padding: 6px 10px;
 }
-.tables h2 {
-  font-size: 16px;
-  margin: 0 10px;
+.tables div.title{
+  font-size: 120%;
+  margin: 10px 0;
   padding-top: 10px;
+}
+.tables div.title span{
+  font-weight: bold;
+  font-size: 140%;
 }
 .tables div.nodes,
 .tables div.links {
@@ -69,7 +73,7 @@ img.icon {
   float: right;
   margin: 3px;
 }
-.selectButton{
+.selectButton, .graphSelect{
   padding: 5px 10px;
 }
 .selectButton>div{
@@ -82,37 +86,37 @@ img.icon {
   margin:0 5px 5px 0;
   cursor:pointer;
 }
+.graphSelect > span {
+  font-size: 120%;
+  font-weight: bold;
+  padding-right: 1ex;
+}
 div.main {
-  font-size: 24px;
+  font-size: 240%;
   font-weight: bold;
   text-align: center;
   margin-top: 8px;
 }
-div.minor {
-  font-size: 18px;
-  padding: 10px 20px;
+div.note {
+  padding: 0 20px;
 }
 .sidebar {
-  width: 175px;
   margin-left: 10px;
 }
 .sidebar h2 {
   margin: 0 0 6px 2px;
   color: #bbb;
-  font-size: 12px;
+  font-size: 120%;
   text-transform: uppercase;
 }
 .sidebar h3 {
   margin: 0 0 4px 2px;
   color: #666;
-  font-size: 12px;
+  font-size: 120%;
 }
 .sidebar h4 {
   margin: 0 0 2px 2px;
-  font-size: 10px;
-}
-.sidebar svg {
-  margin-left: -8px;
+  font-size: 100%;
 }
 .subSidebar {
   width: 88%;
@@ -137,11 +141,15 @@ textarea[name=query] {
 }
 .panel {
   position: absolute;
-  top: 0px;
-  left: 190px;
+  top: 0;
+  left: 0;
 }
 div.window {
-  font-size: 14px;
+  font-size: 140%;
+}
+div.window h2 {
+  font-size: 140%;
+  padding-bottom: 10px;
 }
 div.topbar {
   margin: 10px;
@@ -152,15 +160,29 @@ div.topbar {
   display: inline;
   padding-right: 4px;
   color: #999;
-  font-size: 12px;
+  font-size: 120%;
 }
 .topbar select {
   margin-right: 20px;
 }
-ul.picker>li{
+ul.picker>li {
   cursor: pointer;
-  width: 80px;
   margin: 5px 0;
+}
+
+div.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.8);
+  z-index": 10;
+}
+
+div.loading > p {
+  color: #fff;
+  font-size: 200%;
+  font-weight: bold;
+  margin: 20px;
 }
 
 /* svg buttons and brush */
@@ -183,7 +205,7 @@ svg .handle {
 svg .buttons text {
   pointer-events: none;
   stroke-width: 0.5px;
-  font-size: 10px;
+  font-size: 100%;
   fill: #444;
 }
 svg .axis.brushSlider .domain {
@@ -196,6 +218,51 @@ svg .brush.net .extent {
   stroke: #fff;
   shape-rendering: crispEdges;
 }
-svg .brushSlider text {
-  font: 10px sans-serif;
+
+/* slider */
+.slider-tray {
+  position: absolute;
+  width: 100%;
+  height: 6px;
+  border: solid 1px #ccc;
+  border-top-color: #aaa;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.slider-handle-icon {
+  width: 14px;
+  height: 14px;
+  border: solid 1px #aaa;
+  position: absolute;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  top: -7px;
+  left: -7px;
+}
+
+.slider-extent {
+  position: absolute;
+  display: block;
+  top: 1px;
+  height: 6px;
+  opacity: .8;
+  background-color: #47c0c0;
+}
+
+.slider-min, .slider-max, .slider-text {
+    position: absolute;
+    display: block;
+    color: #333;
+    line-height: 1.333;
+    padding: 1px 3px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+
+.slider-text {
+	color: #fff;
+	background: #47c0c0;
 }

@@ -8,14 +8,14 @@ timeCreate <- function(time, language = c("en","es"), dir = "timeCoin", show = T
     language <- "es.js"
   else
     language <- "en.js"
-  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"timeline.js"), timelineJSON(time))
+  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"colorScales.js","timeline.js"), timelineJSON(time))
   if(identical(show,TRUE))
     browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
 }
 
 timeCoin <- function(nodes, name = "name", start = "start", end = "end", group = NULL, text = NULL, main = NULL, note = NULL, 
-                     language = c("en","es"), dir = NULL, show = TRUE){
-  options <- list(name=name,start=start,end=end)
+                     cex = 1, language = c("en","es"), dir = NULL, show = TRUE){
+  options <- list(name = name, start = start, end = end, cex = as.numeric(cex))
   if (!is.null(group)) options[['group']] <- group
   if (!is.null(text)) options[['text']] <- text
   if (!is.null(main)) options[['main']] <- main

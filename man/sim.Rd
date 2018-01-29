@@ -9,7 +9,7 @@ It calculates a similarity/distance matrix from either an incidence data frame/m
 }
 \usage{
 sim(input, procedures="Jaccard", distance=FALSE, minimum=1, maximum=Inf, 
-       sort=FALSE, decreasing=FALSE)
+    sort=FALSE, decreasing=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

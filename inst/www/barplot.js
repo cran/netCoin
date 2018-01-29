@@ -44,6 +44,11 @@ function barplot(json){
 
   var body = d3.select("body");
 
+  if(options.cex)
+    body.style("font-size", 10*options.cex + "px")
+  else
+    options.cex = 1;
+
   // top bar
   var topBar = body.append("div")
     .attr("class","topbar")
@@ -98,9 +103,9 @@ function barplot(json){
     var data = [];
     if(subject){
       links.forEach(function(d){
-        if(d.source == subject || d.target == subject){
+        if(d.Source == subject || d.Target == subject){
           var row = {};
-          row.object = (d.source == subject ? d.target : d.source);
+          row.object = (d.Source == subject ? d.Target : d.Source);
           if(!filter || filter.indexOf(row.object)!=-1){
             row.a = d[options.coincidences];
             if(options.expected){
@@ -157,8 +162,8 @@ function barplot(json){
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
 
-    svg.append("style").text("text { font: 10px sans-serif; }"+
-      ".main { font-size: 20px; }"+
+    svg.append("style").text("text { font-family: sans-serif; font-size: "+body.style("font-size")+"; } "+
+      ".main { font-size: 200%; }"+
       ".bar, .legend rect { stroke: #000; stroke-width: .4px; }"+
       "rect.a { fill: #677BB2; }"+
       "rect.b { fill: #FFB8A7; }"+
@@ -181,7 +186,7 @@ function barplot(json){
           .data(subject?textLegend:["incidences"])
         .enter().append("text")
           .text(function(d){ return texts[d]; })
-          .attr("x",function(d,i){ return i*110 + 20; })
+          .attr("x",function(d,i){ return i*110*options.cex + 20; })
 
     legend.selectAll("rect")
           .data(subject?textLegend:["incidences"])
@@ -202,7 +207,7 @@ function barplot(json){
           .attr("width",16)
           .attr("height",8)
           .attr("y",-7)
-          .attr("x",function(d,i){ return i*110; })
+          .attr("x",function(d,i){ return i*110*options.cex; })
 
     if(options.note){
       body.append("p")
