@@ -23,7 +23,7 @@ MultiGraph.prototype = {
     sel.selectAll("option")
       .data(this.keys)
       .enter().append("option")
-        .property("value",function(d){ return d; })
+        .property("value",function(d){ return encodeURI(d); })
         .text(function(d){ return d; })
         .each(function(d){
           if(d==current)

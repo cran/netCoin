@@ -8,7 +8,7 @@ window.onload = function(){
 
 	for(var i=0; i<2; i++){
       body.append("iframe")
-    .attr("src","multiGraph/index.html?"+graphs[i])
+    .attr("src","multiGraph/index.html?"+encodeURI(graphs[i]))
     .attr("width",width)
     .attr("height",height)
     .attr("frameborder",0)

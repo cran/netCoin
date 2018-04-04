@@ -1,13 +1,13 @@
 Package: netCoin
 Type: Package
-Version: 0.2.7
-Date: 2018-01-29
+Version: 0.2.8
+Date: 2018-04-04
 Title: Interactive Networks with R
 Description: Create interactive networked coincidences. It joins the data analysis power of R to study coincidences and the visualization libraries of JavaScript in one package.
 License: CC BY-NC-SA 4.0
 Depends: R (>= 3.0.0)
 Imports: igraph (>= 1.0.1), Matrix (>= 1.2-4), haven (>= 1.1.0)
-Suggests: knitr, rmarkdown
+Suggests: knitr, rmarkdown, lavaan
 VignetteBuilder: knitr
 NeedsCompilation: no
 Author: Modesto Escobar <modesto@usal.es>,
@@ -15,7 +15,7 @@ Author: Modesto Escobar <modesto@usal.es>,
   Carlos Prieto <cprietos@usal.es>,
   Luis Martinez-Uribe <lmartinez@usal.es>.
 Maintainer: Modesto Escobar <modesto@usal.es>
-Packaged: 2018-01-29 13:37:10 UTC; Modesto
+Packaged: 2018-04-04 15:48:09 UTC; modes
 RoxygenNote: 6.0.1
 Repository: CRAN
-Date/Publication: 2018-01-29 13:47:17 UTC
+Date/Publication: 2018-04-04 17:21:44 UTC

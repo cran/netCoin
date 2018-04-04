@@ -10,7 +10,7 @@ Object of class \code{barCoin}.
 
 \usage{
 cbarCoin(nodes, links, name = "name", label = NULL, text = NULL,
-         incidences = "frequency", coincidences = "coincidences",
+         incidences = "frequency", coincidences = "frequencies",
          expected = "expected", confidence.interval = NULL, note = NULL,
          cex = 1, language = c("en","es"), dir = NULL, show = TRUE)
 }

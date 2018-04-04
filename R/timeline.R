@@ -4,13 +4,11 @@ timelineJSON <- function(time){
 }
 
 timeCreate <- function(time, language = c("en","es"), dir = "timeCoin", show = TRUE){
-  if(language[1]=="es")
+  if(length(language) && language[1]=="es")
     language <- "es.js"
   else
     language <- "en.js"
-  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"colorScales.js","timeline.js"), timelineJSON(time))
-  if(identical(show,TRUE))
-    browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
+  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"colorScales.js","timeline.js"), timelineJSON(time), show)
 }
 
 timeCoin <- function(nodes, name = "name", start = "start", end = "end", group = NULL, text = NULL, main = NULL, note = NULL, 

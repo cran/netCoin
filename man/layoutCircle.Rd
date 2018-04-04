@@ -1,6 +1,6 @@
-\name{layoutPolygon}
-\alias{layoutPolygon}
-\title{Produce a layout of any number of nodes.}
+\name{layoutCircle}
+\alias{layoutCircle}
+\title{Produce a circle layout of any number of nodes.}
 \author{
 David Barrios
 }
@@ -9,7 +9,7 @@ This function returns the input data frame of nodes with the resulting layout ap
 }
 
 \usage{
-layoutPolygon(N,nodes,deg=0,name=NULL)
+layoutCircle(N,nodes,deg=0,name=NULL)
 }
 \arguments{
 \item{N}{a data frame of nodes.}
@@ -21,5 +21,5 @@ layoutPolygon(N,nodes,deg=0,name=NULL)
 \item{name}{name of column with node names.}
 }
 \description{
-\code{layoutPolygon} produces a layout of any number of nodes.
+\code{layoutCircle} produces a circle layout of any number of nodes.
 }

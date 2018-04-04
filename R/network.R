@@ -5,6 +5,7 @@ links <- net$links
 nodes <- net$nodes
 options <- net$options
 
+if(length(links)){
 sourcenames <- as.vector(links$Source)
 targetnames <- as.vector(links$Target)
 name <- nodes[[options$nodeName]]
@@ -22,6 +23,7 @@ for(i in seq_len(nlinks)){
 
 links$Source <- source
 links$Target <- target
+}
 
 json <- list(nodes = nodes, links = links, options = options)
   
@@ -136,15 +138,13 @@ imgWrapper <- function(net,dir){
 
 #create html wrapper for network graph
 netCreate <- function(net, language = c("en","es"), dir = "netCoin", show = FALSE){
-if(language[1]=="es")
-  language <- "es.js"
-else
-  language <- "en.js"
-createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip.min.js","functions.js",language,"colorScales.js","network.js"),function(){
-  return(imgWrapper(net,dir))
-})
-if(identical(show,TRUE))
-  browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
+  if(length(language) && language[1]=="es")
+    language <- "es.js"
+  else
+    language <- "en.js"
+  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip.min.js","functions.js",language,"colorScales.js","network.js"),function(){
+    return(imgWrapper(net,dir))
+  },show)
 }
 
 #meta function

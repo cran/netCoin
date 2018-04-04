@@ -10,18 +10,18 @@ If the 'dir' attribute is specified, the function creates a folder in the comput
 }
 
 \usage{
-netCoin(nodes, links, name = NULL, label = NULL,
-        size = NULL, color = NULL, shape = NULL,
-        ntext = NULL, group = NULL, community = NULL,
-        width = NULL, weight = NULL, lcolor = NULL, ltext = NULL,
+netCoin(nodes, links = NULL, name = NULL, label = NULL, size = NULL,
+        color = NULL, shape = NULL, slegend = NULL, ntext = NULL,
+        orderA = NULL, orderD = NULL, group = NULL, community = NULL,
+        lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
         nodeFilter = NULL, linkFilter = NULL, degreeFilter = NULL,
         nodeBipolar = FALSE, linkBipolar = FALSE, defaultColor = "#1f77b4",
-        main = NULL, note = NULL, help = NULL, background = NULL,
-        layout = NULL, cex = 1, controls = c(1,2,3), mode = c("network","heatmap"),
-		showCoordinates = FALSE,
-        showArrows = FALSE,	showLegend = TRUE, showAxes = FALSE, showLabels = TRUE,
-        axesLabels = NULL, language = c("en","es"), image = NULL,
-        dir = NULL, show = TRUE)
+        main = NULL, note = NULL, help = NULL, helpOn = FALSE, cex = 1,
+        background = NULL, layout = NULL, controls = c(1,2,3),
+        mode = c("network","heatmap"), showCoordinates = FALSE,
+        showArrows = FALSE, showLegend = TRUE, showAxes = FALSE,
+        showLabels = TRUE, axesLabels = NULL, language = c("en","es"),
+        image = NULL, imageNames = NULL, dir = NULL, show = TRUE)
 }
 \arguments{
 \item{nodes}{a data frame with at least one vector of names.}
@@ -33,9 +33,12 @@ netCoin(nodes, links, name = NULL, label = NULL,
 \item{size}{name of the vector with size in the nodes data frame.}
 \item{color}{name of the vector with color variable in the nodes data frame.}
 \item{shape}{name of the vector with shape variable in the nodes data frame.}
+\item{slegend}{name of the vector with the variable to represent as a legend in the nodes data frame.}
 \item{ntext}{name of the vector with html text in the nodes data frame.}
-\item{width}{name of the vector with width variable in the links data frame.}
-\item{weight}{name of the vector with weight variable in the links data frame.}
+\item{orderA}{name of the vector with node ascending order in the nodes data frame.}
+\item{orderD}{name of the vector with node descending order in the nodes data frame.}
+\item{lwidth}{name of the vector with width variable in the links data frame.}
+\item{lweight}{name of the vector with weight variable in the links data frame.}
 \item{lcolor}{name of the vector with color variable in the links data frame.}
 \item{ltext}{name of the vector with labels in the links data frame.}
 \item{nodeFilter}{condition for filtering nodes.}
@@ -47,8 +50,8 @@ netCoin(nodes, links, name = NULL, label = NULL,
 \item{main}{upper title of the graph.}
 \item{note}{lower title of the graph.}
 \item{help}{help text of the graph.}
+\item{helpOn}{Should the help be shown at the beginning?}
 \item{background}{background color or image of the graph.}
-\item{image}{name of the vector with image files in the nodes data frame.}
 \item{layout}{a matrix with two columns or an algorithm to elaborate the coordinates: davidson.harel
 drl("da"), circle("ci"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kamada.kawai("ka"), lgl("lg"), mds("md"), random("ra"), reingold.tilfo("re"), star("sta"), sugiyama("sug")}
 \item{cex}{number indicating the amount by which plotting text should be scaled relative to the default. Default = 1.}
@@ -61,6 +64,8 @@ drl("da"), circle("ci"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kama
 \item{showLabels}{a logical value true if the node labels are to be shown. Default = TRUE.}
 \item{axesLabels}{a character vector giving the axes names.}
 \item{language}{a character vector (es=spanish; en=english).}
+\item{image}{name of the vector with image files in the nodes data frame.}
+\item{imageNames}{name of the vector with names for image files in the nodes data frame.}
 \item{dir}{a "character" string representing the directory where the web files will be saved.}
 \item{show}{a logical value true if the graph is to be shown. Default = TRUE.}
 }

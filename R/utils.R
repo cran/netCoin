@@ -3,7 +3,7 @@ wwwDirectory = function(){
   return(path)
 }
 
-createHTML <- function(directory, styles, dependencies, json){
+createHTML <- function(directory, styles, dependencies, json, show){
   if(file.exists(directory))
     unlink(directory, recursive = TRUE)
   dir.create(directory)
@@ -36,6 +36,9 @@ createHTML <- function(directory, styles, dependencies, json){
     json <- json()
   html <- sub("<!--json-->",paste0('<script type="application/json" id="data">',json,'</script>'),html)
   write(html, paste(directory, "index.html", sep = "/"))
+  
+  if(identical(show,TRUE))
+    browseURL(normalizePath(paste(directory, "index.html", sep = "/")))
 }
 
 

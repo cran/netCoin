@@ -91,6 +91,20 @@ img.icon {
   font-weight: bold;
   padding-right: 1ex;
 }
+div.switchNodeLink{
+  height: 0px;
+}
+div.switchNodeLink > div{
+  position: relative;
+  display: inline-block;
+  padding: 4px 8px;
+  margin: 0 2px;
+  border-radius: 5px 5px 0 0;
+  background: #eeeeee;
+  width: 100px;
+  text-align: center;
+  cursor: pointer;
+}
 div.main {
   font-size: 240%;
   font-weight: bold;
@@ -213,7 +227,7 @@ svg .axis.brushSlider .domain {
   stroke-width: 4px;
   stroke-linecap: round;
 }
-svg .brush.net .extent {
+svg .brush .extent {
   fill-opacity: .1;
   stroke: #fff;
   shape-rendering: crispEdges;
