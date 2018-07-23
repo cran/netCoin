@@ -211,7 +211,7 @@ function timeline(json){
       .attr("y", 1)
       .attr("height", miniHeight - 1);
 
-    var yearGuideTop = 53+parseInt(body.select("div.plot>svg:first-child").style("height")),
+    var yearGuideTop = 53 + parseInt(body.select("div.main").style("height")) + parseInt(body.select("div.plot>svg:first-child").style("height")),
         yearGuide = plot.append("div")
       .attr("class","year-guide")
       .style({position:"absolute", top:yearGuideTop+"px", left:((w/2)+m[3])+"px", width:0, height:0, "border-left":"dashed 1px #000", "z-index":-1}),

@@ -32,11 +32,11 @@ multiGraph <- function(multi,multinames,language,dir){
     language <- "es.js"
   else
     language <- "en.js"
-  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip.min.js","functions.js",language,"colorScales.js","multigraph.js","network.js","barplot.js","timeline.js"), function(){ return(multigraphJSON(multi,multinames,dir)) }, FALSE)
+  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip.min.js","functions.js",language,"colorScales.js","multigraph.js","network.js","barplot.js","timeline.js"), function(){ return(multigraphJSON(multi,multinames,dir)) })
 }
 
 polyGraph <- function(multi,multinames,language,dir){
-  createHTML(dir, NULL, c("d3.min.js","polygraph.js"), toJSON(multinames), FALSE)
+  createHTML(dir, NULL, c("d3.min.js","polygraph.js"), toJSON(multinames))
   multiGraph(multi,multinames,language,paste0(dir,"/multiGraph"))
 }
 

@@ -10,8 +10,8 @@ If the 'dir' attribute is specified, the function creates a folder in the comput
 }
 
 \usage{
-netCoin(nodes, links = NULL, name = NULL, label = NULL, size = NULL,
-        color = NULL, shape = NULL, slegend = NULL, ntext = NULL,
+netCoin(nodes, links = NULL, tree = NULL, name = NULL, label = NULL, size = NULL,
+        color = NULL, shape = NULL, legend = NULL, ntext = NULL, info = NULL,
         orderA = NULL, orderD = NULL, group = NULL, community = NULL,
         lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
         nodeFilter = NULL, linkFilter = NULL, degreeFilter = NULL,
@@ -26,6 +26,7 @@ netCoin(nodes, links = NULL, name = NULL, label = NULL, size = NULL,
 \arguments{
 \item{nodes}{a data frame with at least one vector of names.}
 \item{links}{a data frame with at least two vectors with source and target, including names of nodes.}
+\item{tree}{a data frame with two vectors: source and target, describing relationships between nodes.}
 \item{name}{name of the vector with names in the nodes data frame. By default, if language="en", name is "name", if language="es" is "nombre".}
 \item{label}{name of the vector with labels in the nodes data frame.}
 \item{group}{name of the vector with groups in the nodes data frame.}
@@ -33,8 +34,9 @@ netCoin(nodes, links = NULL, name = NULL, label = NULL, size = NULL,
 \item{size}{name of the vector with size in the nodes data frame.}
 \item{color}{name of the vector with color variable in the nodes data frame.}
 \item{shape}{name of the vector with shape variable in the nodes data frame.}
-\item{slegend}{name of the vector with the variable to represent as a legend in the nodes data frame.}
+\item{legend}{name of the vector with the variable to represent as a legend in the nodes data frame.}
 \item{ntext}{name of the vector with html text in the nodes data frame.}
+\item{info}{name of the vector with information to display in a panel in the nodes data frame.}
 \item{orderA}{name of the vector with node ascending order in the nodes data frame.}
 \item{orderD}{name of the vector with node descending order in the nodes data frame.}
 \item{lwidth}{name of the vector with width variable in the links data frame.}
@@ -69,8 +71,11 @@ drl("da"), circle("ci"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kama
 \item{dir}{a "character" string representing the directory where the web files will be saved.}
 \item{show}{a logical value true if the graph is to be shown. Default = TRUE.}
 }
+\note{
+nodes and links arguments can be substituted by a netCoin object to add or change options to it.
+}
 \author{
-Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}
+Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
 }
 \examples{
 # A character column (with separator)

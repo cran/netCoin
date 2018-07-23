@@ -9,7 +9,6 @@ a {
 }
 ul {
   list-style-type: none;
-  background: #fff;
 }
 button, input, select {
   border: solid 1px #aaa;
@@ -73,7 +72,7 @@ img.icon {
   float: right;
   margin: 3px;
 }
-.selectButton, .graphSelect{
+.selectButton{
   padding: 5px 10px;
 }
 .selectButton>div{
@@ -85,11 +84,6 @@ img.icon {
   display:inline-block;
   margin:0 5px 5px 0;
   cursor:pointer;
-}
-.graphSelect > span {
-  font-size: 120%;
-  font-weight: bold;
-  padding-right: 1ex;
 }
 div.switchNodeLink{
   height: 0px;
@@ -105,6 +99,10 @@ div.switchNodeLink > div{
   text-align: center;
   cursor: pointer;
 }
+div.switchNodeLink > div > h3{
+  font-size: 120%;
+  color: #666;
+}
 div.main {
   font-size: 240%;
   font-weight: bold;
@@ -114,8 +112,13 @@ div.main {
 div.note {
   padding: 0 20px;
 }
+.clear {
+  clear: both;
+}
 .sidebar {
-  margin-left: 10px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
 }
 .sidebar h2 {
   margin: 0 0 6px 2px;
@@ -136,10 +139,10 @@ div.note {
   width: 88%;
   background-color: #f5f5f5;
   padding: 6px 6%;
-  margin: 10px 0%;
+  margin: 0 0% 10px;
 }
 .subSidebar>div {
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
 .subSidebar select {
   width: 97%;
@@ -147,6 +150,21 @@ div.note {
 .subSidebar button {
   width: 72px;
   overflow: hidden;
+}
+.subSidebar .visSel span {
+  margin-top: 6px;
+  width: 29%;
+}
+.subSidebar .visSel select {
+  width: 68%;
+}
+.subSidebar .visSel select, .subSidebar .visSel span {
+  display: inline-block;
+  float: left;
+  white-space: nowrap;
+}
+.subSidebar .filter {
+  display: none;
 }
 textarea[name=query] {
   font-family: monospace;
@@ -171,13 +189,20 @@ div.topbar {
   padding: 6px 10px;
 }
 .topbar h3 {
-  display: inline;
+  display: inline-block;
   padding-right: 4px;
   color: #999;
   font-size: 120%;
 }
 .topbar select {
   margin-right: 20px;
+}
+.subSidebar.multigraph h3 {
+  width: 34%;
+  display: inline-block;
+}
+.subSidebar.multigraph select {
+  width: 60%;
 }
 ul.picker>li {
   cursor: pointer;
@@ -199,13 +224,38 @@ div.loading > p {
   margin: 20px;
 }
 
+div.infopanel {
+  background: #f5f5f5;
+  padding: 20px;
+  border: 4px solid #888;
+  overflow-y: auto;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+div.infopanel .drag {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    cursor: w-resize;
+}
+div.infopanel .close-button {
+  font-size: 10px;
+  color: #666;
+  position: absolute;
+  top: 6px;
+  right: 10px;
+}
+div.infopanel > div:last-child {
+  width: 100%;
+  height: 100%;
+}
+
 /* svg buttons and brush */
 .close-button {
-  background: #fff;
   font-size: 20px;
-  width: 17px;
-  height: 17px;
-  border-radius: 13px;
   text-align: center;
   cursor: pointer;
 }

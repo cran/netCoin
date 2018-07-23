@@ -10,7 +10,7 @@ Object of class \code{barCoin}.
 
 \usage{
 barCoin(nodes, links, name = "name", label = NULL, text = NULL,
-        incidences = "frequency", coincidences = "frequencies", note = NULL,
+        incidences = "frequency", coincidences = "coincidences", note = NULL,
         cex = 1, language = c("en","es"), dir = NULL, show = TRUE)
 }
 \arguments{
@@ -28,7 +28,7 @@ barCoin(nodes, links, name = "name", label = NULL, text = NULL,
 \item{show}{a logical value true if the graph is to be shown. Default = TRUE.}
 }
 \author{
-Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}
+Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
 }
 \examples{
 # A character column (with separator)
@@ -37,6 +37,6 @@ frame <- data.frame(A = c("Man; Women", "Women; Women",
 data <- dichotomize(frame, "A", sep = "; ")[2:4]
 C <- coin(data) # coincidence matrix
 N <- asNodes(C) # node data frame
-E <- edgeList(C,"frequencies") # edge data frame
+E <- edgeList(C,"frequency") # edge data frame
 barCoin(N,E) # barCoin object
 }

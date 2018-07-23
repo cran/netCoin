@@ -15,10 +15,10 @@ head(dice[,-1])
 C <- coin(dice[,-1]) # coincidence matrix
 C
 
-## ----echo=TRUE-----------------------------------------------------------
-N <- asNodes(C)# node data frame
-E <- edgeList(C)# edge data frame
-Net <- netCoin(N,E) # network object
+## ----eval=FALSE----------------------------------------------------------
+#  N <- asNodes(C) # node data frame
+#  E <- edgeList(C) # edge data frame
+#  Net <- netCoin(N,E) # network object
 
 ## ----eval=FALSE----------------------------------------------------------
 #  Net <- netCoin(N,E,dir="dice")
@@ -36,13 +36,13 @@ library(igraph)
 
 ## ---- message=FALSE, warning=FALSE, eval=FALSE---------------------------
 #  G <- allNet(incidence=links[links$link=="Marriage",-17],
-#       nodes=families, layout="md",
-#       criteria="f",minL=1, size="frequency",color="seat",
+#       nodes=families, layout="md", percentages= FALSE,
+#       criteria="f",minL=1, size="f.Marriages",color="seat",
 #       main="Marriage Links beetween Italian families",
 #       note="Data source: Padgett & Ansell (1983)")
 #  H <- allNet(incidence=links[links$link=="Business",-17],
-#       nodes=families, layout="md",
-#       criteria="f",minL=1, size="frequencb",color="seat",
+#       nodes=families, layout="md", percentages= FALSE,
+#       criteria="f",minL=1, size="f.Business",color="seat",
 #       main="Marriage Links beetween Italian families",
 #       note="Data source: Padgett & Ansell (1983)")
 #  

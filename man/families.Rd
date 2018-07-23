@@ -12,8 +12,8 @@ Data frame with the characteristics of powerful families of Renaissance Italy.
   A data frame with 16 families (rows) and 6 characteristics.
   \describe{
     \item{\code{name}}{Family's name}
-    \item{\code{frequency}}{number of marriage links}
-    \item{\code{frequencb}}{number of business links}
+    \item{\code{f.Marriages}}{number of marriage links}
+    \item{\code{f.Business}}{number of business links}
     \item{\code{wealth}}{wealth's index}
     \item{\code{priorates}}{number of priorates on control}
     \item{\code{seat}}{At least priorate}

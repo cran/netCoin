@@ -11,14 +11,16 @@ barStart <- function(nodes, links, options){
 }
 
 barCreate <- function(bar, language = c("en","es"), dir = "barCoin", show = TRUE){
-  if(length(language) && language[1]=="es")
+  if(language[1]=="es")
     language <- "es.js"
   else
     language <- "en.js"
-  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"colorScales.js","barplot.js"), barplotJSON(bar), show)
+  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"colorScales.js","barplot.js"), barplotJSON(bar))
+  if(identical(show,TRUE))
+    browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
 }
 
-barCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "frequency", coincidences = "frequencies", note = NULL, 
+barCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "frequency", coincidences = "coincidences", note = NULL, 
                     cex = 1, language = c("en","es"), dir = NULL, show = TRUE){
   if (name %in% names(nodes) & incidences %in% names(nodes) & coincidences %in% names(links)) {
     options <- list(name = name, incidences = incidences, coincidences = coincidences, cex = as.numeric(cex))
@@ -35,7 +37,7 @@ barCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, inci
   else warning("name, incidences or coincidences are not in nodes or links data frames")
 }
 
-cbarCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "frequency", coincidences = "frequencies", expected = "expected", confidence.interval = NULL,  note = NULL, 
+cbarCoin <- function(nodes, links, name = "name", label = NULL, text = NULL, incidences = "frequency", coincidences = "coincidences", expected = "expected", confidence.interval = NULL,  note = NULL, 
                      cex = 1, language = c("en","es"), dir = NULL, show = TRUE){
   if (name %in% names(nodes) & incidences %in% names(nodes) & coincidences %in% names(links) & expected %in% names(links)) {
     options <- list(name = name, coincidences = coincidences, incidences = incidences, expected = expected, cex = as.numeric(cex))

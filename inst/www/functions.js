@@ -22,7 +22,7 @@ function fileDownload(blob,name){
 
 function pdfPolygon(path, x, y, scale, style){
     if(path.indexOf("A")!=-1){
-      this.circle(x, y, 4.5*scale[0], 'FD');
+      this.circle(x, y, 4.5*scale[0], style);
     }else{
       var closed = path.indexOf("Z")!=-1,
           points = [];
@@ -261,20 +261,29 @@ function brushSlider(sel,domain,current,callback,baseWidth){
   })
 }
 
+function dataType(data,key){
+  var type = d3.map(data.filter(function(d){ return d[key] !== null; }),function(d){ return typeof d[key]; }).keys();
+  if(type.length == 1)
+    return type[0];
+  else
+    return 'undefined';    
+}
+
 function selectedValues2str(selectedValues,data){
   var query = "(true";
   d3.entries(selectedValues).forEach(function(d){
     query = query + ") && (false";
     if(typeof d.value[0] == 'number' && d.value.length == 2){
-            query = query + " || ((d['" + d.key + "'] >= '" + d.value[0] + "') && (d['" + d.key + "'] <= '" + d.value[1] + "'))";
+      query = query + " || ((d['" + d.key + "'] >= " + d.value[0] + ") && (d['" + d.key + "'] <= " + d.value[1] + "))";
     }else{
-      if(typeof data[0][d.key] !== 'string')
+      var type = dataType(data,d.key);
+      if(type == 'string')
         d.value.forEach(function(p){
-          query = query + " || (d['" + d.key + "'].indexOf('" + p + "')!=-1)";
+          query = query + " || (d['" + d.key + "'] == " + (p=='null' ? p : "'" + p + "'") + ")";
         })
-      else
+      if(type == 'object')
         d.value.forEach(function(p){
-          query = query + " || (d['" + d.key + "'] == '" + p + "')";
+          query = query + " || (d['" + d.key + "'] && d['" + d.key + "'].indexOf('" + p + "')!=-1)";
         })
     }
   })
@@ -296,7 +305,8 @@ function topFilter(topBar,data,name,displayGraph){
 
         panel.append("h3").text(val).style("margin-bottom","10px")
 
-        if(typeof data[0][val] == 'number'){
+        var type = d3.map(data.filter(function(d){ return d[val] !== null; }),function(d){ return typeof d[val]; }).keys();
+        if(type.length == 1 && type[0] == 'number'){
           var extent = d3.extent(data, function(d){ return d[val]; }),
               tempValues;
           brushSlider(panel.append("div"),extent,selectedValues[val],function(s){ tempValues = s; },vp.width/3);
@@ -357,18 +367,25 @@ function topFilter(topBar,data,name,displayGraph){
 }
 
 function tooltip(sel,text){
-    var body = d3.select("body");
+    var body = d3.select("body"),
+        tip = body.select("div.tooltip");
+
+    if(tip.empty())
+      tip = body.append("div")
+          .attr("class","tooltip")
+          .style({"position":"absolute","background":"#f5f5f5","padding":"10px","display":"none"})
 
     sel
-      .on("mouseover", function(d){
+      .on("mouseenter", function(d){
+        if(d[text])
+          tip.style("display","block").html(d[text]);
+      })
+      .on("mousemove", function(){
         var coor = [0, 0];
         coor = d3.mouse(body.node());
-        body.append("div")
-          .attr("class","tooltip")
-          .style({"position":"absolute","top":(coor[1]+20)+"px","left":(coor[0]+20)+"px","background":"#f5f5f5","padding":"10px"})
-          .html(d[text]);
+        tip.style({"top":(coor[1]+20)+"px","left":(coor[0]+20)+"px"})
       })
-      .on("mouseout", function(){
-        d3.select("div.tooltip").remove();
+      .on("mouseleave", function(){
+        tip.style("display","none").html("")
       })
 }

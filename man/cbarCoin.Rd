@@ -10,7 +10,7 @@ Object of class \code{barCoin}.
 
 \usage{
 cbarCoin(nodes, links, name = "name", label = NULL, text = NULL,
-         incidences = "frequency", coincidences = "frequencies",
+         incidences = "frequency", coincidences = "coincidences",
          expected = "expected", confidence.interval = NULL, note = NULL,
          cex = 1, language = c("en","es"), dir = NULL, show = TRUE)
 }
@@ -31,7 +31,7 @@ cbarCoin(nodes, links, name = "name", label = NULL, text = NULL,
 \item{show}{a logical value true if the graph is to be shown. Default = TRUE.}
 }
 \author{
-Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}
+Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
 }
 \examples{
 # A character column (with separator)

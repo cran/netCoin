@@ -64,7 +64,7 @@ Possible measures in procedures are
 }
 
 \author{
-Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{http://casus.usal.es/blog/modesto-escobar/}
+Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
 }
 \examples{
 # A data frame with two variables Gender and Opinion

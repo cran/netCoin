@@ -18,7 +18,7 @@ This vignette briefly describes the statistical methods and provides a few examp
   + [Package installation and loading](#inst) 
   + [Basic coincidence analysis with dice roll data](#basic) 
   + [Multigraph coincidence analysis with data of families of Renaissance Italy](#multi) 
-  + [netCoin applied to Sanderson´s analysis of species co-ocurrences](#sanderson) 
+  + [netCoin applied to Sanderson's analysis of species co-ocurrences](#sanderson) 
 
 
 ## <a id="def">Definitions</a>
@@ -91,13 +91,13 @@ library(netCoin)
 ```
 ###<a id="basic"> Basic coincidence analysis with dice roll data</a>
 
-Once the netCoin package has been installed and loaded, let´s now load the dice data and have a look at it:
+Once the netCoin package has been installed and loaded, let's now load the dice data and have a look at it:
 ```{r echo=TRUE}
 data(dice)
 head(dice)
 ```
 
-It contains the results of rolling a dice 100 times. The scenarios here are each dice roll. The events are the possible results, i.e. each of the numbers from 1 to 6 as well as odd or even and small(<4) or large(>3). Thus the first column contains the numeric result, the following 6 columns represent each of the dice roll possible outcomes with 1's and 0´s. Finally, the last four columns also contain 0's and 1´s for representing whether the result is odd or even, small  or large.
+It contains the results of rolling a dice 100 times. The scenarios here are each dice roll. The events are the possible results, i.e. each of the numbers from 1 to 6 as well as odd or even and small(<4) or large(>3). Thus the first column contains the numeric result, the following 6 columns represent each of the dice roll possible outcomes with 1's and 0's. Finally, the last four columns also contain 0's and 1's for representing whether the result is odd or even, small  or large.
 
 
 Columns 2 to 11 can be considered the incidence matrix $\mathbf{I}$
@@ -112,9 +112,9 @@ C
 ```
 
 The nodes and edges can be calculated from the coincidence matrix $\mathbf{C}$ and then the network object can be generated 
-```{r echo=TRUE}
-N <- asNodes(C)# node data frame
-E <- edgeList(C)# edge data frame
+```{r eval=FALSE}
+N <- asNodes(C) # node data frame
+E <- edgeList(C) # edge data frame
 Net <- netCoin(N,E) # network object
 ```
 
@@ -158,13 +158,13 @@ With the following commands two networks are generated that represent on the bus
 
 ```{r, message=FALSE, warning=FALSE, eval=FALSE}
 G <- allNet(incidence=links[links$link=="Marriage",-17],
-     nodes=families, layout="md",
-     criteria="f",minL=1, size="frequency",color="seat",
+     nodes=families, layout="md", percentages= FALSE,
+     criteria="f",minL=1, size="f.Marriages",color="seat",
      main="Marriage Links beetween Italian families",
      note="Data source: Padgett & Ansell (1983)")
 H <- allNet(incidence=links[links$link=="Business",-17],
-     nodes=families, layout="md",
-     criteria="f",minL=1, size="frequencb",color="seat",
+     nodes=families, layout="md", percentages= FALSE,
+     criteria="f",minL=1, size="f.Business",color="seat",
      main="Marriage Links beetween Italian families",
      note="Data source: Padgett & Ansell (1983)")
 
@@ -180,7 +180,7 @@ multigraphCreate(Marriage=G,Business=H,dir="italian")
 knitr::include_graphics("Padgett.png")
 ```
 
-###<a id="sanderson"> netCoin applied to Sanderson´s analysis of species co-ocurrences </a>
+###<a id="sanderson"> netCoin applied to Sanderson's analysis of species co-ocurrences </a>
 This section uses one of the most renowned data examples in ecology. Charles Darwin compiled data about 13 species of finches and where they could be found in 17 of the Galapago islands. Sanderson ....
 
 Here we add a few extra features to our graph:

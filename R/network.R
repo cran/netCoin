@@ -2,30 +2,58 @@
 networkJSON<-function(net){
 
 links <- net$links
+tree <- net$tree
 nodes <- net$nodes
 options <- net$options
 
 if(length(links)){
-sourcenames <- as.vector(links$Source)
-targetnames <- as.vector(links$Target)
-name <- nodes[[options$nodeName]]
 
-nodesid <- (1:length(name))-1
-uniqueid <- data.frame(nodesid,name)
+  sourcenames <- as.vector(links$Source)
+  targetnames <- as.vector(links$Target)
+  name <- nodes[[options$nodeName]]
 
-nlinks <- nrow(links)
-source <- numeric(nlinks)
-target <- numeric(nlinks)
-for(i in seq_len(nlinks)){
-  source[i] <- uniqueid[(sourcenames[i]==uniqueid[,2]),1]
-  target[i] <- uniqueid[(targetnames[i]==uniqueid[,2]),1]
+  nodesid <- (1:length(name))-1
+  uniqueid <- data.frame(nodesid,name)
+
+  nlinks <- nrow(links)
+  source <- numeric(nlinks)
+  target <- numeric(nlinks)
+  for(i in seq_len(nlinks)){
+    source[i] <- uniqueid[(sourcenames[i]==uniqueid[,2]),1]
+    target[i] <- uniqueid[(targetnames[i]==uniqueid[,2]),1]
+  }
+
+  links$Source <- source
+  links$Target <- target
+
+  if(length(tree)){
+    sourcenames <- as.vector(tree$Source)
+    targetnames <- as.vector(tree$Target)
+
+    if(all(!duplicated(targetnames))){
+      nlinks <- nrow(net$tree)
+      source <- numeric(nlinks)
+      target <- numeric(nlinks)
+      for(i in seq_len(nlinks)){
+        source[i] <- uniqueid[(sourcenames[i]==uniqueid[,2]),1]
+        target[i] <- uniqueid[(targetnames[i]==uniqueid[,2]),1]
+      }
+
+      tree$Source <- source
+      tree$Target <- target
+    }else{
+      tree <- NULL
+      warning("tree: there must be only one parent per node")
+    }
+  }
 }
 
-links$Source <- source
-links$Target <- target
-}
-
-json <- list(nodes = nodes, links = links, options = options)
+json <- list(nodes = nodes)
+if(length(links))
+  json$links <- links
+if(length(tree))
+  json$tree <- tree
+json$options <- options
   
 return(toJSON(json))
 }
@@ -60,7 +88,7 @@ if(nrow(net$links)>0){
   if(!is.null(text))
     net$options[["linkText"]] <- text
 }else{
-  warning("no links!")
+  warning("there are no links")
 }
 return(net)
 } 
@@ -113,7 +141,7 @@ netAddLayout <- function(net,layout){
     net$nodes[["y"]] <- layout[,2]
     net$nodes[["fixed"]] <- apply(layout,1,function(x) ifelse(is.na(x[1])||is.na(x[2]),0,1))
   }else
-    warning("layout must have a coordinate per node")
+    warning("layout: must have a coordinate per node")
   return(net)
 }
 
@@ -138,13 +166,15 @@ imgWrapper <- function(net,dir){
 
 #create html wrapper for network graph
 netCreate <- function(net, language = c("en","es"), dir = "netCoin", show = FALSE){
-  if(length(language) && language[1]=="es")
-    language <- "es.js"
-  else
-    language <- "en.js"
-  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip.min.js","functions.js",language,"colorScales.js","network.js"),function(){
-    return(imgWrapper(net,dir))
-  },show)
+if(language[1]=="es")
+  language <- "es.js"
+else
+  language <- "en.js"
+createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip.min.js","functions.js",language,"colorScales.js","network.js"),function(){
+  return(imgWrapper(net,dir))
+})
+if(identical(show,TRUE))
+  browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
 }
 
 #meta function
@@ -158,21 +188,61 @@ netAll <- function(nodes,links,name="name",source="Source",target="Target",layou
 }
 
 #meta function for igraph objects
-fromIgraph <- function(G, layout=NULL, language = c("en","es"), dir=NULL){
+fromIgraph <- function(G, layout=NULL, language = c("en","es"), dir=NULL, ...){
   if (class(G)=="igraph"){
+    #options    
+    defaults<-list(defaultColor="#1f77b4",controls=c(1,2,3),mode=c("network","heatmap"),
+                   showLabels=TRUE,show=TRUE)
+    defaultsNames<-setdiff(names(defaults),names(list(...)))
+    oldArgs<-arguments<-c(list(...), defaults[defaultsNames])
+    
+    if(is.null(arguments$main)) arguments<-c(main=G$name, arguments)
+    
+    if("label" %in% names(arguments)) names(arguments)<-sub("^label$","nodeLabel",names(arguments))
+    if("size" %in% names(arguments)) names(arguments)<-sub("^size$","nodeSize",names(arguments))
+    if("color" %in% names(arguments)) names(arguments)<-sub("^color$","nodeColor",names(arguments))
+    if("shape" %in% names(arguments)) names(arguments)<-sub("^shape$","nodeShape",names(arguments))
+    if("group" %in% names(arguments)) names(arguments)<-sub("^group$","nodeGroup",names(arguments))
+    if("text" %in% names(arguments)) names(arguments)<-sub("^text$","nodeText",names(arguments))
+    if("lwidth" %in% names(arguments)) names(arguments)<-sub("^lwidth$","linkWidth",names(arguments))
+    if("lweight" %in% names(arguments)) names(arguments)<-sub("^lweight$","linkWeight",names(arguments))
+    if("lcolor" %in% names(arguments)) names(arguments)<-sub("^lcolor$","linkColor",names(arguments))
+    if("ltext" %in% names(arguments)) names(arguments)<-sub("^ltext$","linkText",names(arguments))
+    
+    Arguments<-c(label="nodeLabel",size="nodeSize",color="nodeColor",shape="nodeShape",group="nodeGroup",
+                 width="linkWidth",weight="linkWeight",text="linkText",lcolor="linkColor")
+    #main    
     nodeNames <- V(G)$name
     if(is.null(nodeNames))
       nodeNames <- as.character(seq_along(V(G)))
     nodes <- data.frame(name=nodeNames)
     links <- get.edgelist(G)
     links <- data.frame(Source=links[,1],Target=links[,2])
-    for(i in list.vertex.attributes(G))
-      nodes[[i]] <- get.vertex.attribute(G,i)
-    for(i in list.edge.attributes(G))
-      links[[i]] <- get.edge.attribute(G,i)
+    
+    #vertex attributes    
+    for(i in igraph::list.vertex.attributes(G)){
+      nodes[[i]] <- igraph::get.vertex.attribute(G,i)
+      if(i %in% names(oldArgs)) 0 # Forget igraph vertex attributes if they are in arguments (...)
+      else if(i %in% igraph::vertex_attr_names(G))arguments[[Arguments[i]]]<-i
+    }
+    #edges attributes
+    for(i in igraph::list.edge.attributes(G)){
+      links[[i]] <- igraph::get.edge.attribute(G,i)
+      if(i %in% names(oldArgs)) 0 # Forget igraph vertex attributes if they are in arguments (...)
+      else if(i %in% igraph::edge_attr_names(G))arguments[[Arguments[i]]]<-i
+    }
+    # layout
+    if(is.null(layout) & "x" %in% igraph::list.vertex.attributes(G) & "y" %in% igraph::list.vertex.attributes(G)) 
+      layout<-matrix(c(V(G)$x,V(G)$y),ncol=2)
+    else if(length(layout)==2 & class(layout)=="character")
+      layout<-matrix(c(igraph::vertex_attr(G,layout[1]),igraph::vertex_attr(G,layout[2])),ncol=2)
+    
+    # net elaborarion    
     net <- netAll(nodes,links,layout=layout)
+    net$options<-c(net$options,arguments)
     if (!is.null(dir)) netCreate(net,language=language,dir=dir)
     return(net)
   }
-  else warning("Is not an igraph object")
+  else warning("is not an igraph object")
 }
+
