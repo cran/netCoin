@@ -847,8 +847,6 @@ printNet <- function(x){
   }
 }
 
-print <- function(x, ...) UseMethod("print")
-
 plot.coin <- function(x, dir=tempdir(), language=c("en","es"), ...){
   N <- asNodes(x)
   E <- edgeList(x,"frequency","expected")
@@ -866,8 +864,6 @@ plot.barCoin <- function(x, dir=tempdir(), language=c("en","es"), ...){
 plot.timeCoin <- function(x, dir=tempdir(), language=c("en","es"), ...){
      timeCreate(x,language,dir,TRUE)
 }
-
-plot <- function(x, ...) UseMethod("plot")
 
 summary.coin <- function(object, ...){
   cat(object$n,"scenarios and", dim(object$f)[1], "events\n")
@@ -910,8 +906,6 @@ summaryNet <- function(x){
     print(summary(x$links[[3]]))
        }
 }
-
-summary <- function(object, ...) UseMethod("summary")
 
 # Transform a coin object into a data frame with name and frequency
 asNodes<-function(C,frequency=TRUE,percentages=FALSE,language="en"){
