@@ -77,7 +77,9 @@ function network(Graph){
   });
   
   options.colorScalenodeColor = "RdBkGn"; // default linear scale for nodes
-  options.colorScalelinkColor = "RdBkGn"; // default linear scale for linkss
+  options.colorScalelinkColor = "RdBkGn"; // default linear scale for links
+
+  options.adjustSymbols = true;
 
   options.charge = function(size){ return -(size/2); }
   options.linkDistance = function(size){ return size/20; };
@@ -1013,7 +1015,7 @@ function drawNet(){
     if(options.nodeShape){
       var symbolList = d3.scale.ordinal()
          .range(symbolTypes)
-         .domain(d3.map(Graph.nodes, function(d) { return d[options.nodeShape]; }).keys());
+         .domain(d3.map(options.adjustSymbols? Graph.nodes : nodes, function(d) { return d[options.nodeShape]; }).keys());
 
       getShape = function(d) { return symbolList(d[options.nodeShape]); }
     }
@@ -1130,7 +1132,7 @@ function drawNet(){
   }
 
   function appendText(sel,row){
-    if(options.nodeLabel){
+    if(options.showLabels){
     sel.append("text")
       .attr("class","label")
       .attr("x", row? (heatmapTriangle? side + 6 : -6) : ((heatmapTriangle?-1:1) * (options.nodeOrder?18:6)))
@@ -1140,7 +1142,7 @@ function drawNet(){
       .attr("dy", ".32em")
       .style("fill",colorNodesScale? function(d, i) { return colorNodesScale(nodes[i][options.nodeColor]); } : null)
       .style("opacity",0)
-      .text(function(d, i) { return (!row ? nodes[i][options.nodeLabel] : nodes[i][options.nodeName]); })
+      .text(function(d, i) { return (!row && options.nodeLabel?nodes[i][options.nodeLabel]:nodes[i][options.nodeName]); })
       .on("click",function(d,i){
         var name = nodes[i][options.nodeName];
         nodes.forEach(function(p){
@@ -1311,7 +1313,7 @@ function drawNet(){
 
   // labels
   var label = svg.selectAll(".label")
-      .data(options.nodeLabel ? nodes : [], function(d) { return d[options.nodeName]; });
+      .data(options.showLabels?nodes:[], function(d) { return d[options.nodeName]; });
 
   label.exit().remove();
 
@@ -1328,7 +1330,7 @@ function drawNet(){
 
   label.selectAll("text")
     .attr("x", function(d) { return 10+(d.nodeSize-1)*4; })
-    .text(function(d) { return d[options.nodeLabel]; });
+    .text(function(d) { return options.nodeLabel?d[options.nodeLabel]:d[options.nodeName]; });
 
   labelEnter.transition()
       .duration(500)
@@ -1502,12 +1504,18 @@ function drawNet(){
   }
 
   if(options.nodeColor && !options.colorScalenodeColor){
-    dat = d3.map(nodes.filter(function(d){ return d[options.nodeColor]!==null; }), function(d){ return d[options.nodeColor]; }).keys();
+    if(options.adjustSymbols)
+        dat = d3.map(nodes.filter(function(d){ return d[options.nodeColor]!==null; }), function(d){ return d[options.nodeColor]; }).keys();
+    else
+        dat = colorNodesScale.domain();
     displayLegend(gScale,options.nodeColor,colorNodesScale,"circle",dat.sort(sortAsc));
   }
 
   if(options.nodeShape){
-    dat = d3.map(nodes, function(d){ return d[options.nodeShape]; }).keys();
+    if(options.adjustSymbols)
+      dat = d3.map(nodes, function(d){ return d[options.nodeShape]; }).keys();
+    else
+      dat = symbolList.domain();
     displayLegend(gScale,options.nodeShape,"#000000",symbolList,dat.sort(sortAsc));
   }
 
@@ -1677,7 +1685,7 @@ function forceEnd(){
 
 function setColorScale(item,itemAttr){
     if(options[itemAttr]){
-      var data = !(item=='nodes' && options[itemAttr]=='weight') ? Graph[item] : force[item](),
+      var data = options.adjustSymbols && !(item=='nodes' && options[itemAttr]=='weight') ? Graph[item] : force[item](),
           scale;
       if(options["colorScale"+itemAttr] && dataType(data,options[itemAttr]) == "number"){
         var colorDomain = d3.extent(data.filter(function(d){ return d !== null; }), function(d) { return d[options[itemAttr]]; }),
@@ -1705,7 +1713,7 @@ function setColorScale(item,itemAttr){
 
 function getNumAttr(item,itemAttr,range,def){
     if(options[itemAttr]){
-      var data = !(item=='nodes' && options[itemAttr]=='weight') ? Graph[item] : force[item]();
+      var data = options.adjustSymbols && !(item=='nodes' && options[itemAttr]=='weight') ? Graph[item] : force[item]();
       if(data.length){
         if(dataType(data,options[itemAttr]) == "number"){
           var attrDomain = d3.extent(data, function(d) { return options.linkBipolar? Math.abs(d[options[itemAttr]]) : +d[options[itemAttr]]; });
@@ -1803,6 +1811,9 @@ function loadSVGbuttons(){
   var buttons = d3.select(".plot svg g.buttons"),
       dat = [],
       datStopResume = {txt: texts.stopresume, callback: stopResumeNet},
+      datAdjust = {txt: texts.adjustsymbols, callback: function(){
+        options.adjustSymbols = !options.adjustSymbols;
+      }, pressed: options.adjustSymbols},
       datSidebar = {txt: texts.showhidesidebar, callback: function(){
         options.showSidebar = !options.showSidebar;
         displaySidebar();
@@ -1823,6 +1834,15 @@ function loadSVGbuttons(){
       datImages = {txt: texts.showhideimages, callback: function(){
         options.showImages = !options.showImages;
         drawNet();
+      }},
+      datLabels = {txt: texts.showhidelabels, callback: function(){
+        options.showLabels = !options.showLabels;
+        if(!options.showLabels){
+          d3.selectAll(".label").transition()
+          .duration(500)
+          .style("opacity", 0)
+          .each("end", function(d,i){ if(!i) drawNet(); })
+        }else drawNet();
       }},
       datMode = {txt: texts.netheatmap, callback: function(){
         heatmap = !heatmap;
@@ -1850,11 +1870,13 @@ function loadSVGbuttons(){
   else
     dat = [datStopResume];
 
+  dat.push(datAdjust);
   dat.push(datSidebar);
   dat.push(datDirectional);
   dat.push(datLegend);
   if(!heatmap) dat.push(datAxes);
   if(options.nodeItem) dat.push(datImages);
+  dat.push(datLabels);
 
   if(Array.isArray(options.mode))
     dat.push(datMode);
@@ -1879,8 +1901,13 @@ function loadSVGbuttons(){
     .attr("ry",2)
     .attr("width",30)
     .attr("height",10)
+    .style("fill",d.pressed?"#666":null)
     .on("click",function(){
       d.callback();
+      if(typeof d.pressed != 'undefined'){
+        d3.select(this).style("fill",d.pressed?null:"#666");
+        d.pressed = !d.pressed;
+      }
     });
 
   d3.select(this).append("text")

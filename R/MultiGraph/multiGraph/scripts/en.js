@@ -20,6 +20,8 @@ var texts = {
     loading: "Loading...",
     pdfexport: "PDF export",
     svgexport: "SVG export",
+    adjustsymbols: "Adjust symbols",
+    showhidelabels: "Show/hide labels",
     showhidelegend: "Show/hide legend",
     showhideaxes: "Show/hide axes",
     showhideimages: "Show/hide images",

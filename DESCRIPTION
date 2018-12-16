@@ -1,7 +1,7 @@
 Package: netCoin
 Type: Package
-Version: 0.3.0
-Date: 2018-07-25
+Version: 0.3.2
+Date: 2018-12-15
 Title: Interactive Analytic Networks
 Description: Create interactive analytic networks. It joins the data analysis power of R to obtain coincidences, co-occurrences and correlations, and the visualization libraries of 'JavaScript' in one package.
 License: CC BY-NC-SA 4.0
@@ -15,6 +15,6 @@ Author: Modesto Escobar <modesto@usal.es>,
   Carlos Prieto <cprietos@usal.es>,
   Luis Martinez-Uribe <lmartinez@usal.es>.
 Maintainer: Modesto Escobar <modesto@usal.es>
-Packaged: 2018-07-25 09:39:39 UTC; Modesto
+Packaged: 2018-12-16 18:52:36 UTC; Modesto
 Repository: CRAN
-Date/Publication: 2018-07-25 10:00:03 UTC
+Date/Publication: 2018-12-16 19:30:03 UTC

@@ -4,14 +4,13 @@
 \title{Nodes data frame.}
 \description{Nodes data frame from either an edge list or a \code{coin} object.}
 \usage{
-asNodes(C, frequency=TRUE, percentages=FALSE, language="en")
+asNodes(C, frequency=TRUE, percentages=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{C}{has to be an edge list or, better, a \code{coin} object.}
   \item{frequency}{add frequency of nodes}
   \item{percentages}{add nodes percentages}
-  \item{language}{language of colnames (default=en, option=es)}
 }
 \value{A data frame with nodes' names and their frequency and/or percentages if the input is a \code{coin} object}
 \author{

@@ -9,7 +9,7 @@ netCoin<-function (nodes, links = NULL, tree = NULL, name = NULL,
                       nodeFilter = NULL, linkFilter = NULL, degreeFilter = NULL, nodeBipolar = FALSE, linkBipolar = FALSE,
                       defaultColor = "#1f77b4", main = NULL, note = NULL, help = NULL, helpOn = FALSE,
                       cex = 1, background = NULL, layout = NULL, controls = c(1,2,3), mode = c("network","heatmap"),
-                      showCoordinates = FALSE, showArrows = FALSE, showLegend = TRUE, showAxes = FALSE, showLabels = TRUE, axesLabels = NULL,
+                      showCoordinates = FALSE, showArrows = FALSE, showLegend = TRUE, showAxes = FALSE, axesLabels = NULL,
                       language = c("en", "es"), image = NULL, imageNames = NULL, dir = NULL, show = TRUE)
 {
   if(class(nodes)=="netCoin"){
@@ -47,10 +47,12 @@ netCoin<-function (nodes, links = NULL, tree = NULL, name = NULL,
   if(showArrows) options[["showArrows"]] <- TRUE
   if(showLegend) options[["showLegend"]] <- TRUE
   if(showAxes) options[["showAxes"]] <- TRUE
-  if(showLabels) options[["showLabels"]] <- TRUE
   
   # node options
-  if (!is.null(label)) options[["nodeLabel"]] <- label
+  if(is.null(label))
+      options[["nodeLabel"]] <- name
+  else if(label!="")
+      options[["nodeLabel"]] <- label
   if (!is.null(group)) options[["nodeGroup"]] <- group
   if (!is.null(size)) options[["nodeSize"]] <- size
   if (!is.null(color)) options[["nodeColor"]] <- color
@@ -177,14 +179,18 @@ allNet<-function(incidences, weight = NULL, subsample = FALSE,
   incidences<-na.omit(incidences)
   if (all(incidences==0 | incidences==1)) {
     C<-coin(incidences, minimum, maximum, sort, decreasing, weight=weight, subsample=subsample)
-    O<-asNodes(C,frequency,percentages,arguments$language)
-    if (is.null(arguments$nodes))
+    if(exists("size",arguments))if(arguments$size=="frequency")frequency=TRUE
+    O<-asNodes(C,frequency,percentages)
+    names(O)[1]<-arguments$name
+    if(frequency && arguments$language=='es')
+      names(O)[2]<-'frecuencia'
+    if (is.null(arguments$nodes)){
       arguments$nodes<-O
-    else {
-    nodesOrder<-as.character(arguments$nodes[[arguments$name]])
-    arguments$nodes<-merge(O,arguments$nodes[,setdiff(names(arguments$nodes),c("frequency","frecuencia","%"))],by.y=arguments$name,all.y=TRUE, sort=FALSE)
-    row.names(arguments$nodes)<-arguments$nodes[[arguments$name]]
-    arguments$nodes<-arguments$nodes[nodesOrder,]
+    }else{
+      nodesOrder<-as.character(arguments$nodes[[arguments$name]])
+      arguments$nodes<-merge(O,arguments$nodes[,setdiff(names(arguments$nodes),c("frequency","frecuencia","%")),drop=FALSE],by.x=arguments$name,by.y=arguments$name,all.y=TRUE, sort=FALSE)
+      row.names(arguments$nodes)<-arguments$nodes[[arguments$name]]
+      arguments$nodes<-arguments$nodes[nodesOrder,]
     }
     procedures<-union(procedures,unlist(arguments[c("lwidth","lweight","lcolor","ltext")]))
     arguments$links<-edgeList(C, procedures, criteria, Bonferroni, minL, maxL, support, 
@@ -237,8 +243,20 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
   #Data.frame  
   if (all(class(data)==c("tbl_df","tbl","data.frame"))) data<-as.data.frame(data) # convert haven objects
   allvar<-union(union(metric,dichotomies),variables)
-  data<-na.omit(data[,union(allvar,weight)])
-  if(!is.null(weight)) weight<-data[,weight]
+  
+  if(!is.null(weight)) {
+    if(class(weight)=="character"){
+      data<-na.omit(data[,allvar])
+      allvar<-setdiff(allvar,weight)
+      variables<-setdiff(variables,weight)
+      weight<-data[,weight]
+    }
+    else{
+      if(length(weight)!=dim(data)[1]) stop("Weights have not the correct dimensions")
+      data<-na.omit(cbind(data,weight))[,1:length(data)]
+    }
+  }
+  
   data<-data[,allvar]
   data[,variables]<-as_factor(data[,variables])
   if(!is.null(nodes)) allvar<-intersect(unlist(nodes[name]),allvar)
@@ -275,10 +293,12 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
   incidences<-na.omit(incidences)
   if (all(incidences==0 | incidences==1)) {
     C<-coin(incidences, minimum, maximum, sort, decreasing, weight=weight, subsample=subsample)
-    O<-asNodes(C,frequency,percentages,arguments$language)
+    O<-asNodes(C,frequency,percentages)
     names(O)[1]<-name
+    if(frequency && arguments$language=='es')
+      names(O)[2]<-'frecuencia'
     if(!is.null(nodes)) {
-      O<-merge(O,nodes[,setdiff(names(nodes),c("frequency","frecuencia","%"))],by.x=name,all.x=TRUE)
+      O<-merge(O,nodes[,setdiff(names(nodes),c("frequency","frecuencia","%")),drop=FALSE],by.x=name,by.y=name,all.x=TRUE)
     }else {
       if (!is.null(commonlabel)) { # Preserve the prename (variable) of a node if specified in commonlabel
         ifelse(arguments$language=="es",arguments$label<-"etiqueta",arguments$label<-"label")
@@ -395,7 +415,7 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
     }
     if ("showArrows" %in% names(xNx$options) & exists("nodes")) xNx$links<-orderEdges(xNx$links,nodes[[name]])
     
-    if(!is.null(dir)) plot(xNx,dir=dir)
+    if(!is.null(dir)) plot(xNx,dir=dir,language=arguments$language)
     if (igraph) return(toIgraph(xNx))
     else return(xNx)
   }
@@ -908,16 +928,12 @@ summaryNet <- function(x){
 }
 
 # Transform a coin object into a data frame with name and frequency
-asNodes<-function(C,frequency=TRUE,percentages=FALSE,language="en"){
+asNodes<-function(C,frequency=TRUE,percentages=FALSE){
   if (class(C)=="coin") {
     if (!percentages & frequency) nodes<-data.frame(name=as.character(colnames(C$f)),frequency=diag(C$f))
     else if (!frequency & percentages) nodes<-data.frame(name=as.character(colnames(C$f)),"%"=diag(C$f)/C$n*100,check.names=FALSE)
     else if (percentages & frequency)nodes<-data.frame(name=as.character(colnames(C$f)),frequency=diag(C$f), "%"=diag(C$f)/C$n*100,check.names=FALSE)
-    else nodes<-data.frame(name=as.character(colnames(C$f)),check.names=FALSE)
-    if (language=="es") {
-       colnames(nodes)[colnames(nodes)=="frequency"]<-"frecuencia"
-       colnames(nodes)[colnames(nodes)=="name"]<-"nombre"
-    }       
+    else nodes<-data.frame(name=as.character(colnames(C$f)),check.names=FALSE)      
   }
   else if (min(c("Source", "Target") %in% names(C))) nodes<-data.frame(name=sort(union(C$Source,C$Target)))
   else warning("Is neither a coin object or an edge data frame")
@@ -1199,6 +1215,7 @@ conglos<-list(
 layoutControl<-function(layout){
   if (!is.null(layout)){
     layouts<-c("da","dr","ci","fr","ge","gr","ka","lg","md","ra","re","st","su")
+    layout<-gsub("layout.","",layout)
     layout<-(tolower(substr(layout,1,2)))
     if (layout %in% layouts) return (layout)
     else {
@@ -1212,6 +1229,7 @@ layoutControl<-function(layout){
 congloControl<-function(conglo){
   if (!is.null(conglo)){
     conglos<-c("ed","fa","la","le","lo","op","sp","wa")
+    conglo<-gsub("cluster_","",conglo)
     conglo<-(tolower(substr(conglo,1,2)))
     if (conglo %in% conglos) return (conglo)
     else {

@@ -6,14 +6,15 @@ tree <- net$tree
 nodes <- net$nodes
 options <- net$options
 
+name <- nodes[[options$nodeName]]
+
+nodesid <- (seq_along(name))-1
+uniqueid <- data.frame(nodesid,name)
+
 if(length(links)){
 
   sourcenames <- as.vector(links$Source)
   targetnames <- as.vector(links$Target)
-  name <- nodes[[options$nodeName]]
-
-  nodesid <- (1:length(name))-1
-  uniqueid <- data.frame(nodesid,name)
 
   nlinks <- nrow(links)
   source <- numeric(nlinks)
@@ -25,8 +26,8 @@ if(length(links)){
 
   links$Source <- source
   links$Target <- target
-
-  if(length(tree)){
+}
+if(length(tree)){
     sourcenames <- as.vector(tree$Source)
     targetnames <- as.vector(tree$Target)
 
@@ -45,7 +46,6 @@ if(length(links)){
       tree <- NULL
       warning("tree: there must be only one parent per node")
     }
-  }
 }
 
 json <- list(nodes = nodes)

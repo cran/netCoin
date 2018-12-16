@@ -20,7 +20,7 @@ netCoin(nodes, links = NULL, tree = NULL, name = NULL, label = NULL, size = NULL
         background = NULL, layout = NULL, controls = c(1,2,3),
         mode = c("network","heatmap"), showCoordinates = FALSE,
         showArrows = FALSE, showLegend = TRUE, showAxes = FALSE,
-        showLabels = TRUE, axesLabels = NULL, language = c("en","es"),
+        axesLabels = NULL, language = c("en","es"),
         image = NULL, imageNames = NULL, dir = NULL, show = TRUE)
 }
 \arguments{
@@ -63,7 +63,6 @@ drl("da"), circle("ci"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kama
 \item{showArrows}{a logical value true if the directional arrows are to be shown. Default = FALSE.}
 \item{showLegend}{a logical value true if the legend is to be shown. Default = TRUE.}
 \item{showAxes}{a logical value true if the axes are to be shown. Default = FALSE.}
-\item{showLabels}{a logical value true if the node labels are to be shown. Default = TRUE.}
 \item{axesLabels}{a character vector giving the axes names.}
 \item{language}{a character vector (es=spanish; en=english).}
 \item{image}{name of the vector with image files in the nodes data frame.}

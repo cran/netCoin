@@ -20,8 +20,6 @@ var texts = {
     loading: "Cargando...",
     pdfexport: "Exportación PDF",
     svgexport: "Exportación SVG",
-    adjustsymbols: "Fijar símbolos",
-    showhidelabels: "Mostrar/ocultar etiquetas",
     showhidelegend: "Mostrar/ocultar leyenda",
     showhideaxes: "Mostrar/ocultar ejes",
     showhideimages: "Mostrar/ocultar imágenes",
