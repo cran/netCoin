@@ -8,7 +8,8 @@
 The function creates a file with vertices and arcs or edges of a netCoin objetct. Vectors and partitions can be also included. .
 }
 \usage{
-savePajek(net, file="file.net", arcs=NULL, edges=NULL, partitions=NULL, vectors=NULL)
+savePajek(net, file="file.net", arcs=NULL, edges=NULL, 
+          partitions=NULL, vectors=NULL)
 }
 \arguments{
 \item{net}{a netCoin object.}
@@ -22,6 +23,7 @@ savePajek(net, file="file.net", arcs=NULL, edges=NULL, partitions=NULL, vectors=
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
 }
 \examples{
+\dontrun{
 # A character column (with separator)
 frame <- data.frame(A = c("Man; Women", "Women; Women",
                         "Man; Man", "Undet.; Women; Man"))
@@ -29,5 +31,6 @@ data <- dichotomize(frame, "A", add=FALSE, sep = "; ")
 graph <- allNet(data) # graph from an incidence matrix
 
 savePajek(graph,"graph",edges="Haberman") # save graph.net file
+}
 }
 

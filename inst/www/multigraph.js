@@ -1,54 +1,59 @@
-function MultiGraph(){
-  this.json = {};
-  this.keys = [];
-  this.netName = "";
+function MultiGraph(input){
+  this.json = JSON.parse(d3.select("#data").text());
+  this.items = this.json.items;
+  this.types = this.json.types;
+  this.current = 0;
+  if(input!=""){
+    this.current = parseInt(input.substring(1));
+    if(isNaN(this.current) || this.current>=this.items.length)
+      this.current = 0;
+  }
+  this.json = this.json.data[this.current];
 }
 
 MultiGraph.prototype = {
-  getJSON: function(input){
-    this.json = JSON.parse(d3.select("#data").text());
-    this.keys = Object.keys(this.json);
-    this.netName = this.keys[0];
-    if(input!=""){
-      this.netName = decodeURI(input.substring(1));
-      if(this.keys.indexOf(this.netName)==-1)
-        this.netName = this.keys[0];
-    }
-    this.json = this.json[this.netName];
-    return this.json;
-  },
   graphSelect: function(sel){
-    var current = this.netName;
+    var current = this.current;
     sel = sel.append("select")
     sel.selectAll("option")
-      .data(this.keys)
+      .data(this.items)
       .enter().append("option")
-        .property("value",function(d){ return encodeURI(d); })
+        .property("value",function(d,i){ return i; })
         .text(function(d){ return d; })
-        .each(function(d){
-          if(d==current)
+        .each(function(d,i){
+          if(i==current)
             this.selected = true; 
         })
     sel.on("change",function(){ window.location.href = "?"+this.value; })
+  },
+  getJSON: function(){
+    return this.json;
+  },
+  getType: function(){
+    return this.types[this.current];
+  },
+  getItem: function(){
+    return this.items[this.current];
   }
 }
 
-var multiGraph = new MultiGraph();
+var multiGraph = true;
 
 window.onload = function(){
-  var json = multiGraph.getJSON(window.location.search);
-  switch(json[0]){
+  multiGraph = new MultiGraph(window.location.search);
+  var json = multiGraph.getJSON();
+  switch(multiGraph.getType()){
     case 'netCoin':
-      network(json[1]);
+      network(json);
       break;
     case 'barCoin':
-      barplot(json[1]);
+      barplot(json);
       break;
     case 'timeCoin':
-      timeline(json[1]);
+      timeline(json);
       break;
     case 'iFrame':
-      displayIframe(json[1]);
+      displayIframe(json);
       break;
   }
 }

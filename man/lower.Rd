@@ -1,6 +1,5 @@
 \name{lower}
 \alias{lower}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Similarity/distance matrix display.
 }
@@ -10,7 +9,6 @@ Display the lower part of a matrix with a specified number of decimals.
 \usage{
 lower(matrix, decimals = 3)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{matrix}{a symmetric similarity/distance matrix}
   \item{decimals}{number of decimals to be displayed}

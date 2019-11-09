@@ -2,40 +2,32 @@ function fileDownload(blob,name){
   if(window.navigator.msSaveBlob){
     window.navigator.msSaveBlob(blob, name);
   }else{
-    var reader = new FileReader();
-    reader.onload = function (event) {
-      var save = document.createElement('a');
-      save.href = event.target.result;
-      save.target = '_blank';
-      save.download = name;
-      var clicEvent = new MouseEvent('click', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
-      });
-      save.dispatchEvent(clicEvent);
-      (window.URL || window.webkitURL).revokeObjectURL(save.href);
-    }
-    reader.readAsDataURL(blob);
+    var url = window.URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 100);
   }
 }
 
 function pdfPolygon(path, x, y, scale, style){
     if(path.indexOf("A")!=-1){
-      this.circle(x, y, 4.5*scale[0], style);
+      this.circle(x, y, 4.514*scale[0], style);
     }else{
       var closed = path.indexOf("Z")!=-1,
           points = [];
-      path = path.replace(/M|Z/g,"").split(/[LHV]/); 
+      path = path.replace(/M|Z/g,"").split(/[Lhv]/); 
       for(var i = 0; i<path.length; i++){
         var p = path[i].split(/[,| ]/).filter(function(d){ return d.length>0; }),
         pLen = p.length;
         if(pLen==1){
-          if(i%2!=0){
-            points.push([+p[0],points[points.length-1][1]]);
-          }else{
-            points.push([+points[points.length-1][0],+p[0]]);
-          }
+          points.push(points[points.length-1].map(function(d,j){ return i%2!=0 ^ j ? d+parseInt(p[0]) : d; }));
         }
         if(pLen==2){
           points.push([+p[0],+p[1]]);
@@ -92,6 +84,15 @@ function formatter(d){
   return d;
 }
 
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
 function downloadExcel(data,name){
   var sheets = ["void"],
       contentTypes = [],
@@ -105,14 +106,14 @@ function downloadExcel(data,name){
             if(typeof dd == 'number')
               xml.push('<c t="n"><v>'+dd+'</v></c>');
             else
-              xml.push('<c t="inlineStr"><is><t>'+dd+'</t></is></c>');
+              xml.push('<c t="inlineStr"><is><t>'+escapeHtml(dd)+'</t></is></c>');
           });
           xml.push('</row>');
         });
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac"><sheetData>'+xml.join('')+'</sheetData></worksheet>';
       }
 
-  for(d in data)
+  for(var d in data)
     sheets.push(d);
 
   var zip = new JSZip(),
@@ -136,7 +137,7 @@ function downloadExcel(data,name){
 
   xlrels.file("workbook.xml.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+workbookRels.join('')+'</Relationships>');
 
-  zip.generateAsync({type:"blob"})
+  zip.generateAsync({type:"blob", mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
   .then(function(content) {
       fileDownload(content, name + '.xlsx');
   });
@@ -164,7 +165,13 @@ function iconButton(sel,alt,src,title,job){
 function displayWindow(txt){
   var docSize = viewport(),
       bg = d3.select("body").append("div")
-        .style({"position":"fixed","top":0,"left":0,"width":docSize.width+"px","height":docSize.height+"px","background":"rgba(0,0,0,0.8)","z-index":10});
+        .style("position","fixed")
+        .style("top",0)
+        .style("left",0)
+        .style("width",docSize.width+"px")
+        .style("height",docSize.height+"px")
+        .style("background","rgba(0,0,0,0.8)")
+        .style("z-index",10);
 
   var boxStyle = {"background-color":"#fff","margin":"0 auto","margin-top":(docSize.height/5)+"px","padding":"30px","width":(docSize.width/2)+"px"};
 
@@ -178,12 +185,16 @@ function displayWindow(txt){
 
   var win = bg.append("div")
     .attr("class","window")
-    .style(boxStyle)
     .on("click",function(){ d3.event.stopPropagation(); })
+
+  for(var s in boxStyle)
+    win.style(s,boxStyle[s]);
 
   bg.append("div")
     .attr("class","close-button")
-    .style({"position":"absolute","top":(12+docSize.height/5)+"px","right":(docSize.width/4)+"px"})
+    .style("position","absolute")
+    .style("top",(12+docSize.height/5)+"px")
+    .style("right",(docSize.width/4)+"px")
     .html("&#x2716;")
     .on("click", function(){ bg.remove() });
 
@@ -202,61 +213,70 @@ function brushSlider(sel,domain,current,callback,baseWidth){
   if(!current)
     current = domain;
 
-  var x = d3.scale.linear()
+  var x = d3.scaleLinear()
       .range([0, width])
       .domain(domain)
-	  .clamp(true);
+      .clamp(true);
 
-  sel.style({height: height+margin.top+margin.bottom + "px"});
+  sel.style("height", height+margin.top+margin.bottom + "px");
   
   var slider = sel.append("div")
     .attr("class", "slider")
-    .style({width: width + "px", height: height + "px", position: "relative", top: margin.top+"px", left: margin.left+"px"});
-	
+    .style("width", width + "px")
+    //.style("height", height + "px")
+    .style("position", "relative")
+    .style("top", margin.top+"px")
+    .style("left", margin.left+"px");
+    
   var sliderTray = slider.append("div")
     .attr("class", "slider-tray");
-	
+    
   var sliderExtent = slider.append("span")
     .attr("class","slider-extent")
     .style("width",(x(current[1])-x(current[0]))+"px")
-	.style("left",x(current[0])+"px")
+    .style("left",x(current[0])+"px")
 
   slider.append("span")
     .attr("class","slider-min")
-	.style({"left": -5*cex+"px", "top": -20*cex + "px"})
-	.text(d3.round(domain[0],2))
+    .style("left", -5*cex+"px")
+    .style("top", -20*cex + "px")
+    .text(formatter(domain[0]))
 
   slider.append("span")
     .attr("class","slider-max")
-	.style({"left": width-5*cex+"px", "top": -20*cex + "px"})
-	.text(d3.round(domain[1],2))
+    .style("left", width-5*cex+"px")
+    .style("top", -20*cex + "px")
+    .text(formatter(domain[1]))
 
   var sliderHandle = slider.selectAll(".slider-handle")
     .data(current)
-	.enter().append("div")
+      .enter().append("div")
     .attr("class", "slider-handle")
-	.style({position: "absolute", top: "3px", left: function(d){ return x(d)+"px"; } });
-	
+    .style("position","absolute")
+    .style("top", "3px")
+    .style("left", function(d){ return x(d)+"px"; });
+    
   sliderHandle.append("div")
     .attr("class", "slider-handle-icon")
 
   sliderHandle.append("span")
     .attr("class","slider-text")
-	.style({"top": -22*cex + "px", "left": -4*cex+"px"})
-	.text(function(d){ return d3.round(d,2); })
+    .style("top", -22*cex + "px")
+    .style("left", -4*cex+"px")
+    .text(function(d){ return formatter(d); })
 
   sliderHandle.each(function(d, i){
-	var self = d3.select(this);
-    self.call(d3.behavior.drag()
+    var self = d3.select(this);
+    self.call(d3.drag()
     .on("drag", function() {
       var value = x.invert(d3.mouse(sliderTray.node())[0]);
-	  self.style("left", x(value) + "px");
-	  self.select(".slider-text").text(d3.round(value,2));
-	  current[i] = value;
-	  var extent = d3.extent(current);
+      self.style("left", x(value) + "px");
+      self.select(".slider-text").text(formatter(value));
+      current[i] = value;
+      var extent = d3.extent(current);
       sliderExtent.style("width", (x(extent[1])-x(extent[0]))+"px")
-	    .style("left",x(extent[0])+"px");
-	  callback(extent);
+        .style("left",x(extent[0])+"px");
+      callback(extent);
     }));
   })
 }
@@ -271,19 +291,19 @@ function dataType(data,key){
 
 function selectedValues2str(selectedValues,data){
   var query = "(true";
-  d3.entries(selectedValues).forEach(function(d){
+  d3.keys(selectedValues).forEach(function(k){
     query = query + ") && (false";
-    if(typeof d.value[0] == 'number' && d.value.length == 2){
-      query = query + " || ((d['" + d.key + "'] >= " + d.value[0] + ") && (d['" + d.key + "'] <= " + d.value[1] + "))";
+    if(typeof selectedValues[k][0] == 'number' && selectedValues[k].length == 2){
+      query = query + " || ((d['" + k + "'] >= " + selectedValues[k][0] + ") && (d['" + k + "'] <= " + selectedValues[k][1] + "))";
     }else{
-      var type = dataType(data,d.key);
+      var type = dataType(data,k);
       if(type == 'string')
-        d.value.forEach(function(p){
-          query = query + " || (d['" + d.key + "'] == " + (p=='null' ? p : "'" + p + "'") + ")";
+        selectedValues[k].forEach(function(p){
+          query = query + " || (d['" + k + "'] == " + (p=='null' ? p : "'" + p + "'") + ")";
         })
       if(type == 'object')
-        d.value.forEach(function(p){
-          query = query + " || (d['" + d.key + "'] && d['" + d.key + "'].indexOf('" + p + "')!=-1)";
+        selectedValues[k].forEach(function(p){
+          query = query + " || (d['" + k + "'] && d['" + k + "'].indexOf('" + p + "')!=-1)";
         })
     }
   })
@@ -291,32 +311,43 @@ function selectedValues2str(selectedValues,data){
   return query;
 }
 
-function topFilter(topBar,data,name,displayGraph){
+function topFilter(){
 
-  topBar.append("h3").text(texts.filter + ":")
+  var data,
+      attr,
+      displayGraph,
+      selectedValues = {},
+      selFilter;
 
-  var selectedValues = {},
-    changeAttrSel = function(val){
+  function topFilter(topBar){
+
+    topBar.append("h3").text(texts.filter + ":")
+
+    var changeAttrSel = function(val){
       if(d3.select("body>div>div.window").empty()){
 
-        var dat = d3.set(data.map(function(d){ return d[val]; })).values(),
-            panel = displayWindow(),
+        var panel = displayWindow(),
             vp = viewport();
 
         panel.append("h3").text(val).style("margin-bottom","10px")
 
-        var type = d3.map(data.filter(function(d){ return d[val] !== null; }),function(d){ return typeof d[val]; }).keys();
-        if(type.length == 1 && type[0] == 'number'){
+        var type = dataType(data.filter(function(d){ return d[val] !== null; }),val);
+        if(type == 'number'){
           var extent = d3.extent(data, function(d){ return d[val]; }),
               tempValues;
           brushSlider(panel.append("div"),extent,selectedValues[val],function(s){ tempValues = s; },vp.width/3);
         }else{
+          var dat = data.map(function(d){ return d[val]; });
+          if(type != 'string')
+            dat = dat.reduce(function(a,b) { return b ? a.concat(b) : a; }, []);
+          dat = d3.set(dat).values().sort();
+
           var valSelector = panel.append("select")
             .attr("multiple","multiple")
             .attr("size",dat.length)
-            .style({"width":vp.width/3+"px"});
+            .style("width",vp.width/3+"px");
 
-          valSelector.selectAll("option").data(dat.sort())
+          valSelector.selectAll("option").data(dat)
             .enter().append("option")
               .property("value",String)
               .property("selected",function(d){ return (selectedValues[val] && selectedValues[val].indexOf(d)!=-1); })
@@ -324,9 +355,25 @@ function topFilter(topBar,data,name,displayGraph){
         }
 
         panel.append("button")
-          .text(texts.add)
-          .style({"position":"fixed","left":(2*vp.width/3)+"px","top":(2*vp.height/3)+"px"})
+          .text(texts.apply)
+          .style("position","fixed")
+          .style("left",((2*vp.width/3)-80)+"px")
+          .style("top",(2*vp.height/3)+"px")
           .on("click",function(){
+            selectedValues = {};
+            add2filter();
+            applyfilter();
+          })
+
+        panel.append("button")
+          .text(texts.add)
+          .style("position","fixed")
+          .style("left",(2*vp.width/3)+"px")
+          .style("top",(2*vp.height/3)+"px")
+          .on("click",add2filter)
+      }
+
+      function add2filter(){
             selectedValues[val] = [];
             if(typeof tempValues != 'undefined'){
               selectedValues[val] = tempValues;
@@ -338,32 +385,66 @@ function topFilter(topBar,data,name,displayGraph){
             }
             if(selectedValues[val].length == 0)
               delete selectedValues[val];
-            d3.select(this.parentNode.parentNode).remove();
-          })
+            d3.select(panel.node().parentNode).remove();
       }
     }
 
-  var selFilter = topBar.append("select")
-    .on("click",function(){ this.selectedIndex = -1; })
-    .on("change",function(){ changeAttrSel(this.value); })
+    selFilter = topBar.append("select")
+      .on("change",function(){ changeAttrSel(this.value); })
 
-  selFilter.selectAll("option")
-        .data(d3.keys(data[0]).sort())
+    var options = d3.keys(data[0]).sort();
+    options.unshift("-"+texts.none+"-");
+    selFilter.selectAll("option")
+        .data(options)
       .enter().append("option")
+        .property("disabled",function(d,i){ return !i; })
         .property("value",String)
         .text(String)
 
-  topBar.append("button")
-    .text(texts.clear)
-    .on("click",function(){ selectedValues = {}; })
+    topBar.append("button")
+      .text(texts.apply)
+      .on("click",applyfilter)
 
-  topBar.append("button")
-    .text(texts.apply)
-    .on("click",function(){
+    topBar.append("button")
+      .text(texts.removefilter)
+      .on("click",removeFilter)
+  }
+
+  function applyfilter(){
       var query = selectedValues2str(selectedValues,data);
-      var names = data.filter(function(d){ return eval(query); }).map(function(d){ return d[name]; });
+      var names = data.filter(function(d){ return eval(query); }).map(function(d){ return d[attr]; });
       displayGraph(names);
-    })
+  }
+
+  function removeFilter(){
+      selFilter.node().selectedIndex = 0;
+      selectedValues = {};
+      displayGraph(false);
+  }
+
+  topFilter.removeFilter = function(){
+    removeFilter();
+  }
+
+  topFilter.data = function(x) {
+    if (!arguments.length) return data;
+    data = x;
+    return topFilter;
+  };
+
+  topFilter.attr = function(x) {
+    if (!arguments.length) return attr;
+    attr = x;
+    return topFilter;
+  };
+
+  topFilter.displayGraph = function(x) {
+    if (!arguments.length) return displayGraph;
+    displayGraph = x;
+    return topFilter;
+  };
+
+  return topFilter;
 }
 
 function tooltip(sel,text){
@@ -373,7 +454,6 @@ function tooltip(sel,text){
     if(tip.empty())
       tip = body.append("div")
           .attr("class","tooltip")
-          .style({"position":"absolute","background":"#f5f5f5","padding":"10px","display":"none"})
 
     sel
       .on("mouseenter", function(d){
@@ -383,9 +463,109 @@ function tooltip(sel,text){
       .on("mousemove", function(){
         var coor = [0, 0];
         coor = d3.mouse(body.node());
-        tip.style({"top":(coor[1]+20)+"px","left":(coor[0]+20)+"px"})
+        tip.style("top",(coor[1]+20)+"px")
+           .style("left",(coor[0]+20)+"px")
       })
       .on("mouseleave", function(){
         tip.style("display","none").html("")
       })
+}
+
+function sortAsc(a,b){
+  if(!isNaN(+a) && !isNaN(+b)){
+    a = +a;
+    b = +b;
+  }
+  return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
+}
+
+function getTranslation(transform) {
+  var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  
+  g.setAttributeNS(null, "transform", transform);
+ 
+  var matrix = g.transform.baseVal.consolidate().matrix;
+  
+  return [matrix.e, matrix.f];
+}
+
+function CanvasRecorder(canvas, video_bits_per_sec) {
+    this.start = startRecording;
+    this.stop = stopRecording;
+    this.save = download;
+
+    var recordedBlobs = [];
+    var supportedType = null;
+    var mediaRecorder = null;
+
+    try {
+      var stream = canvas.captureStream();
+    } catch (e) {
+      alert("canvas.captureStream() is not supported by this browser.");
+    }
+    if (typeof stream == undefined || !stream) {
+      this.start = null;
+      return;
+    }
+
+    function startRecording() {
+        if(typeof MediaRecorder == "undefined"){
+          alert('MediaRecorder is not supported by this browser.');
+          return false;
+        }
+
+        var types = [
+            "video/webm;codecs=vp9",
+            "video/webm;codecs=vp8",
+            "video/webm;codecs=daala",
+            "video/webm;codecs=h264",
+            "video/webm",
+            "video/vp8",
+            "video/mpeg"
+        ];
+
+        for (var i in types) {
+            if (MediaRecorder.isTypeSupported(types[i])) {
+                supportedType = types[i];
+                break;
+            }
+        }
+        if (supportedType == null) {
+            alert("No supported type found for MediaRecorder");
+            return false;
+        }
+        var options = { 
+            mimeType: supportedType,
+            videoBitsPerSecond: video_bits_per_sec || 2500000 // 2.5Mbps
+        };
+
+        recordedBlobs = [];
+        try {
+            mediaRecorder = new MediaRecorder(stream, options);
+        } catch (e) {
+            alert('MediaRecorder is not supported by this browser.');
+            console.error('Exception while creating MediaRecorder:', e);
+            return false;
+        }
+
+        mediaRecorder.ondataavailable = handleDataAvailable;
+        mediaRecorder.start(100); // collect 100ms of data blobs
+        return true;
+    }
+
+    function handleDataAvailable(event) {
+        if (event.data && event.data.size > 0) {
+            recordedBlobs.push(event.data);
+        }
+    }
+
+    function stopRecording() {
+        mediaRecorder.stop();
+    }
+
+    function download(file_name) {
+        var name = file_name || 'recording.webm';
+        var blob = new Blob(recordedBlobs, { type: supportedType });
+        fileDownload(blob,name);
+    }
 }

@@ -1,6 +1,5 @@
 \name{distant}
 \alias{distant}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Distance matrix.
 }
@@ -10,7 +9,6 @@ Convert a similarity matrix into a distance matrix.
 \usage{
 distant(s, t = FALSE)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{s}{a similarity matrix}
   \item{t}{return the same matrix if t=FALSE}

@@ -8,7 +8,7 @@
 The function creates a netCoin object and eventually a folder in the computer with an HTML document named index.html which contains the produced graph. This file can be directly opened with your browser and sent to a web server to work properly.
 }
 \usage{
-netCorr(variables, weight=NULL,
+netCorr(variables, weight=NULL, pairwise=FALSE,
         minimum=-Inf, maximum=Inf, sort=FALSE, decreasing=TRUE,
         frequency=FALSE, means=TRUE, 
         method="pearson", criteria="p", Bonferroni=FALSE,
@@ -19,6 +19,7 @@ netCorr(variables, weight=NULL,
 \arguments{
 \item{variables}{a data frame with at least two quantitative variables.}
 \item{weight}{a vector of weights. Optimal for data.framed tables}
+\item{pairwise}{Pairwise mode of handling missing values if TRUE. Listwise by default.}
 \item{minimum}{minimum frequency to be considered}
 \item{maximum}{maximum frequency to be considered}
 \item{sort}{sort the correlation matrix according to the frequency of the events}

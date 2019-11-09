@@ -1,18 +1,18 @@
-\name{toIgraph}
-\alias{toIgraph}
-\title{igraph object.}
-\description{\code{igraph} object from a \code{netCoin} object.}
+\name{shinyCoin}
+\alias{shinyCoin}
+\title{Include netCoin Plots in Shiny.}
+\description{Load a netCoin plot to display in shiny.}
 \usage{
-toIgraph(net)
+shinyCoin(x)
 }
 \arguments{
-  \item{net}{is a \code{netCoin} object. See \code{\link{netCoin}}}
+  \item{x}{is a \code{netCoin}, \code{barCoin} or \code{timeCoin} object.}
 }
-\value{An \code{igraph} object.}
 \author{
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
 }
 \examples{
+\dontrun{
 # A character column (with separator)
 frame <- data.frame(A = c("Man; Women", "Women; Women",
                         "Man; Man", "Undet.; Women; Man"))
@@ -21,5 +21,6 @@ C <- coin(data) # coincidence matrix
 N <- asNodes(C) # node data frame
 E <- edgeList(C) # edge data frame
 net <- netCoin(N, E) # netCoin object
-toIgraph(net) # conversion into a igraph object
+shinyCoin(net)
+}
 }

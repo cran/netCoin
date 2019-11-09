@@ -79,14 +79,14 @@ even | large | 4.766506 | 3.18645e-06
 
 In order to make a graph, two data frames are needed: a nodes data frames with names and other nodes attributes (see `as.nodes` and an edge data frame (see `edgeList`). For more information go to [netCoin](https://cran.r-project.org/package=netCoin).
 
-## <a id="examples">Introduction and examples</a>
+## <a id="examples">Examples</a>
 ###<a id="inst">Package installation and loading</a>
 
 To install and load the updated version of the netCoin package simply run the following commands:
-```{r, eval=FALSE}
+```{r eval=FALSE}
 install.packages("netCoin")
 ```
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 library(netCoin)
 ```
 ###<a id="basic"> Basic coincidence analysis with dice roll data</a>
@@ -124,7 +124,7 @@ Net <- netCoin(N,E,dir="dice")
 ```
 
 
-```{r echo=FALSE, out.width='100%'}
+```{r echo=FALSE, out.width='98%'}
 knitr::include_graphics("Dice.png")
 ```
 
@@ -149,34 +149,34 @@ The previous `coin`, `edgeList`, `asNodes` and `netCoin`  functions can be execu
 * title - upper title of the graph.
 * subtitle - lower title of the graph.
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 
 library(igraph)
 ```
 
 With the following commands two networks are generated that represent on the business and marriages links between the two families.
 
-```{r, message=FALSE, warning=FALSE, eval=FALSE}
+```{r message=FALSE, warning=FALSE, eval=FALSE}
 G <- allNet(incidence=links[links$link=="Marriage",-17],
      nodes=families, layout="md", percentages= FALSE,
-     criteria="f",minL=1, size="f.Marriages",color="seat",
-     main="Marriage Links beetween Italian families",
+     criteria="f",minL=1, size="f.Marriages",shape="seat",
+     main="Marriage links beetween Italian families",
      note="Data source: Padgett & Ansell (1983)")
 H <- allNet(incidence=links[links$link=="Business",-17],
      nodes=families, layout="md", percentages= FALSE,
-     criteria="f",minL=1, size="f.Business",color="seat",
-     main="Marriage Links beetween Italian families",
+     criteria="f",minL=1, size="f.Business",shape="seat",
+     main="Marriage links beetween Italian families",
      note="Data source: Padgett & Ansell (1983)")
 
 ```
 
 Once the two networks are ready, the function `multigraphCreate` generates both graphs in the specified file.
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+```{r echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
 multigraphCreate(Marriage=G,Business=H,dir="italian")
 ```
 
-```{r echo=FALSE, out.width='100%'}
+```{r echo=FALSE, out.width='98%'}
 knitr::include_graphics("Padgett.png")
 ```
 
@@ -193,11 +193,11 @@ Here we add a few extra features to our graph:
 * layout="mds" - the algorithm selected for the network topology.
 
 
-```{r , echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+```{r echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
 data("Galapagos")
 data("finches")
-finches$species<-paste(system.file("doc/sanderson",package="netCoin"),
-        "/images/",finches$species,sep="") # copy path to the species field
+finches$species<-system.file("extdata", finches$species,
+        package="netCoin") # copy path to the species field
 Net<-allNet(Galapagos,nodes=finches, criteria="hyp", maxL=.05,
         lwidth ="Haberman",lweight="Haberman",
         size="frequency", image="species", layout="mds",
@@ -206,6 +206,6 @@ Net<-allNet(Galapagos,nodes=finches, criteria="hyp", maxL=.05,
 plot(Net)
 ```
 
-```{r echo=FALSE, out.width='100%'}
+```{r echo=FALSE, out.width='98%'}
 knitr::include_graphics("Finches.png")
 ```

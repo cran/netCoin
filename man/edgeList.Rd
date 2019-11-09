@@ -1,6 +1,5 @@
 \name{edgeList}
 \alias{edgeList}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Edge list.
 }
@@ -8,15 +7,16 @@ Edge list.
 Convert a coincidence/similarity/distance matrix into an edge list form.
 }
 \usage{
-edgeList(data, procedures="Haberman", criteria="Z", Bonferroni=FALSE, 
-         min=-Inf, max=Inf, support=-Inf,
-         directed=FALSE, diagonal= FALSE, sort=NULL, decreasing=TRUE)
+edgeList(data, procedures="Haberman", 
+         criteria="Z", level=.95, Bonferroni=FALSE, 
+         min=-Inf, max=Inf, support=-Inf, directed=FALSE, 
+         diagonal=FALSE, sort=NULL, decreasing=TRUE, pairwise=FALSE)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{data}{a coin object, let's say an R list composed by a number of scenarios (\code{$n}) and a coincidence matrix with frequencies (\code{$f}). In case of change of shape, \code{data} should be a matrix.}
+  \item{data}{a coin object, let's say an R matrix with frequencies and an attribute (\code{n}) giving the number of scenarios. In case of change of shape, \code{data} should be a matrix.}
   \item{procedures}{a vector of statistics of similarity. See below.}
   \item{criteria}{statistic to be use for selection criteria.}
+  \item{level}{confidence level}
   \item{Bonferroni}{Bonferroni criterium of the signification test.}
   \item{min}{minimum value of the statistic to include the edge in the list.}
   \item{max}{maximum value of the statistic to include the edge in the list.}
@@ -25,6 +25,7 @@ edgeList(data, procedures="Haberman", criteria="Z", Bonferroni=FALSE,
   \item{diagonal}{includes auto-links}
   \item{sort}{sort the list according to the values of a statistic. See below}
   \item{decreasing}{order in a decreasing way.}
+  \item{pairwise}{Pairwise mode of handling missing values if TRUE. Listwise by default.}
 }
 \details{
 Possible measures in procedures are 

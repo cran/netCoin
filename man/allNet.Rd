@@ -9,18 +9,21 @@ This function creates a netCoin object (or igraph) and, if stated, a folder in t
 }
 
 \usage{
-allNet(incidences, weight = NULL, subsample = FALSE,
-       minimum=1, maximum = nrow(incidences), sort = FALSE, decreasing = TRUE,
+allNet(incidences, weight = NULL, subsample = FALSE, pairwise = FALSE,
+       minimum=1, maximum = nrow(incidences), 
+       sort = FALSE, decreasing = TRUE,
        frequency = FALSE, percentages = TRUE, 
        procedures = "Haberman", criteria = "Z", Bonferroni = FALSE,
        support = -Inf, minL = -Inf, maxL = Inf,
-       directed = FALSE, diagonal = FALSE, sortL = NULL, decreasingL = TRUE,
+       directed = FALSE, diagonal = FALSE, 
+       sortL = NULL, decreasingL = TRUE,
        igraph = FALSE, dir=NULL, ...)
 }
 \arguments{
   \item{incidences}{an incidence matrix or data frame with only 0/1 variables.}
   \item{weight}{a vector of weights. Optimal for data.framed tables.}
   \item{subsample}{retrict the analysis to scenarios with at least one event.}
+  \item{pairwise}{Pairwise mode of handling missing values if TRUE. Listwise by default.}
   \item{minimum}{minimum frequency to be considered.}
   \item{maximum}{maximum frequency to be considered.}
   \item{sort}{sort the coincidence matrix according to frequency of events.}

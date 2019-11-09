@@ -2,7 +2,7 @@
 \alias{fromIgraph}
 \title{Produce interactive networks from igraph objects.}
 \author{
-David Barrios and Carlos Prieto. Bioinformatics Service of Nucleus, University of Salamanca. See \url{http://bioinfo.usal.es/}
+Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
 }
 \value{
 This function returns a \code{netCoin} object.
@@ -10,17 +10,10 @@ If the 'dir' attribute is specified, the function creates a folder in the comput
 }
 
 \usage{
-fromIgraph(G, layout = NULL, language = c("en","es"), dir = NULL, ...)
+fromIgraph(G, ...)
 }
 \arguments{
 \item{G}{an igraph object.}
-
-\item{layout}{a matrix with two columns.}
-
-\item{language}{a character vector (es=spanish; en=english).}
-
-\item{dir}{a "character" string representing the directory where the graph will be saved.}
-
 \item{...}{Any \link{netCoin} argument.}
 }
 \description{

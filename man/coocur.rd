@@ -1,6 +1,5 @@
 \name{coocur}
 \alias{coocur}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Coocurrence matrix.
 }
@@ -12,7 +11,6 @@ Besides, this object has two attributes: 1) n is the total of the sum of the ocu
 coocur(ocurrences, minimum = 1, maximum = Inf,
        sort = FALSE, decreasing = TRUE)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{ocurrences}{an ocurrence matrix or data frame}
   \item{minimum}{minimum frequency to be considered}

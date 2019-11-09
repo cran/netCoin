@@ -21,6 +21,32 @@ button, input, select {
 select {
   background-color: #fff;
 }
+input[type=range]{
+  -webkit-appearance: none;
+  height: 5px;
+  background: #d3d3d3;
+  border-radius: 3px; 
+  outline: none;
+  border: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 1px solid #aaa;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%; 
+  background: #fff;
+  cursor: pointer;
+}
+input[type=range]::-moz-range-thumb {
+  border: 1px solid #aaa;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%; 
+  background: #fff;
+  cursor: pointer;
+}
 table {
   color: #444;
   border-collapse: collapse;
@@ -67,6 +93,10 @@ th {
 .tables td {
   white-space: nowrap;
 }
+.tables > h3 {
+  font-size: 120%;
+  margin: 10px;
+}
 img.icon {
   cursor: pointer;
   float: right;
@@ -87,6 +117,7 @@ img.icon {
 }
 div.switchNodeLink{
   height: 0px;
+  margin-left: 40px;
 }
 div.switchNodeLink > div{
   position: relative;
@@ -110,7 +141,10 @@ div.main {
   margin-top: 8px;
 }
 div.note {
-  padding: 0 20px;
+  padding: 30px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
 }
 .clear {
   clear: both;
@@ -150,6 +184,11 @@ div.note {
 .subSidebar button {
   width: 72px;
   overflow: hidden;
+}
+.subSidebar .visSel:after {
+    content: '';
+    display: block;
+    clear: both;
 }
 .subSidebar .visSel span {
   margin-top: 6px;
@@ -196,6 +235,12 @@ div.topbar {
 }
 .topbar select {
   margin-right: 20px;
+  width: 120px;
+}
+.topbar:after{
+  content: '';
+  display: block;
+  clear: both;
 }
 .subSidebar.multigraph h3 {
   width: 34%;
@@ -214,7 +259,7 @@ div.loading {
   top: 0;
   left: 0;
   background: rgba(0,0,0,0.8);
-  z-index": 10;
+  z-index: 10;
 }
 
 div.loading > p {
@@ -253,6 +298,34 @@ div.infopanel > div:last-child {
   height: 100%;
 }
 
+div.tooltip {
+  position: absolute;
+  background: #f5f5f5;
+  padding:10px;
+  display:none;
+}
+
+div.showhideArrow {
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  padding: 1px 6px 3px 6px;
+  position: absolute;
+  color: #666;
+  cursor: pointer;
+}
+
+div.divFrameCtrl {
+  float: right;
+  margin: 0 1rem;
+}
+div.divFrameCtrl svg path {
+  fill: #333;
+}
+div.divFrameCtrl button {
+  text-align: center;
+  width: 30px;
+}
+
 /* svg buttons and brush */
 .close-button {
   font-size: 20px;
@@ -260,7 +333,7 @@ div.infopanel > div:last-child {
   cursor: pointer;
 }
 svg .buttons rect,
-svg .handle {
+svg .slider .selection {
   fill: #888;
   stroke: #666;
   stroke-width: 1.5px;
@@ -276,11 +349,6 @@ svg .axis.brushSlider .domain {
   stroke: #666;
   stroke-width: 4px;
   stroke-linecap: round;
-}
-svg .brush .extent {
-  fill-opacity: .1;
-  stroke: #fff;
-  shape-rendering: crispEdges;
 }
 
 /* slider */
