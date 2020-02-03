@@ -5,16 +5,19 @@ types <- character(0)
 items <- character(0)
 for(item in names(multi)){
   graph <- multi[[item]]
-  gClass <- class(graph)
+  gClass <- ""
   jsongraph <- "{}"
-  if(gClass == "netCoin"){
+  if(inherits(graph,"netCoin")){
+    gClass <- "netCoin"
     jsongraph <- imgWrapper(graph,dir)
-  }else if(gClass == "timeCoin"){
+  }else if(inherits(graph,"timeCoin")){
+    gClass <- "timeCoin"
     jsongraph <- timelineJSON(graph)
-  }else if(gClass == "barCoin"){
+  }else if(inherits(graph,"barCoin")){
+    gClass <- "barCoin"
     jsongraph <- barplotJSON(graph)
-  }else if(gClass == "character" && file.exists(paste0(graph,'/index.html'))){
-    gClass <- 'iFrame'
+  }else if(is.character(graph) && file.exists(paste0(graph,'/index.html'))){
+    gClass <- "iFrame"
     graphName <- sub("^.*/","",graph)
     dir.create(paste0(dir,'/data'), showWarnings = FALSE)
     file.copy(graph, paste0(dir,'/data'), recursive = TRUE)
@@ -47,8 +50,7 @@ polyGraph <- function(multi,dir){
 
 frameGraph <- function(multi,frame,speed,dir){
 
-  classes <- unique(vapply(multi,function(x){ class(x)[1] },character(1)))
-  if(length(classes)!=1 || classes[1]!="netCoin")
+  if(!all(vapply(multi, inherits, TRUE, what = "netCoin")))
     stop("All graphs must be 'netCoin' objects")
   name <- unique(vapply(multi,function(x){ return(x$options$nodeName) },character(1)))
   if(length(name)!=1)

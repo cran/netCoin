@@ -1,40 +1,40 @@
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  install.packages("netCoin")
 
-## ----echo=TRUE, message=FALSE, warning=FALSE-----------------------------
+## ----echo=TRUE, message=FALSE, warning=FALSE----------------------------------
 library(netCoin)
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 data(dice)
 head(dice)
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 head(dice[,-1])
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 C <- coin(dice[,-1]) # coincidence matrix
 C
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  N <- asNodes(C) # node data frame
 #  E <- edgeList(C) # edge data frame
 #  Net <- netCoin(N,E) # network object
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  Net <- netCoin(N,E,dir="dice")
 
-## ----echo=FALSE, out.width='98%'-----------------------------------------
+## ----echo=FALSE, out.width='98%'----------------------------------------------
 knitr::include_graphics("Dice.png")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 data("families")
 data("links")
 
-## ----message=FALSE, warning=FALSE, include=FALSE-------------------------
+## ----message=FALSE, warning=FALSE, include=FALSE------------------------------
 
 library(igraph)
 
-## ----message=FALSE, warning=FALSE, eval=FALSE----------------------------
+## ----message=FALSE, warning=FALSE, eval=FALSE---------------------------------
 #  G <- allNet(incidence=links[links$link=="Marriage",-17],
 #       nodes=families, layout="md", percentages= FALSE,
 #       criteria="f",minL=1, size="f.Marriages",shape="seat",
@@ -47,13 +47,13 @@ library(igraph)
 #       note="Data source: Padgett & Ansell (1983)")
 #  
 
-## ----echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE-----------------
+## ----echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----------------------
 #  multigraphCreate(Marriage=G,Business=H,dir="italian")
 
-## ----echo=FALSE, out.width='98%'-----------------------------------------
+## ----echo=FALSE, out.width='98%'----------------------------------------------
 knitr::include_graphics("Padgett.png")
 
-## ----echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE-----------------
+## ----echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE----------------------
 #  data("Galapagos")
 #  data("finches")
 #  finches$species<-system.file("extdata", finches$species,
@@ -65,6 +65,6 @@ knitr::include_graphics("Padgett.png")
 #          note="Data source: Sanderson (2000)")
 #  plot(Net)
 
-## ----echo=FALSE, out.width='98%'-----------------------------------------
+## ----echo=FALSE, out.width='98%'----------------------------------------------
 knitr::include_graphics("Finches.png")
 

@@ -29,7 +29,7 @@ barCoin<-function(data, variables = colnames(data), commonlabel = NULL,
   name <- nameByLanguage(name = name, language =language, nodes = nodes)
   dicho<-function(input,variables,value) {
     datum<-as.data.frame(ifelse(input[,variables]==value,1,0))
-    if (all(class(input)==c("tbl_df","tbl","data.frame"))) {
+    if (all(inherits(input,c("tbl_df","tbl","data.frame"),TRUE))) {
       # L<-sapply(datum[,variables],attr,"label")
       M<-sapply(sapply(datum,attr,"label"),function(X) ifelse(is.null(X),NA,X))
       L<-ifelse(is.na(M),variables,M)
@@ -48,7 +48,7 @@ barCoin<-function(data, variables = colnames(data), commonlabel = NULL,
   
 
 # names  
-  if ("tbl_df" %in% class(nodes)) nodes<-as.data.frame(nodes)
+  if (inherits(nodes,"tbl_df")) nodes<-as.data.frame(nodes)
 
   
 
@@ -63,7 +63,7 @@ barCoin<-function(data, variables = colnames(data), commonlabel = NULL,
   
 # treatment of weight in the data frame. Omission of na data.
     if(!is.null(weight)) {
-    if(class(weight)=="character"){
+    if(inherits(weight,"character")){
       data<-na.omit(data[,allvar])
       allvar<-setdiff(allvar,weight)
       variables<-setdiff(variables,weight)
@@ -84,7 +84,7 @@ barCoin<-function(data, variables = colnames(data), commonlabel = NULL,
 
 # data.frame setting
   data[,variables]<-as_factor(data[,variables])
-  if (all(class(data)==c("tbl_df","tbl","data.frame"))) data<-as.data.frame(data) # convert haven objects
+  if (all(inherits(data,c("tbl_df","tbl","data.frame"),TRUE))) data<-as.data.frame(data) # convert haven objects
   
 # dichotomizing factor variables
   if (length(variables)>0){

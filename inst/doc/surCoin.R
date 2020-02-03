@@ -1,4 +1,4 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -6,21 +6,21 @@ knitr::opts_chunk$set(
 library(netCoin)
 data("ess")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 head(ess)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 set <- c("Social participation", "Political participation", "Gender", "Age")
 essCoin <- surCoin(data = ess, variables = set)
 essCoin
 
-## ----eval=FALSE, warning=FALSE-------------------------------------------
+## ----eval=FALSE, warning=FALSE------------------------------------------------
 #  plot(essCoin)
 
-## ----echo=FALSE, out.width='98%'-----------------------------------------
+## ----echo=FALSE, out.width='98%'----------------------------------------------
 knitr::include_graphics("ess-a.png")
 
-## ----eval=FALSE, warning=FALSE-------------------------------------------
+## ----eval=FALSE, warning=FALSE------------------------------------------------
 #  essCoin <- surCoin(data = ess,
 #                      variables = set,
 #                      dichotomies = c("Social participation", "Political participation"),
@@ -28,10 +28,10 @@ knitr::include_graphics("ess-a.png")
 #                      )
 #  plot(essCoin)
 
-## ----echo=FALSE, out.width='98%'-----------------------------------------
+## ----echo=FALSE, out.width='98%'----------------------------------------------
 knitr::include_graphics("ess-b.png")
 
-## ----eval=FALSE, warning=FALSE-------------------------------------------
+## ----eval=FALSE, warning=FALSE------------------------------------------------
 #  essCoin <- surCoin(data = ess,
 #                      variables = set,
 #                      dichotomies = c("Social participation", "Political participation"),
@@ -41,10 +41,10 @@ knitr::include_graphics("ess-b.png")
 #                      )
 #  plot(essCoin)
 
-## ----echo=FALSE, out.width='98%'-----------------------------------------
+## ----echo=FALSE, out.width='98%'----------------------------------------------
 knitr::include_graphics("ess-c.png")
 
-## ----eval=FALSE, warning=FALSE-------------------------------------------
+## ----eval=FALSE, warning=FALSE------------------------------------------------
 #  essCoin <- surCoin(data = ess,
 #                      variables = set,
 #                      dichotomies = c("Social participation", "Political participation"),
@@ -56,10 +56,10 @@ knitr::include_graphics("ess-c.png")
 #                      )
 #  plot(essCoin)
 
-## ----echo=FALSE, out.width='98%'-----------------------------------------
+## ----echo=FALSE, out.width='98%'----------------------------------------------
 knitr::include_graphics("ess-d.png")
 
-## ----eval=FALSE, warning=FALSE-------------------------------------------
+## ----eval=FALSE, warning=FALSE------------------------------------------------
 #  essCoin <- netCoin(essCoin,
 #                      color = "variable",
 #                      size = "%")
@@ -67,23 +67,23 @@ knitr::include_graphics("ess-d.png")
 #  
 #  plot(essCoin)
 
-## ----eval=FALSE, echo=FALSE, out.width='98%'-----------------------------
+## ----eval=FALSE, echo=FALSE, out.width='98%'----------------------------------
 #  knitr::include_graphics("ess-e.png")
 
-## ----eval=FALSE, warning=FALSE-------------------------------------------
+## ----eval=FALSE, warning=FALSE------------------------------------------------
 #  essCoin <- netCoin(essCoin,
 #                      shape = "degree")
 #  
 #  plot(essCoin)
 
-## ----echo=FALSE, out.width='98%'-----------------------------------------
+## ----echo=FALSE, out.width='98%'----------------------------------------------
 knitr::include_graphics("ess-f.png")
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  essCoin <- netCoin(essCoin,
 #                      dir = "./temp/ess/"
 #                      )
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  essCoin.igraph <- toIgraph(essCoin)
 
