@@ -14,7 +14,7 @@ var texts = {
     linksattributes: "Atributos de enlaces",
     noitemsselected: "Sin items seleccionados",
     alertnonodes: "¡No hay nodos seleccionados! Presiona shift para seleccionar nodos.",
-    alertnonodestable: "¡No hay nodos seleccionados en la tabla!",
+    alertnonodestable: "¡No hay nada seleccionado en la tabla!",
     repulsion: "Repulsión",
     distance: "Distancia",
     loading: "Cargando...",

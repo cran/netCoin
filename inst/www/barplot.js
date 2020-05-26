@@ -141,7 +141,7 @@ function barplot(json){
         options.color = false;
       displayGraph();
     })
-  var opt = d3.keys(nodes[0]).sort();
+  var opt = getOptions(nodes);
   opt.unshift("-"+texts.none+"-");
   colorSelect.selectAll("option")
         .data(opt)
@@ -658,7 +658,7 @@ function topOrder(topBar,data,displayGraph){
       displayGraph();
     })
 
-  var opt = d3.keys(data[0]).sort(function(a,b){
+  var opt = getOptions(data,function(a,b){
     if(a=="incidences")
       return -1;
     if(b=="incidences")

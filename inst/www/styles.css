@@ -68,10 +68,32 @@ th {
   background-color: #ddd;
   padding: 6px;
   text-align: left;
+  white-space: nowrap;
+}
+th.sorting,
+th.sorting_asc,
+th.sorting_desc {
+  cursor: pointer;
+}
+th.sorting:after {
+  content: "\20\2195";
+  font-size: 140%;
+  color: #aaa;
+}
+th.sorting_asc:after {
+  content: "\20\2191";
+  font-size: 140%;
+  color: #666;
+}
+th.sorting_desc:after {
+  content: "\20\2193";
+  font-size: 140%;
+  color: #666;
 }
 .tables {
   background-color: #f5f5f5;
   padding: 6px 10px;
+  border-top: solid 2px #888;
 }
 .tables div.title{
   font-size: 120%;
@@ -125,7 +147,10 @@ div.switchNodeLink > div{
   padding: 4px 8px;
   margin: 0 2px;
   border-radius: 5px 5px 0 0;
-  background: #eeeeee;
+  border-style: solid;
+  border-color: #888;
+  border-width: 2px;
+  background: #ddd;
   width: 100px;
   text-align: center;
   cursor: pointer;
@@ -332,12 +357,15 @@ div.divFrameCtrl button {
   text-align: center;
   cursor: pointer;
 }
-svg .buttons rect,
+svg .button rect,
 svg .slider .selection {
   fill: #888;
   stroke: #666;
   stroke-width: 1.5px;
   cursor: pointer;
+}
+svg .slider .overlay {
+  cursor: pointer !important;
 }
 svg .buttons text {
   pointer-events: none;
@@ -349,6 +377,15 @@ svg .axis.brushSlider .domain {
   stroke: #666;
   stroke-width: 4px;
   stroke-linecap: round;
+}
+svg .zoombutton rect {
+  fill: #666;
+  stroke: none;
+  cursor: pointer;
+}
+svg .zoombutton rect:first-child {
+  fill: #ddd;
+  stroke-width: 1.5px;
 }
 
 /* slider */

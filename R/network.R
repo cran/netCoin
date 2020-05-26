@@ -6,7 +6,7 @@ networkJSON<-function(net){
   nodes <- net$nodes
   options <- net$options
 
-  name <- nodes[[options$nodeName]] <- as.character(nodes[[options$nodeName]])
+  name <- as.character(nodes[[options$nodeName]])
 
   #prepare links
   if(length(links)){

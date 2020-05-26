@@ -8,7 +8,7 @@ netCoin <- function(nodes, links = NULL, tree = NULL, name = NULL,
     orderA = NULL, orderD = NULL, group = NULL, community = NULL,
     lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
     nodeFilter = NULL, linkFilter = NULL, degreeFilter = NULL, nodeBipolar = FALSE, linkBipolar = FALSE,
-    defaultColor = "#1f77b4", distance = 10, repulsion = 25, zoom = 1,
+    defaultColor = "#1f77b4", distance = 10, repulsion = 25, zoom = 1, fixed = showCoordinates,
     scenarios = NULL, main = NULL, note = NULL, help = NULL, helpOn = FALSE,
     cex = 1, background = NULL, layout = NULL, limits = NULL, controls = 1:5, mode = c("network","heatmap"),
     showCoordinates = FALSE, showArrows = FALSE, showLegend = TRUE, showAxes = FALSE, axesLabels = NULL,
@@ -22,22 +22,28 @@ netCoin <- function(nodes, links = NULL, tree = NULL, name = NULL,
     nodes <- nodes$nodes
   }else{
     name <- nameByLanguage(name,language,nodes)
-    if(!is.null(nodes))
+    if(!is.null(nodes)){
+      if (all(inherits(nodes,c("tbl_df","tbl","data.frame"),TRUE))) nodes<-as.data.frame(nodes) # convert haven objects
       nodes[[name]] <- as.character(nodes[[name]])
+    }
     options <- list(nodeName=name)
   }
 
   if(!is.null(links)){
+    if (all(inherits(links,c("tbl_df","tbl","data.frame"),TRUE))) links<-as.data.frame(links) # convert haven objects
     if(is.null(nodes)){
       nodes <- data.frame(name=union(links$Source,links$Target))
       names(nodes)[1] <- options$nodeName
-    }else
-      links <- links[links$Source %in% nodes[[name]] & links$Target %in% nodes[[name]],]
+    }else{
+      links <- links[links$Source %in% nodes[[name]] & links$Target %in% nodes[[name]] & as.character(links$Target)!=as.character(links$Source),]
+    }
     if(nrow(links)==0){
       links <- NULL
       warning("links: no row (Source and Target) matches the name column of the nodes")
     }
   }
+
+  rownames(nodes) <- nodes[,name]
 
   # graph options
   if(!is.numeric(cex)){
@@ -95,6 +101,8 @@ netCoin <- function(nodes, links = NULL, tree = NULL, name = NULL,
   if (!is.null(mode)) options[["mode"]] <- tolower(substr(as.character(mode),1,1))
   if (!is.null(axesLabels)) options[["axesLabels"]] <- as.character(axesLabels)
 
+  if(fixed) options[["fixed"]] <- TRUE
+
   if(showCoordinates) options[["showCoordinates"]] <- TRUE
   if(showArrows) options[["showArrows"]] <- TRUE
   if(showLegend) options[["showLegend"]] <- TRUE
@@ -136,33 +144,63 @@ netCoin <- function(nodes, links = NULL, tree = NULL, name = NULL,
   if (!is.null(ltext)) options[["linkText"]] <- ltext
 
   # filters
-  rownames(nodes) <- nodes[,name]
-  if (!is.null(nodeFilter)){
-    nodes$noShow <- FALSE
-    if(!is.null(links))
-      links$noShow <- FALSE
-    nodes[,"noShow"] <- !with(nodes,eval(parse(text=nodeFilter)))
-    noShowNodes <- as.character(nodes[nodes[,"noShow"],name])
-    if(!is.null(links))
-      links[(as.character(links[,"Source"]) %in% noShowNodes)|(as.character(links[,"Target"]) %in% noShowNodes),"noShow"] <- TRUE
+  if(!is.null(nodeFilter) || !is.null(linkFilter) || !is.null(degreeFilter)){
+    hideLinks <- function(){
+      if(!is.null(links)){
+        hiddenNodes <- as.character(nodes[nodes[,"hidden"],name])
+        links[(as.character(links[,"Source"]) %in% hiddenNodes) | (as.character(links[,"Target"]) %in% hiddenNodes),"hidden"] <<- TRUE
+      }
+    }
+
+    nodes[,"hidden"] <- FALSE
+    if (!is.null(links)){
+      links[,"hidden"] <- FALSE
+    }
+
+    if (!is.null(nodeFilter)){
+      nodes[,"hidden"] <- !with(nodes,eval(parse(text=nodeFilter)))
+      hideLinks()
+    }
+
+    if (!is.null(links) && !is.null(linkFilter)){
+      links[,"hidden"] <- links[,"hidden"] | !with(links,eval(parse(text=linkFilter)))
+    }
+
+    if (!is.null(degreeFilter)){
+      degreeFilter <- as.numeric(degreeFilter)
+      if(length(degreeFilter)==1){
+        degreeFilter <- c(degreeFilter,Inf)
+      }
+      if(is.null(links)){
+        if(min(degreeFilter)>0){
+          nodes[,"hidden"] <- TRUE
+        }
+      }else{
+        nodes[,"degree"] <- rep(0,nrow(nodes))
+        degrees <- table(c(as.character(links[!links[,"hidden"],"Source"]),as.character(links[!links[,"hidden"],"Target"])))
+        nodes[names(degrees),"degree"] <- degrees
+        nodes[,"hidden"] <- nodes[,"hidden"] | !(nodes[,"degree"]>=degreeFilter[1] & nodes[,"degree"]<=degreeFilter[2])
+        nodes[,"degree"] <- NULL
+        hideLinks()
+      }
+    }
+
+    if(!sum(nodes[,"hidden"]))
+      nodes[,"hidden"] <- NULL
+    if(!sum(links[,"hidden"]))
+      links[,"hidden"] <- NULL
   }
 
-  if (!is.null(links) && !is.null(linkFilter)){
-    if(!"noShow" %in% colnames(links))
-      links$noShow <- FALSE
-    links[,"noShow"] <- links[,"noShow"] | !with(links,eval(parse(text=linkFilter)))
-  }
-
-  if (!is.null(degreeFilter)) options[["degreeFilter"]] <- as.numeric(degreeFilter)
-
+  #create net object
   net <- structure(list(links=links,nodes=nodes,options=options),class="netCoin")
 
+  #check tree
   if(!is.null(tree)){
-    tree <- tree[tree$Source%in%nodes[[name]]&tree$Target%in%nodes[[name]],]
+    tree <- tree[tree$Source %in% nodes[[name]] & tree$Target %in% nodes[[name]] & as.character(tree$Target)!=as.character(tree$Source),]
     if(nrow(tree)==0)
       warning("tree: no row (Source and Target) matches the name column of the nodes")
     else
-      net$tree <- tree
+      net$tree <- data.frame(Source=tree$Source,Target=tree$Target)
   }
 
   #layout
@@ -297,6 +335,7 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
                   igraph=FALSE, coin=FALSE, dir=NULL, ...)
 {
   arguments <- list(...)
+  if((criteria=="Z" | criteria=="hyp") & maxL==Inf) maxL=.05
   varOrder  <- variables # To order variables later before coin
   #Check methods. No necessary because edgeList call these routines.
   #procedures<-i.method(c.method(procedures))
@@ -421,19 +460,12 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
         else if(!is.null(metric)) arguments$layout<-NULL # There is metric information and not MCA or PCA
       }
     }
-    
-    arguments$nodes <- O
-    arguments$links <- E
-    xNx <- do.call(netCoin,arguments)
-  }
-  else warning("Input is not a dichotomous matrix of incidences")
-  
-  if(exists("xNx")){
+
     if(!is.null(metric)) {
       #Metric nodes elaboration
-      if(percentages) xNx$nodes$mean<-xNx$nodes$`%`/100
-      xNx$nodes$min<-0
-      xNx$nodes$max<-1
+      if(percentages) O$mean<-O$`%`/100
+      O$min<-0
+      O$max<-1
       means<-sapply(na.omit(data[,metric, drop=F]),mean)
       mins<-sapply(na.omit(data[,metric, drop=F]),min)
       maxs<-sapply(na.omit(data[,metric, drop=F]),max)
@@ -446,7 +478,7 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
         for(col in as.character(O2[[name]]))
           O2[as.character(O2[[name]])==col,colnames(nodes)] <- nodes[as.character(nodes[[name]])==col,]
       }
-      xNx$nodes<-rbind.all.columns(xNx$nodes,O2)
+      O<-rbind.all.columns(O,O2)
 
       #Metric links elaboration
       methods<-union(procedures,criteria)
@@ -473,39 +505,46 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
       D<-D[,c("Source","Target",methods)]
       D<-D[D[criteria] > minL & D[criteria] < maxL,]
       colnames(D)<-sub("^Z$","p(Z)",colnames(D))
-      if(is.null(xNx$links))xNx$links<-D
-      else xNx$links<-rbind.all.columns(arguments$links,D)
+      if(is.null(E))E<-D
+      else E<-rbind.all.columns(E,D)
 
       #Layout
       if (inherits(layout,"matrix")){
         if (!is.null(nodes)){
           if(nrow(layout2)==nrow(nodes)){
-            Oxy <- matrix(NA,nrow(xNx$nodes),2)
-            rownames(Oxy) <- as.character(xNx$nodes[,name])
+            Oxy <- matrix(NA,nrow(O),2)
+            rownames(Oxy) <- as.character(O[,name])
             rownames(layout2) <- as.character(nodes[,name])
             layoutnames <- intersect(rownames(Oxy),rownames(layout2))
             Oxy[layoutnames,] <- layout2[layoutnames,]
             layout2 <- Oxy
           } else warning("layout must have a coordinate per node")
         } else warning("layout must be applied to the nodes variable")
-        xNx<-netAddLayout(xNx,layout2)
+        arguments$layout <- layout2
       }
     }
     if (!is.null(exogenous)) {
       exogenous2<-intersect(exogenous,c(metric,dichotomies))
-      xNx$links$chaine<-ifelse(((substr(xNx$links$Source,1,regexpr("\\:",xNx$links$Source)-1) %in% exogenous) |
-                                  (xNx$links$Source %in% exogenous2))  &
-                                 ((substr(xNx$links$Target,1,regexpr("\\:",xNx$links$Target)-1) %in% exogenous) |
-                                    (xNx$links$Target %in% exogenous2)),"No","Yes")
+      E$chaine<-ifelse(((substr(E$Source,1,regexpr("\\:",E$Source)-1) %in% exogenous) |
+                                  (E$Source %in% exogenous2))  &
+                                 ((substr(E$Target,1,regexpr("\\:",E$Target)-1) %in% exogenous) |
+                                    (E$Target %in% exogenous2)),"No","Yes")
       arguments$linkFilter<-paste(ifelse(is.null(arguments$linkFilter),"",paste(arguments$linkFilter,"&")),"chaine=='Yes'")
-      xNx$links[,"noShow"]<-with(xNx$links,!eval(parse(text=arguments$linkFilter)))
     }
-    if ("showArrows" %in% names(xNx$options) & exists("nodes")) xNx$links<-orderEdges(xNx$links,nodes[[name]])
+    if ("showArrows" %in% names(arguments$options) & exists("nodes")) E<-orderEdges(E,nodes[[name]])
 
-    if(!is.null(dir)) netCreate(xNx,dir)
-    if (igraph) return(toIgraph(xNx))
-    else return(xNx)
-  }
+    if(!is.null(dir)){
+      arguments$dir <- dir
+    }
+    arguments$nodes <- O
+    arguments$links <- E
+    xNx <- do.call(netCoin,arguments)
+    if (igraph) {
+      return(toIgraph(xNx))
+    } else {
+      return(xNx)
+    }
+  } else warning("Input is not a dichotomous matrix of incidences")
 }
 
 # Elaborate a netCoin object from a lavaan object.
@@ -1027,12 +1066,12 @@ printNet <- function(x){
     cat("Title:",x$options$main,"\n")
     cat("\nNodes(",nrow(x$nodes),"):\n",sep="")
   row.names(x$nodes)<-NULL
-  print(as.data.frame(head(x$nodes[,setdiff(names(x$nodes),c("noShow","fixed","chaine","fx","fy")),drop=FALSE])),row.names=F)
+  print(as.data.frame(head(x$nodes[,setdiff(names(x$nodes),c("hidden","chaine","fx","fy")),drop=FALSE])),row.names=F)
   if (nrow(x$nodes)>6) cat("...\n")
   if(!is.null(x$links)){
     cat("\nLinks(",nrow(x$links),"):\n",sep="")
     row.names(x$links)<-NULL
-    print(as.data.frame(head(x$links[,setdiff(names(x$links),c("noShow","fixed","chaine"))])),row.names=F)
+    print(as.data.frame(head(x$links[,setdiff(names(x$links),c("hidden","chaine"))])),row.names=F)
     if (nrow(x$links)>6) cat("...\n")
   }
   cat("\n")
@@ -1042,7 +1081,12 @@ printNet <- function(x){
   }
 }
 
-plot.coin <- function(x, dir=tempdir(), language=c("en","es","ca"), ...){
+tempDir <- function(){
+  dir.create("temp", showWarnings = FALSE)
+  return(paste("temp",round(as.numeric(Sys.time())),sep="/"))
+}
+
+plot.coin <- function(x, dir=tempDir(), language=c("en","es","ca"), ...){
     N <- asNodes(x, language = language)
     colnames(N)[2] <- "incidences"
     E <- edgeList(x,c("Frequencies","Expected"))
@@ -1052,15 +1096,15 @@ plot.coin <- function(x, dir=tempdir(), language=c("en","es","ca"), ...){
     browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
 }
 
-plot.netCoin <- function(x, dir = tempdir(), ...){
+plot.netCoin <- function(x, dir = tempDir(), ...){
   plotCoin(x, dir, netCreate)
 }
 
-plot.barCoin <- function(x, dir = tempdir(), ...){
+plot.barCoin <- function(x, dir = tempDir(), ...){
   plotCoin(x, dir, barCreate)
 }
 
-plot.timeCoin <- function(x, dir = tempdir(), ...){
+plot.timeCoin <- function(x, dir = tempDir(), ...){
   plotCoin(x, dir, timeCreate)
 }
 

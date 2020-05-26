@@ -311,6 +311,12 @@ function selectedValues2str(selectedValues,data){
   return query;
 }
 
+function getOptions(data,order){
+  if(!order)
+    order = d3.ascending;
+  return d3.keys(data[0]).filter(function(d){ return d.substring(0,1)!="_"; }).sort(order);
+}
+
 function topFilter(){
 
   var data,
@@ -392,7 +398,7 @@ function topFilter(){
     selFilter = topBar.append("select")
       .on("change",function(){ changeAttrSel(this.value); })
 
-    var options = d3.keys(data[0]).sort();
+    var options = getOptions(data);
     options.unshift("-"+texts.none+"-");
     selFilter.selectAll("option")
         .data(options)

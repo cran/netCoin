@@ -27,6 +27,12 @@ dichotomize(data, variables,
 \value{
 A data frame composed by the original plus the added dichotmous columns.
 }
+\references{
+  Escobar, M. and Martinez-Uribe, L. (2020)
+  Network Coincidence Analysis: The \code{netCoin} \code{R} Package.
+  \emph{Journal of Statistical Software}, \bold{93}, 1-32.
+  \doi{10.18637/jss.v093.i11}.
+}
 \author{
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca, and Luis Martinez Uribe, Fundacion Juan March. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
 }

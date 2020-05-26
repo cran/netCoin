@@ -14,7 +14,7 @@ var texts = {
     linksattributes: "Link attributes",
     noitemsselected: "No items selected",
     alertnonodes: "No nodes selected! Hold shift to select nodes.",
-    alertnonodestable: "No nodes selected in table!",
+    alertnonodestable: "Anything matched in table!",
     repulsion: "Repulsion",
     distance: "Distance",
     loading: "Loading...",

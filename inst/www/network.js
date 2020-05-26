@@ -5,12 +5,11 @@ function network(Graph){
       height = docSize.height,
       oldWidth = 0,
       oldHeight = 0,
-      ctrlKey = false,
-      shiftKey = false,
       images = false,
       images64 = false,
       heatmap = false,
       heatmapTriangle = false,
+      tooltipFixed = false,
       egoNet = false,
       transform = d3.zoomIdentity,
       backupNodes = false,
@@ -37,6 +36,7 @@ function network(Graph){
       axisExtension = 50, // pixels to increase the axes size
       sliderWidth = 200, // width of the sliders
       infoPanelLeft = docSize.width * (2/3), // information panel left position
+      findNodeRadius = 16, // radius in which to find a node in the canvas
       noShowFields = ["Source","Target","x","y","source","target","vx","vy","fx","fy","id","selected","nodeSize","noShow","childNodes","parentNode","_frame_"]; // not to show in sidebar controllers or tables
 
   var simulation = d3.forceSimulation()
@@ -451,7 +451,7 @@ function displayBottomPanel(){
       .attr("class", "tables")
 
   if(options.showTables){
-    var tablesoffset = 14+12*options.cex*1.2;
+    var tablesoffset = 18+12*options.cex*1.2;
     dragbar.style("margin-bottom",tablesoffset+"px");
     tables.style("min-height","150px");
     tables.style("margin-top",-tablesoffset+"px")
@@ -462,14 +462,20 @@ function displayBottomPanel(){
         .enter().append("div")
           .style("top","-"+ tablesoffset +"px")
           .on("click",function(d){
-              tables.selectAll("div.switchNodeLink > div").style("background",null)
-              d3.select(this).style("background","#f5f5f5")
+              tables.selectAll("div.switchNodeLink > div")
+                .style("background",null)
+                .style("border-bottom-color",null)
+              d3.select(this)
+                .style("background","#f5f5f5")
+                .style("border-bottom-color","#f5f5f5")
               tables.selectAll("div.nodes,div.links").style("display","none")
               tables.select("div."+d).style("display",null)
           })
           .append("h3")
             .text(function(d){ return texts[d]; })
-    tables.select("div.switchNodeLink > div").style("background","#f5f5f5")
+    tables.select("div.switchNodeLink > div")
+      .style("background","#f5f5f5")
+      .style("border-bottom-color","#f5f5f5")
   }
 
   if(options.showExport!==false){
@@ -490,6 +496,8 @@ embedImages(svg2pdf); });
   if(frameControls){
     var divFrameCtrl = tables.append("div")
       .attr("class", "divFrameCtrl")
+
+    var buttonBackColor = "#888";
 
     divFrameCtrl.append("select")
       .attr("class","selectFrame")
@@ -523,7 +531,8 @@ embedImages(svg2pdf); });
       .html(getSVG(['m5.8204 4.576c0 1.015-0.8054 1.8204-1.8204 1.8204s-1.8204-0.8054-1.8204-1.8204 0.8054-1.8204 1.8204-1.8204v-1.6036c-1.8815 0-3.424 1.5425-3.424 3.424s1.5425 3.424 3.424 3.424 3.424-1.5425 3.424-3.424z','m4 0v4l2.5-2z']))
       .on("click",function(){
         frameControls.loop = !frameControls.loop;
-        d3.select(this).style("background-color",frameControls.loop?"#ccc":null);
+        d3.select(this).style("background-color",frameControls.loop?buttonBackColor:null)
+          .selectAll("path").style("fill",frameControls.loop?"#f5f5f5":null);
       })
     var stopRecord = function(){
           frameControls.recorder.stop();
@@ -545,14 +554,14 @@ embedImages(svg2pdf); });
             frameControls.recorder = new CanvasRecorder(d3.select("div.plot > canvas").node());
             simulation.restart();
             if(frameControls.recorder.start && frameControls.recorder.start()){
-              d3.select(this).style("background-color","#ccc")
-                .select("path").style("fill","#d62728");
+              d3.select(this).style("background-color",buttonBackColor)
+                .select("path").style("fill","Red");
             }else{
               delete frameControls.recorder;
             }
           }
         }
-      }).style("background-color", frameControls.recorder ? "#ccc" : null)
+      }).style("background-color", frameControls.recorder ? buttonBackColor : null)
       .select("path").style("fill", frameControls.recorder ? "#d62728" : null);
     divFrameCtrl.append("button") // stop
       .html(getSVG(['M0,0L8,0L8,8L0,8Z']))
@@ -596,10 +605,12 @@ embedImages(svg2pdf); });
         .selectAll("path").style("fill",null);
       if(play)
         divFrameCtrl.select("button.play")
-          .style("background-color","#ccc")
-          .selectAll("path").style("fill","DarkGreen");
+          .style("background-color",buttonBackColor)
+          .selectAll("path").style("fill","LawnGreen");
       else
-        divFrameCtrl.select("button.pause").style("background-color","#ccc");
+        divFrameCtrl.select("button.pause")
+          .style("background-color",buttonBackColor)
+          .selectAll("path").style("fill","#f5f5f5");
     }
 
     function getSVG(d){
@@ -648,8 +659,8 @@ embedImages(svg2pdf); });
 
     selectButton(texts.selectall,selectAllNodes);
     selectButton(texts.tableselection,selectNodesFromTable);
-    selectButton(texts.selectneighbors,selectNeighbors);
-    selectButton(texts.isolateselection,isolateNodes);
+    selectButton(texts.selectneighbors,addNeighbors);
+    selectButton(texts.isolateselection,filterSelection);
     selectButton(texts.egoNet,displayEgoNet);
     if(Graph.tree)
       selectButton(texts.expandcollapse,treeAction);
@@ -1189,7 +1200,13 @@ function drawSVG(sel){
 
   var zoom = d3.zoom()
     .scaleExtent(zoomRange)
-    .on("zoom", zoomed);
+/*    .filter(function(){
+      return !d3.event.button && (d3.event.ctrlKey || d3.event.metaKey) && !d3.event.shiftKey;
+    }) */
+    .on("end",function(){
+      d3.select(this).style("cursor","grab");
+    }) 
+    .on("zoom", zoomed)
 
   adaptLayout();
 
@@ -1198,8 +1215,8 @@ function drawSVG(sel){
       .force("y", d3.forceY().strength(0.1))
 
   body
-    .on("keydown", keyflip)
-    .on("keyup", keyflip)
+    .on("keydown.viewbrush", keyflip)
+    .on("keyup.viewbrush", keyflip)
   
   var svg = sel.insert("svg",":first-child")
       .attr("xmlns","http://www.w3.org/2000/svg")
@@ -1208,12 +1225,6 @@ function drawSVG(sel){
     .style("position","absolute")
     .style("top",0)
     .style("left",0)
-    .on("dblclick",dblClickNet)
-    .call(d3.drag()
-          .subject(dragsubject)
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended))
 
   var canvas = sel.insert("canvas",":first-child")
     .attr("width", width)
@@ -1222,7 +1233,6 @@ function drawSVG(sel){
     if(options.nodeText){
       body.append("div")
           .attr("class","tooltip")
-      svg.on("mousemove",hoverNet)
     }
 
     svg.append("style")
@@ -1230,19 +1240,11 @@ function drawSVG(sel){
 ".scale text { font-size: 120%; fill: #444; } "+
 ".scale text:first-child { font-size: 160%; text-anchor: middle; } "+
 ".legend text.title { text-anchor: end; font-size: 160%; } "+
-".link { opacity: .6; fill: none; } "+
-".linkText, .axisLabel { stroke-width: 0.5px; font-size: 100%; fill: #999; } "+
-".node { cursor: pointer; }"+
-".node > path { stroke: #000; } "+
-".node > circle { stroke: none; fill: none; } "+
+".axisLabel { stroke-width: 0.5px; font-size: 100%; fill: #999; } "+
 ".label { font-size: 100%; fill: #444; } "+
-".shadow { stroke: #fff; stroke-width: 3px; stroke-opacity: .8; }"+
-".area { opacity: 0.2; stroke-width:3; } "+
-".axis { stroke: #aaa; }"+
-".node.selected path, .node.selected circle { stroke: yellow; } "+
+"line.axis { stroke: #aaa; }"+
 "g.heatmap path.cluster { stroke: #666; fill: none; }"+
-".cellText { stroke-width: 0.6px; }"+
-".cellText { fill: #fff; stroke: #fff; }");
+".cellText { font-weight: bold; fill: #fff; }");
 
   var defs = svg.append("defs");
   d3.keys(colorScales).forEach(function(d){ addGradient(defs,d,colorScales[d]); });
@@ -1255,12 +1257,37 @@ function drawSVG(sel){
       .attr("width",height*2)
       .attr("height",height)
 
-  svg.call(zoom).on("dblclick.zoom",null);
+  svg.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", width)
+    .attr("height", height)
+    .attr("pointer-events","all")
+    .style("fill","none")
+    .on("click",clickNet)
+    .on("dblclick",dblClickNet)
+    .on("mousemove",hoverNet)
+    .on("mousedown.grabbing",function(){
+      d3.select(this).style("cursor","grabbing");
+    })
+    .on("mouseup.grabbing",function(){
+      d3.select(this).style("cursor","grab");
+    })
+    .call(d3.drag()
+          .subject(dragsubject)
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended))
+    .call(zoom)
+    .on("dblclick.zoom",null)
 
   var net = svg.append("g")
     .attr("class","net")
 
   var brush = d3.brush()
+      .filter(function(){
+        return !d3.event.button && d3.event.shiftKey;
+      })
       .extent( [ [0,0], [width,height] ] )
         .on("start", function() {
           brushg.selectAll('.selection').style("display",null);
@@ -1279,8 +1306,7 @@ function drawSVG(sel){
             Graph.nodes.forEach(function(node) {
               node.selected = checkSelectable(node) && (node.selected ^ (extent[0][0] <= node.x && node.x < extent[1][0] && extent[0][1] <= node.y && node.y < extent[1][1]));
             });
-          }else
-            Graph.nodes.forEach(function(node) { return node.selected = false; });
+          }
           simulation.restart();
           showTables();
           brushg.selectAll('.selection').style("display","none");
@@ -1419,29 +1445,20 @@ function drawSVG(sel){
     drawNet();
 
   function zoomed() {
-    if(!shiftKey){
       transform = d3.event.transform;
       options.zoomScale = transform.k;
       zoomSlider.update(options.zoomScale);
       zoomSlider.brushedValue(true);
-    }
   }
 
   function keyflip() {
-    ctrlKey = d3.event.ctrlKey || d3.event.metaKey;
-    shiftKey = d3.event.shiftKey;
-
-    if(shiftKey){
-        if(heatmap){
-          Graph.nodes.forEach(function(d){
-            delete d.selected;
-          });
-          showTables();
-        }else{
-          brushg.style("display",null);
-        }
-    }else
+    if(d3.event.shiftKey){
+      if(!heatmap){
+        brushg.style("display",null);
+      }
+    }else{
       brushg.style("display","none");
+    }
   }
 
   function loadSVGbuttons(count){
@@ -1522,7 +1539,7 @@ function drawSVG(sel){
     .text(d.txt);
 
     })
-  .merge(gButton)
+    .merge(gButton)
     .attr("transform",function(d){
       if(d.gap)
         count += d.gap;
@@ -1531,6 +1548,72 @@ function drawSVG(sel){
       return val;
     })
 
+    // zoom in
+    var zoomin = buttons.append("g")
+      .attr("class","zoombutton")
+      .attr("transform","translate("+(width-55)+","+(height-70)+")")
+      .on("click",function(){
+        transform.k = transform.k + 0.1;
+        if(transform.k>zoomRange[1]){
+          transform.k = zoomRange[1];
+          return;
+        }
+        options.zoomScale = transform.k
+        zoomSlider.update(options.zoomScale);
+        zoomSlider.brushedValue(true);
+      })
+
+    zoomin.append("rect")
+      .attr("x",0)
+      .attr("y",0)
+      .attr("rx",2)
+      .attr("ry",2)
+      .attr("width",20)
+      .attr("height",20)
+    zoomin.append("rect")
+      .attr("x",5)
+      .attr("y",8)
+      .attr("width",10)
+      .attr("height",4)
+      .style("stroke","none")
+      .style("fill","#666")
+    zoomin.append("rect")
+      .attr("x",8)
+      .attr("y",5)
+      .attr("width",4)
+      .attr("height",10)
+      .style("stroke","none")
+      .style("fill","#666")
+
+    // zoom out
+    var zoomout = buttons.append("g")
+      .attr("class","zoombutton")
+      .attr("transform","translate("+(width-55)+","+(height-45)+")")
+      .on("click",function(){
+        transform.k = transform.k - 0.1;
+        if(transform.k<zoomRange[0]){
+          transform.k = zoomRange[0];
+          return;
+        }
+        options.zoomScale = transform.k
+        zoomSlider.update(options.zoomScale);
+        zoomSlider.brushedValue(true);
+      })
+
+    zoomout.append("rect")
+      .attr("x",0)
+      .attr("y",0)
+      .attr("rx",2)
+      .attr("ry",2)
+      .attr("width",20)
+      .attr("height",20)
+    zoomout.append("rect")
+      .attr("x",5)
+      .attr("y",8)
+      .attr("width",10)
+      .attr("height",4)
+      .style("stroke","none")
+      .style("fill","#666")
   }
 
   function displaySlider(){
@@ -1580,10 +1663,14 @@ function drawSVG(sel){
         .append("g")
           .attr("class", "slider")
           .attr("transform", "translate(0,-5)")
-          .call(brush);
+          .call(brush)
+          .call(function(g){
+            g.select(".overlay")
+             .datum({type:"selection"})
+             .on("mousedown touchstart", beforebrushstarted);
+          });
 
       slider.selectAll('.handle').remove();
-      slider.selectAll('.overlay').remove();
       slider.selectAll('rect.selection')
       .attr("fill",null)
       .attr("fill-opacity",null)
@@ -1621,6 +1708,17 @@ function drawSVG(sel){
       }else
         bubble.attr("x",brValue+7);
       return value;
+    }
+
+    function beforebrushstarted() {
+      var dx = 12,
+          cx = d3.mouse(this)[0],
+          x0 = cx - dx / 2,
+          x1 = cx + dx / 2;
+      slider.call(brush.move, x1 > sliderWidth ? [sliderWidth - dx, sliderWidth] 
+            : 0 < 0 ? [0, 0 + dx] 
+            : [x0, x1]);
+      displaySlider.update(scale.invert(cx));
     }
 
     function brushed() {
@@ -2002,7 +2100,7 @@ function drawNet(){
       .on("click",function(d,i){
         var name = nodes[i][options.nodeName];
         nodes.forEach(function(p){
-            if(ctrlKey)
+            if(d3.event.ctrlKey || d3.event.metaKey)
               p.selected = p.selected ^ name == p[options.nodeName];
             else
               p.selected = name == p[options.nodeName];
@@ -2152,6 +2250,7 @@ function drawNet(){
       .data([[0,1],[1,0]])
     .enter().append("line")
       .attr("class","axis")
+      .attr("pointer-events","none")
       .style("opacity",0)
 
     var axesLabelsAnchors = ["start","middle","end","middle"],
@@ -2159,6 +2258,7 @@ function drawNet(){
         .data(options.axesLabels)
     .enter().append("text")
       .attr("class","axisLabel")
+      .attr("pointer-events","none")
       .style("opacity",0)
       .text(String)
       .attr("text-anchor",function(d,i){
@@ -2622,13 +2722,43 @@ function drawNet(){
 }
 
 function findNode(){
-  return simulation.find(transform.invertX(d3.mouse(d3.event.target)[0]), transform.invertY(d3.mouse(d3.event.target)[1]), 16);
+  return simulation.find(transform.invertX(d3.mouse(d3.event.target)[0]), transform.invertY(d3.mouse(d3.event.target)[1]), findNodeRadius);
+}
+
+function clickNet(){
+  var node = findNode(),
+      tip = body.select("div.tooltip");
+  if(node){
+    if(d3.event.ctrlKey || d3.event.metaKey){
+      node.selected = !node.selected;
+    }else{
+      Graph.nodes.forEach(function(n){
+        n.selected = false;
+      });
+      node.selected = true;
+    }
+    if(!tip.empty()){
+      tooltipFixed = true;
+      showTooltip(tip,node);
+    }
+  }else{
+    Graph.nodes.forEach(function(n){
+      n.selected = false;
+    });
+    if(!tip.empty()){
+      tooltipFixed = false;
+      tip.style("display","none");
+    }
+  }
+  simulation.restart();
+  showTables();
+  displayInfoPanel(node,options.nodeInfo);
 }
 
 function dblClickNet(){
   var node = findNode();
   if(node){
-    if(Graph.tree && ctrlKey){
+    if(Graph.tree && (d3.event.ctrlKey || d3.event.metaKey)){
       node.selected = true;
       treeAction();
     }else
@@ -2639,19 +2769,33 @@ function dblClickNet(){
   }
 }
 
+function showTooltip(tip,node){
+    if(!tip.empty() && (tip.style("display")=="none" || tooltipFixed)){
+        if(node[options.nodeText]){
+          tip.style("display","block").html(node[options.nodeText])
+             .style("top",(d3.event.y+20)+"px")
+             .style("left",(d3.event.x+20)+"px")
+        }else
+          tip.style("display","none")
+    }
+}
+
 function hoverNet(){
   var node = findNode(),
       tip = body.select("div.tooltip");
-  if(node && node[options.nodeText]){
-    tip.style("display","block").html(node[options.nodeText])
-       .style("top",(d3.event.y+20)+"px")
-       .style("left",(d3.event.x+20)+"px")
-  }else
-    tip.style("display","none").html("")
+  if(node){
+    d3.select(this).style("cursor","pointer");
+    if(!tip.empty() && !tooltipFixed)
+      showTooltip(tip,node);
+  }else{
+    if(!tip.empty() && !tooltipFixed)
+      tip.style("display","none");
+    d3.select(this).style("cursor","grab");
+  }
 }
 
 function dragsubject() {
-  var node = simulation.find(transform.invertX(d3.event.x), transform.invertY(d3.event.y), 16);
+  var node = simulation.find(transform.invertX(d3.event.x), transform.invertY(d3.event.y), findNodeRadius);
   if(node){
     node.x = transform.applyX(node.x);
     node.y = transform.applyY(node.y);
@@ -2660,15 +2804,12 @@ function dragsubject() {
 }
 
 function dragstarted(d) {
-  body.select("div.tooltip").style("display","none").html("");
   if (!d3.event.active) simulation.alphaTarget(0.3).restart();
   var node = d3.event.subject;
   if(typeof node.fx == 'number' || typeof node.fy == 'number')
     node.fixed = true;
   node.fx = transform.invertX(node.x);
   node.fy = transform.invertY(node.y);
-
-  node.position = [node.fx,node.fy];
 }
 
 function dragged(d) {
@@ -2679,26 +2820,14 @@ function dragged(d) {
 function dragended(d) {
   if (!d3.event.active) simulation.alphaTarget(0);
   var node = d3.event.subject;
-  if(node.position[0]==node.fx && node.position[1]==node.fy){
-    // click action
-    if(ctrlKey){
-      node.selected = !node.selected;
-    }else{
-      Graph.nodes.forEach(function(n){
-        n.selected = false;
-      });
-      node.selected = true;
-    }
-    showTables();
-    displayInfoPanel(node,options.nodeInfo); 
-  }
-  delete node.position;
   if (!options.stopped && !node.fixed) {
     node.fx = null;
     node.fy = null;
   }
   if(node.fixed)
     delete node.fixed;
+
+  d3.select(this).style("cursor","grab");
 }
 
 function getGroups(nodes){
@@ -2968,7 +3097,7 @@ function selectAllNodes(){
   showTables();
 }
 
-function isolateNodes(){
+function filterSelection(){
   if(!Graph.nodes.filter(function(d){ return d.selected; }).length){
     displayWindow(texts.alertnonodes);
   }else{
@@ -2989,7 +3118,7 @@ function deleteNoShow(){
   drawNet();
 }
 
-function selectNeighbors(){
+function addNeighbors(){
   if(!Graph.nodes.filter(function(d){ return d.selected; }).length){
     displayWindow(texts.alertnonodes);
   }else{
@@ -3121,54 +3250,15 @@ function displayLegend(scale, key, color, shape, dat){
 
   legend.append("text")
       .attr("class","title")
-      .attr("x", -10)
+      .attr("x", 0)
       .attr("y", 5)
+      .style("cursor","pointer")
       .text(txt)
-      .on("click",isolateNodes)
-
-  if(d3.select(".legend .filter").empty()){
-    legend.append("path")
-        .attr("class","filter")
-        .style("fill","#666")
-        .style("cursor","pointer")
-        .attr("transform","scale(0.08)translate(-60,-70)")
-        .attr("d","M110.1,16.4L75.8,56.8l0.3,1l50.6-10.2v32.2l-50.9-8.9l-0.3,1l34.7,39.1l-28.3,16.5L63.7,78.2L63,78.5   l-18.5,49L17.2,111l34.1-39.8v-0.6l-50,9.2V47.6l49.3,9.9l0.3-0.6L17.2,16.7L45.5,0.5l17.8,48.7H64L82.1,0.5L110.1,16.4z")
-        .on("click", isolateNodes)
-        .append("title")
-          .text(texts.isolateselection)
-  }
 
   var g = legend.selectAll("g")
       .data(dat)
     .enter().append("g")
-      .attr("transform", function(d, i){ return "translate(0," + (22+i*20)*options.cex + ")"; })
-      .on("click", function(d){
-        if(ctrlKey){
-          if(this.selected)
-            delete this.selected;
-          else
-            this.selected = key;
-        }else{
-          d3.selectAll(".legend > g").property("selected",null)
-          this.selected = key;
-        }
-        d3.selectAll(".legend > g > text").style("font-weight",function(){
-            return this.parentNode.selected? "bold" : null;
-        });
-        legendSelected();
-        if(!heatmap)
-          simulation.restart();
-        showTables();
-      })
-      .on("dblclick", function(){
-        d3.event.stopPropagation();
-        if(Graph.tree && ctrlKey){
-          this.selected = key;
-          legendSelected();
-          treeAction();
-        }else
-          switchEgoNet();
-      })
+      .attr("transform", function(d, i){ return "translate(0," + (22+i*20)*options.cex + ")"; });
 
   function legendSelected(){
         var selecteds = d3.selectAll(".legend > g").filter(function(){ return this.selected; })
@@ -3183,27 +3273,63 @@ function displayLegend(scale, key, color, shape, dat){
         });
   }
 
-  if(color == "image")
+  if(color == "image"){
     g.append("image")
         .attr("xlink:href", String)
         .attr("x",-6)
         .attr("y",-8)
         .attr("width",16)
-        .attr("height",16);
-  else
+        .attr("height",16)
+        .style("cursor","pointer")
+        .on("click",function(){
+          clickLegend(this,switchEgoNet);
+        });
+  }else{
     g.append("path")
       .attr("d", d3.symbol().type(typeof shape=="function" ? function(d){ return d3["symbol"+shape(d)]; } : d3["symbol"+shape]))
-      .style("fill", color);
+      .style("fill", color)
+      .style("cursor","pointer")
+      .on("click",function(){
+        clickLegend(this,switchEgoNet);
+      });
+  }
 
   g.append("text")
       .attr("x", -10)
       .attr("y", 4*options.cex)
       .style("text-anchor", "end")
+      .style("cursor","pointer")
+      .on("click",function(){
+        clickLegend(this,filterSelection);
+      })
       .text((color == "image") ? (shape? function(d,i){ return shape[i]; } : getImageName) : stripTags)
 
   scale.transition()
     .duration(500)
     .style("opacity",+options.showLegend);
+
+  function clickLegend(self,callback){
+      if(self.parentNode.selected && !(d3.event.ctrlKey || d3.event.metaKey)){
+          callback();
+      }else{
+        if(d3.event.ctrlKey || d3.event.metaKey){
+          if(self.parentNode.selected)
+            delete self.parentNode.selected;
+          else
+            self.parentNode.selected = key;
+        }else{
+          d3.selectAll(".legend > g").property("selected",null)
+          self.parentNode.selected = key;
+        }
+        d3.selectAll(".legend > g > text").style("font-weight",function(){
+            return this.parentNode.selected? "bold" : null;
+        });
+        legendSelected();
+        if(!heatmap)
+          simulation.restart();
+        showTables();
+      }
+  }
 }
 
 function getImageName(path){
@@ -3249,7 +3375,7 @@ function displayScale(domain, fill, title){
 }
 
 function showTables() {
-  var noShow = noShowFields.slice(options.showCoordinates ? 4 : 2);
+  var noShow = noShowFields.slice((options.showCoordinates && !heatmap) ? 4 : 2);
 
   var tableWrapper = function(dat, name, columns){
     var currentData;
@@ -3285,17 +3411,17 @@ function showTables() {
               .on("mousedown",function(){ d3.event.preventDefault(); });
       });
       tr.on("click",function(origin,j){
-          if(shiftKey && last!=-1)
+          if(d3.event.shiftKey && last!=-1)
             var selecteds = d3.range(Math.min(last,this.rowIndex),Math.max(last,this.rowIndex)+1);
           table.selectAll("tr").classed("selected", function(d,i){
             var selected = d3.select(this).classed("selected");
             if(selecteds){
-              if(ctrlKey)
+              if(d3.event.ctrlKey || d3.event.metaKey)
                 selected = selected || selecteds.indexOf(i)!=-1;
               else
                 selected = selecteds.indexOf(i)!=-1;
             }else{
-              if(ctrlKey)
+              if(d3.event.ctrlKey || d3.event.metaKey)
                 selected = selected ^ d == origin;
               else
                 selected = d == origin;
@@ -3342,13 +3468,16 @@ function showTables() {
                 return 0;
               };
           thead.append("th")
+            .attr("class","sorting")
             .text(d)
             .on("click",function(){
               tbody.html("");
               dat.sort(sort1);
               var desci = desc[i];
               desc = columns.map(function(){ return false; });
+              thead.selectAll("th").attr("class","sorting");
               desc[i] = !desci;
+              d3.select(this).attr("class",desci ? "sorting_desc" : "sorting_asc");
               dat.forEach(drawTable);
             });
         });
@@ -3413,7 +3542,7 @@ function showTables() {
       nodeColumns = Graph.nodenames.filter(filterNoShow),
       linkColumns = Graph.linknames.filter(filterNoShow);
 
-  if(options.showCoordinates){
+  if(options.showCoordinates && !heatmap){
     var size = Math.min(width,height),
 
     x = d3.scaleLinear()
@@ -3486,6 +3615,8 @@ function selectNodesFromTable(){
                 names.push(d3.select(this).select("td:nth-child("+index+")").text());
               })
               .classed("selected",false);
+          }else{
+            displayWindow(texts.alertnonodestable);
           }
         }else{
           trSelected = d3.selectAll("div.links table tr.selected");
@@ -3499,6 +3630,8 @@ function selectNodesFromTable(){
                 }
               })
               .classed("selected",false);
+          }else{
+            displayWindow(texts.alertnonodestable);
           }
         }
         if(!trSelected.empty()){
@@ -3660,7 +3793,7 @@ function computeHeight(){
   if(options.showTables){
       h = h - 170;
   }else if(options.showButtons2){
-      h = h - (38 + 12*options.cex);
+      h = h - (40 + 12*options.cex);
   }  
   return h;
 }

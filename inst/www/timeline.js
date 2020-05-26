@@ -3,18 +3,33 @@ function timeline(json){
   var nodes = json.nodes,
       options = json.options;
 
-  var ctrlKey = false;
-
   var body = d3.select("body");
-
-  body
-    .on("keydown", keyflip)
-    .on("keyup", keyflip)
 
   if(options.cex)
     body.style("font-size", 10*options.cex + "px")
   else
     options.cex = 1;
+
+  // sort nodes by start
+  nodes.sort(function(nodea, nodeb){
+    var a = nodea[options.start],
+        b = nodeb[options.start];
+    return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
+  });
+
+  // prepare events
+  if(json.events){
+    var events = {};
+    json.events.forEach(function(d){
+      if(typeof events[d.Target] == "undefined")
+        events[d.Target] = [];
+      events[d.Target].push({event: d.Source, time: d.Time, tooltip: d.Source+" ("+d.Time+")"});
+    })
+    nodes.forEach(function(node){
+      if(events.hasOwnProperty(node[options.name]))
+        node['_events_'] = events[node[options.name]];
+    });
+  }
 
   // split multivariables
   nodes.forEach(function(d){
@@ -41,7 +56,26 @@ function timeline(json){
   }else
       topBar.append("select").style("visibility","hidden");
 
-  // node filter
+  // groups selection in topBar
+  topBar.append("h3").text(texts.Group + ":")
+
+  var groupSelect = topBar.append("select")
+    .on("change",function(){
+      options.group = this.value;
+      if(options.group=="-"+texts.none+"-")
+        options.group = false;
+      displayGraph();
+    })
+  var opt = getOptions(nodes);
+  opt.unshift("-"+texts.none+"-");
+  groupSelect.selectAll("option")
+        .data(opt)
+      .enter().append("option")
+        .property("value",String)
+        .text(String)
+        .property("selected",function(d){ return d==options.group?true:null; })
+
+  // node filter in topBar
   var topFilterInst = topFilter()
     .data(nodes)
     .attr(options.name)
@@ -59,11 +93,11 @@ function timeline(json){
       .text("text { font-family: sans-serif; font-size: "+body.style("font-size")+"; } "+
     ".laneLines {  shape-rendering: crispEdges; }"+
     ".mini text { font-size:  90%; }"+
-    ".mini .miniItem { fill-opacity: .7; stroke-width: 6;  }"+
+    ".mini .item { fill-opacity: .7; stroke-width: 6;  }"+
     ".brush .selection { fill: dodgerblue; }"+
     ".axis path, .axis line { fill: none; stroke: #000; shape-rendering: crispEdges; }"+
     ".main text { font-size:  120%; }"+
-    ".main .miniItem { stroke-width: 6; }")
+    ".main .item { stroke-width: 6; }")
 
   displayGraph();
 
@@ -82,17 +116,21 @@ function timeline(json){
     else
       plot.selectAll("*").remove();
 
+    plot.on("dblclick",function(){
+      displayGraph();
+    });
+
     var currentYear = new Date().getFullYear(),
         getEnd = function(y){
           return y === null ? currentYear : y;
         };
 
-    var data = filter ? nodes.filter(function(d){ return filter.indexOf(d[options.name])!=-1; }) : nodes;
+    var data = (filter ? nodes.filter(function(d){ return filter.indexOf(d[options.name])!=-1; }) : nodes).filter(function(d){ return d[options.group]!==null; });
 
-    var lanes = options.group?d3.set(data.map(function(d){ return d[options.group]; })).values().sort():[""],
+    var lanes = options.group?d3.set(data.map(function(d){ return String(d[options.group]); })).values().sort():[""],
       laneLength = lanes.length,
       items = data.map(function(d){
-        d.lane = options.group?lanes.indexOf(d[options.group]):0;
+        d.lane = options.group?lanes.indexOf(String(d[options.group])):0;
         return d;
       }),
       timeBegin = d3.min(items,function(d){ return d[options.start]; }),
@@ -158,23 +196,24 @@ function timeline(json){
       .attr("dy", ".5ex")
       .attr("text-anchor", "end")
       .attr("class", "laneText")
+      .style("cursor", "pointer")
       .on("click",function(group){
-        if(ctrlKey){
+        if(d3.event.ctrlKey || d3.event.metaKey){
           selectedGroups[selectedGroups.has(group)?"remove":"add"](group);
         }else{
-          selectedGroups.clear();
-          selectedGroups.add(group);
+          if(selectedGroups.has(group)){
+            var filter = nodes.filter(function(d){ return selectedGroups.has(d[options.group]); })
+                       .map(function(d){ return d[options.name]; });
+            displayGraph(filter);
+          }else{
+            selectedGroups.clear();
+            selectedGroups.add(group);
+          }
         }
         laneText.each(function(g){
           d3.select(this).style("font-weight",selectedGroups.has(g)?"bold":null);
         })
       })
-      .on("dblclick",function(group){
-        selectedGroups.add(group);
-        var filter = nodes.filter(function(d){ return selectedGroups.has(d[options.group]); })
-                       .map(function(d){ return d[options.name]; });
-        displayGraph(filter);
-      });
 
     //mini axis
     var xAxis = d3.axisBottom(x).tickFormat(formatter);
@@ -189,10 +228,10 @@ function timeline(json){
       .attr("transform", "translate(0," + (miniHeight + m[0] + m[2] - 1) + ")");
 
     //mini item rects
-    mini.append("g").selectAll(".miniItem")
+    mini.append("g").selectAll(".item")
       .data(items)
       .enter().append("rect")
-      .attr("class", function(d){ return "miniItem"; })
+      .attr("class", function(d){ return "item"; })
       .attr("fill", function(d) { return color(d.lane); })
       .attr("x", function(d){ return x(d[options.start]); })
       .attr("y", function(d){ return y2(d.lane + .5) - 5; })
@@ -289,11 +328,10 @@ function timeline(json){
     mini.select(".brush").call(brush.move,x.range());
 
     function display() {
-      var rects, rectsEnter, rectsUpdate, lines, self, height,
-      extent = d3.event.selection.map(x.invert, x),
-      minExtent = extent[0],
-      maxExtent = extent[1],
-      visItems = items.filter(function(d) {return d[options.start] < maxExtent && getEnd(d[options.end]) > minExtent;});
+      var extent = d3.event.selection.map(x.invert, x),
+          minExtent = extent[0],
+          maxExtent = extent[1],
+          visItems = items.filter(function(d) {return d[options.start] < maxExtent && getEnd(d[options.end]) > minExtent;});
 
       x1.domain([minExtent, maxExtent]);
 
@@ -306,7 +344,7 @@ function timeline(json){
 
       //update main item rects
       svgLanes.each(function(d,i){
-        self = d3.select(this);
+        var self = d3.select(this);
 
         var laneData = options.group ? visItems.filter(function(p){ return p[options.group] == d; }) : visItems;
 
@@ -315,23 +353,23 @@ function timeline(json){
         }else{
           self.style("display",null);
 
-          rects = self.select("g[clip-path]").selectAll("g")
+          var rects = self.select("g[clip-path]").selectAll("g")
             .data(laneData, function(d) { return d[options.name]; })
       
-          rectsEnter = rects.enter()
+          var rectsEnter = rects.enter()
               .append("g")
-            .attr("class", "miniItem")
+            .attr("class", "item")
             .attr("fill", color(i))
           rectsEnter.append("rect")
             .attr("height", 10)
           rectsEnter.append("text")
-            .attr("y", 10 + 12*options.cex)
+            .attr("y", -4)
 
-          tooltip(rectsEnter,options.text);
+          tooltip(rectsEnter.selectAll("rect, text"),options.text);
 
           rects.exit().remove();
 
-          rectsUpdate = rectsEnter.merge(rects);
+          var rectsUpdate = rectsEnter.merge(rects);
 
           rectsUpdate.select("rect")
             .attr("x", function(d) { return x1(d[options.start]);} )
@@ -351,20 +389,69 @@ function timeline(json){
               self.attr("text-anchor",null);
           });
 
-          lines = [-Infinity];
-          rectsUpdate.attr("transform",function(){
-            var selfCoords = this.getBBox(),
-            i = 0;
-            while(lines[i]>=selfCoords.x){
-              i++;
-              if(typeof lines[i] == 'undefined')
-                lines.push(-Infinity);
-            }
-            lines[i] = selfCoords.x+selfCoords.width;
-            return "translate(0,"+((30+i*30)*options.cex)+")";
+          rectsUpdate.each(function(d){
+            if(!d['_events_'])
+              return;
+
+            var points = d3.select(this).selectAll(".event").data(d['_events_'],function(dd){ return dd.event; });
+
+            var pointsEnter = points.enter()
+                  .append("circle")
+                  .attr("class","event")
+                  .attr("fill","black")
+                  .attr("cx",0)
+                  .attr("cy",0)
+                  .attr("r",4)
+
+            tooltip(pointsEnter,'tooltip');
+
+            points.exit().remove();
+
+            var pointsUpdate = pointsEnter.merge(points);
+
+            pointsUpdate.attr("cx",function(dd){ return x1(dd.time); })
+
+            var lines = [-Infinity];
+            pointsUpdate.attr("cy",function(){
+              var selfCoords = this.getBBox(),
+                  i = 0;
+              while(lines[i]>=selfCoords.x){
+                i++;
+                if(!lines.length>i)
+                  lines.push(-Infinity);
+              }
+              lines[i] = selfCoords.x+selfCoords.width;
+              return (18+i*10)*options.cex;
+            });
           });
 
-          height =  Math.ceil(this.getBBox().height);
+          var lines = [-Infinity],
+              lineheight = 10;
+          rectsUpdate.attr("transform",function(d){
+            var selfCoords = this.getBBox(),
+                i = 0, j = 0,
+                nlines = Math.ceil(selfCoords.height/lineheight)+(d['_events_']?1:0),
+                collision = isFinite(lines[0])?true:false;
+            while(collision){
+              i++;
+              collision = false;
+              for(j=i; j<i+nlines; j++){
+                if(!lines.length>j){
+                  break;
+                }else if(lines[j]>=selfCoords.x){
+                  collision = true;
+                  break;
+                }
+              }
+            }
+            lines[i] = selfCoords.x+selfCoords.width;
+            for(j=i+1; j<i+nlines; j++){
+              lines[j] = lines[i];
+            }
+            return "translate(0,"+((40+i*lineheight)*options.cex)+")";
+          });
+
+          var height =  Math.ceil(this.getBBox().height);
           self.attr("height", height + m[0] + m[2]);
           self.select("defs #clip"+i+" rect").attr("height", height);
         }
@@ -374,10 +461,6 @@ function timeline(json){
       yearGuide.style("height",guideHeight);
 
     }
-  }
-
-  function keyflip() {
-    ctrlKey = d3.event.ctrlKey | d3.event.metaKey;
   }
 
 function svgDownload(){
@@ -498,7 +581,7 @@ function svg2pdf(){
       }
       drawAxis("x");
       drawAxis("x1");
-      svg.selectAll(".miniItem").each(function(){
+      svg.selectAll(".item").each(function(){
         var self = d3.select(this),
             x = +self.attr("x") + margin[0],
             y = +self.attr("y") + margin[1] + svgY,
@@ -519,7 +602,7 @@ function svg2pdf(){
           doc.rect(x, y, w, h, 'D');
       })
     }else{
-      svg.selectAll(".miniItem").each(function(){
+      svg.selectAll(".item").each(function(){
         var self = d3.select(this),
             y = getTranslation(self.attr("transform"))[1] + margin[1] + svgY,
             color = d3.rgb(self.style("fill")),

@@ -14,7 +14,7 @@ var texts = {
     linksattributes: "Atributs dels enllaços",
     noitemsselected: "Cap element seleccionat",
     alertnonodes: "Cap node seleccionat! Prem els nodes per a seleccionar-los.",
-    alertnonodestable: "Cap node seleccionat. No nodes selected en la taula!",
+    alertnonodestable: "No hi ha res seleccionat a la taula!",
     repulsion: "Repulsió",
     distance: "Distància",
     loading: "Carregant...",

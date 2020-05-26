@@ -17,7 +17,7 @@ netCoin(nodes, links = NULL, tree = NULL, name = NULL, label = NULL,
         lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
         nodeFilter = NULL, linkFilter = NULL, degreeFilter = NULL,
         nodeBipolar = FALSE, linkBipolar = FALSE, defaultColor = "#1f77b4",
-        distance = 10, repulsion = 25, zoom = 1,
+        distance = 10, repulsion = 25, zoom = 1, fixed = showCoordinates,
         scenarios = NULL, main = NULL, note = NULL, help = NULL,
         helpOn = FALSE, cex = 1, background = NULL, layout = NULL,
         limits = NULL, controls = 1:5, mode = c("network","heatmap"),
@@ -55,6 +55,7 @@ netCoin(nodes, links = NULL, tree = NULL, name = NULL, label = NULL,
 \item{repulsion}{a percentage for repulsion between nodes.}
 \item{distance}{a percentage for distance of links.}
 \item{zoom}{a number between 0.1 and 10 to start displaying zoom.}
+\item{fixed}{prevent nodes from being dragged.}
 \item{scenarios}{a note showing number of scenarios.}
 \item{main}{upper title of the graph.}
 \item{note}{lower title of the graph.}
@@ -67,7 +68,7 @@ drl("da"), circle("ci"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kama
 \item{cex}{number indicating the amount by which plotting text should be scaled relative to the default. Default = 1.}
 \item{controls}{a numeric vector indicating which controls will be shown. 1 = sidebar, 2 = selection buttons, 3 = tables, 4 = sliders & buttons, 5 = export buttons. NULL hide all controls, negative values deny each control and 0 deny all.}
 \item{mode}{a character vector indicating the graph mode allowed: network, heatmap or both (both by default).}
-\item{showCoordinates}{a logical value true if the coordinates are to be shown in tables. Default = FALSE.}
+\item{showCoordinates}{a logical value true if the coordinates are to be shown in tables and axes. Default = FALSE.}
 \item{showArrows}{a logical value true if the directional arrows are to be shown. Default = FALSE.}
 \item{showLegend}{a logical value true if the legend is to be shown. Default = TRUE.}
 \item{showAxes}{a logical value true if the axes are to be shown. Default = FALSE.}
@@ -79,6 +80,12 @@ drl("da"), circle("ci"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kama
 }
 \note{
 nodes and links arguments can be substituted by a netCoin object to add or change options to it.
+}
+\references{
+  Escobar, M. and Martinez-Uribe, L. (2020)
+  Network Coincidence Analysis: The \code{netCoin} \code{R} Package.
+  \emph{Journal of Statistical Software}, \bold{93}, 1-32.
+  \doi{10.18637/jss.v093.i11}.
 }
 \author{
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}

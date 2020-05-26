@@ -43,6 +43,12 @@ Possible measures in procedures are
 \value{
 A data frame in which the two first columns are source and target. The rest of the columns are the different statistics explicited in \code{funcs} parameter.
 }
+\references{
+  Escobar, M. and Martinez-Uribe, L. (2020)
+  Network Coincidence Analysis: The \code{netCoin} \code{R} Package.
+  \emph{Journal of Statistical Software}, \bold{93}, 1-32.
+  \doi{10.18637/jss.v093.i11}.
+}
 \author{
 Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
 }
