@@ -85,7 +85,7 @@ toJSON <- function(x){
     n <- suppressWarnings(as.numeric(x))
     if(is.na(n)){
       x <- gsub("[[:cntrl:]]","",x)
-      x <- tryCatch(gsub("[\U00010000-\Uffffffff]","",x),error=function(cond){ return(x) })
+      x <- gsub("[^\u0001-\uffff]","",x)
       x <- deparse(x)
       if(l10n_info()[["Latin-1"]]){
         x <- gsub("([^\\])\\\\[0-7]{3}","\\1_",x)
