@@ -4,6 +4,7 @@ networkJSON<-function(net){
   links <- net$links
   tree <- net$tree
   nodes <- net$nodes
+  layouts <- net$layouts
   options <- net$options
 
   name <- as.character(nodes[[options$nodeName]])
@@ -20,16 +21,10 @@ networkJSON<-function(net){
         count <- count + 1
     }
 
-    sourcenames <- as.character(links$Source)
-    targetnames <- as.character(links$Target)
-
-    nlinks <- nrow(links)
-    source <- numeric(nlinks)
-    target <- numeric(nlinks)
-    for(i in seq_len(nlinks)){
-      source[i] <- which(sourcenames[i]==name)-1
-      target[i] <- which(targetnames[i]==name)-1
-    }
+    idx <- seq_along(name)-1
+    names(idx) <- name
+    source <- idx[as.character(links$Source)]
+    target <- idx[as.character(links$Target)]
 
     links$Source <- source
     links$Target <- target
@@ -75,8 +70,12 @@ networkJSON<-function(net){
     json$links <- links
     json$linknames <- linknames
   }
-  if(length(tree))
+  if(length(tree)){
     json$tree <- tree
+  }
+  if(length(layouts)){
+    json$layouts <- layouts
+  }
   json$options <- options
   
   return(toJSON(json))
@@ -84,11 +83,24 @@ networkJSON<-function(net){
 
 # add layout
 netAddLayout <- function(net,layout){
-  if(nrow(layout)==nrow(net$nodes)){
+  if(inherits(layout,"list") &&
+       all(sapply(layout,inherits,what="matrix")) &&
+       all(sapply(layout,is.numeric)) &&
+       all(sapply(layout,ncol)==2) &&
+       all(sapply(layout,nrow)==nrow(net$nodes))){
+    if(is.null(names(layout))){
+      names(layout) <- paste0("layout",seq_along(layout))
+    }
+    net$layouts <- layout
+  }else if(inherits(layout,"matrix") &&
+       is.numeric(layout) &&
+       ncol(layout)==2 &&
+       nrow(layout)==nrow(net$nodes)){
     net$nodes[["fx"]] <- layout[,1]
     net$nodes[["fy"]] <- layout[,2]
-  }else
-    warning("layout: must have a coordinate per node")
+  }else{
+    warning("layout: each layout must be a numeric matrix and have a pair of coordinates per node")
+  }
   return(net)
 }
 
@@ -100,7 +112,7 @@ getRawName <- function(filepath){
 }
 
 #copy images to net graph
-imgWrapper <- function(net,dir){
+imgWrapper <- function(net,callback,dir){
   imgDir <- paste(dir,"images",sep="/")
   if("imageItems" %in% names(net$options)){
     dir.create(imgDir, showWarnings = FALSE)
@@ -129,7 +141,7 @@ imgWrapper <- function(net,dir){
       net$options[["background"]] <- paste0('url("',paste("images",rawname,sep="/"),'")')
     }
   }
-  return(networkJSON(net))
+  return(callback(net))
 }
 
 #create html wrapper for network graph
@@ -137,5 +149,5 @@ netCreate <- function(net, dir = "netCoin"){
   #get language
   language <- getLanguageScript(net)
 
-  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip.min.js","functions.js",language,"colorScales.js","network.js"),function(){ return(imgWrapper(net,dir)) })
+  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","jszip.min.js","iro.min.js","functions.js",language,"colorScales.js","network.js"),function(){ return(imgWrapper(net,networkJSON,dir)) })
 }

@@ -10,20 +10,23 @@ If the 'dir' attribute is specified, the function creates a folder in the comput
 }
 
 \usage{
-netCoin(nodes, links = NULL, tree = NULL, name = NULL, label = NULL,
-        labelSize = NULL, size = NULL, color = NULL, shape = NULL,
-        legend = NULL, ntext = NULL, info = NULL,
-        orderA = NULL, orderD = NULL, group = NULL, community = NULL,
+netCoin(nodes = NULL, links = NULL, tree = NULL,
+        community = NULL, layout = NULL,
+        name = NULL, label = NULL, group = NULL, labelSize = NULL,
+        size = NULL, color = NULL, shape = NULL, legend = NULL,
+        orderA = NULL, orderD = NULL, ntext = NULL, info = NULL,
+        image = NULL, imageNames = NULL,
+        nodeBipolar = FALSE, nodeFilter = NULL, degreeFilter = NULL,
         lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
-        nodeFilter = NULL, linkFilter = NULL, degreeFilter = NULL,
-        nodeBipolar = FALSE, linkBipolar = FALSE, defaultColor = "#1f77b4",
-        distance = 10, repulsion = 25, zoom = 1, fixed = showCoordinates,
-        scenarios = NULL, main = NULL, note = NULL, help = NULL,
-        helpOn = FALSE, cex = 1, background = NULL, layout = NULL,
-        limits = NULL, controls = 1:5, mode = c("network","heatmap"),
-        showCoordinates = FALSE, showArrows = FALSE, showLegend = TRUE,
-        showAxes = FALSE, axesLabels = NULL, language = c("en","es","ca"),
-        image = NULL, imageNames = NULL, dir = NULL)
+        linkBipolar = FALSE, linkFilter = NULL,
+        repulsion = 25, distance = 10, zoom = 1,
+        fixed = showCoordinates, limits = NULL,
+        main = NULL, note = NULL, showCoordinates = FALSE, showArrows = FALSE,
+        showLegend = TRUE, frequencies = FALSE, showAxes = FALSE,
+        axesLabels = NULL, scenarios = NULL, help = NULL, helpOn = FALSE,
+        mode = c("network","heatmap"), controls = 1:4, cex = 1,
+        background = NULL, defaultColor = "#1f77b4",
+        language = c("en","es","ca"), dir = NULL)
 }
 \arguments{
 \item{nodes}{a data frame with at least one vector of names.}
@@ -59,14 +62,15 @@ netCoin(nodes, links = NULL, tree = NULL, name = NULL, label = NULL,
 \item{scenarios}{a note showing number of scenarios.}
 \item{main}{upper title of the graph.}
 \item{note}{lower title of the graph.}
+\item{frequencies}{a logical value true if the frequencies can be shown in barplots. Default = FALSE.}
 \item{help}{help text of the graph.}
 \item{helpOn}{Should the help be shown at the beginning?}
 \item{background}{background color or image of the graph.}
 \item{layout}{a matrix with two columns or an algorithm to elaborate the coordinates: davidson.harel
-drl("da"), circle("ci"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kamada.kawai("ka"), lgl("lg"), mds("md"), random("ra"), reingold.tilford("re"), star("sta"), sugiyama("sug")}
+drl("da"), circle("ci"), Force-Atlas-2("fo"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kamada.kawai("ka"), lgl("lg"), mds("md"), random("ra"), reingold.tilford("re"), star("sta"), sugiyama("sug")}
 \item{limits}{vector indicating size references to display layout, must be a numeric vector of length 4: x1, y1, x2, y2.}
 \item{cex}{number indicating the amount by which plotting text should be scaled relative to the default. Default = 1.}
-\item{controls}{a numeric vector indicating which controls will be shown. 1 = sidebar, 2 = selection buttons, 3 = tables, 4 = sliders & buttons, 5 = export buttons. NULL hide all controls, negative values deny each control and 0 deny all.}
+\item{controls}{a numeric vector indicating which controls will be shown. 1 = sidebar, 2 = selection buttons, 3 = tables, 4 = export buttons. NULL hide all controls, negative values deny each control and 0 deny all.}
 \item{mode}{a character vector indicating the graph mode allowed: network, heatmap or both (both by default).}
 \item{showCoordinates}{a logical value true if the coordinates are to be shown in tables and axes. Default = FALSE.}
 \item{showArrows}{a logical value true if the directional arrows are to be shown. Default = FALSE.}

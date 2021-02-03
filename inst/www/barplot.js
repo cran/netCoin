@@ -44,7 +44,7 @@ function barplot(json){
     maxWord = 160;
 
   var vp = viewport(),
-      margin = {top: 80, right: 40, bottom: 80, left: maxWord};
+      margin = {top: 80, right: 40, bottom: 40, left: maxWord};
 
   var width = vp.width - 40 - margin.left - margin.right,
       height = vp.height - 40 - margin.top - margin.bottom;
@@ -91,19 +91,34 @@ function barplot(json){
   var topBar = body.append("div")
     .attr("class","topbar")
 
-  iconButton(topBar,"pdf",pdfIcon_b64,"PDF export",svg2pdf);
-  iconButton(topBar,"svg",svgIcon_b64,"SVG export",svgDownload);
+  topBar.call(iconButton()
+        .alt("pdf")
+        .width(24)
+        .height(24)
+        .src(b64Icons.pdf)
+        .title(texts.pdfexport)
+        .job(svg2pdf));
+
+  topBar.call(iconButton()
+        .alt("svg")
+        .width(24)
+        .height(24)
+        .src(b64Icons.svg)
+        .title(texts.svgexport)
+        .job(svgDownload));
 
   // multigraph
   if(typeof multiGraph != 'undefined'){
-    topBar.append("h3").text(texts.netselection + ":")
+    topBar.append("h3").text(texts.graph + ":")
     multiGraph.graphSelect(topBar);
   }
 
   // events
   topBar.append("h3").text(texts.subjectselect + ":")
 
-  var eventSelect = topBar.append("select")
+  var eventSelect = topBar.append("div")
+      .attr("class","select-wrapper")
+    .append("select")
     .on("change",function(){
       subject = this.value;
       if(subject=="-default-"){
@@ -134,7 +149,9 @@ function barplot(json){
   // colors
   topBar.append("h3").text(texts.Color + ":")
 
-  var colorSelect = topBar.append("select")
+  var colorSelect = topBar.append("div")
+      .attr("class","select-wrapper")
+    .append("select")
     .on("change",function(){
       options.color = this.value;
       if(options.color=="-"+texts.none+"-")
@@ -166,7 +183,7 @@ function barplot(json){
             .on("click",function(){
               options.defaultColor = this.textContent;
               displayGraph();
-              d3.select(panel.node().parentNode).remove();
+              d3.select("div.window-background").remove();
             })
       })
   topBar.append("span").style("padding","0 10px");
@@ -191,11 +208,13 @@ function barplot(json){
 
   height = height - topBarHeight;
 
+  body.append("svg")
+    .attr("class","plot")
+    .style("margin-top","5em")
+
   if(options.note){
     var pnote = body.append("p")
         .attr("class","note")
-        .style("position","absolute")
-        .style("left",margin.left+"px")
         .html(options.note)
   }
 
@@ -356,14 +375,14 @@ function barplot(json){
       });
     }
 
-    if(!options.scalebar)
+    if(!options.scalebar){
       height = data.length*20;
+    }else if(options.note){
+      height = height - pnote.node().getBoundingClientRect().height + 10;
+    }
 
     if(height/data.length < 13)
       height = data.length*13;
-
-    if(options.note)
-      pnote.style("top",(topBarHeight+margin.top+height+margin.bottom)+"px")
 
     if(subject && options.expected)
       x.domain([0,maxExpected]).nice()
@@ -406,22 +425,21 @@ function barplot(json){
       }
     }
 
-    body.select("svg.plot").remove();
+    var svg = body.select("svg.plot");
+    svg.selectAll("*").remove();
 
-    var svg = body.append("svg")
-      .attr("class","plot")
+    svg
       .attr("xmlns","http://www.w3.org/2000/svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
+      .on("dblclick",function(){
+        sigFilter = 0;
+        sigButton();
+        sigSlider();
+        topFilterInst.removeFilter();
+      })
 
-    svg.on("dblclick",function(){
-      sigFilter = 0;
-      sigButton();
-      sigSlider();
-      topFilterInst.removeFilter();
-    })
-
-    svg.append("style").text("text { font-family: sans-serif; font-size: "+body.style("font-size")+"; } "+
+    svg.append("style").text("svg { font-family: sans-serif; font-size: "+body.style("font-size")+"; } "+
       ".main { font-size: 200%; }"+
       (whiskers ? "" : ".bar, .legend path { stroke: #000; stroke-width: .4px; }") +
       ".a { fill: "+colors[0]+"; }"+
@@ -650,7 +668,9 @@ function topOrder(topBar,data,displayGraph){
 
   topBar.append("h3").text(texts.Order + ":")
 
-  var selOrder = topBar.append("select")
+  var selOrder = topBar.append("div")
+      .attr("class","select-wrapper")
+    .append("select")
     .on("change",function(){
       options.order = this.value;
       if(options.order=="-default-")
@@ -677,15 +697,43 @@ function topOrder(topBar,data,displayGraph){
         .property("value",function(d){ return d[0]; })
         .text(function(d){ return d[1]; })
 
+  topBar.append("h3")
+    .text(texts.Reverse)
   topBar.append("button")
-    .style("background-color",options.rev?"#ccc":null)
-    .text("Reverse")
+    .attr("class","switch-button")
+    .classed("active",options.rev)
     .on("click",function(){
       options.rev = !options.rev;
-      d3.select(this).style("background-color",options.rev?"#ccc":null)
+      d3.select(this).classed("active",options.rev);
       displayGraph();
     })
+
   topBar.append("span").style("padding","0 10px")
+}
+
+function tooltip(sel,text){
+    var body = d3.select("body"),
+        tip = body.select("div.tooltip");
+
+    if(tip.empty())
+      tip = body.append("div")
+          .attr("class","tooltip")
+
+    sel
+      .on("mouseenter", function(d){
+        if(d[text]){
+          tip.style("display","block").html(d[text]);
+        }
+      })
+      .on("mousemove", function(){
+        var coor = [0, 0];
+        coor = d3.mouse(body.node());
+        tip.style("top",(coor[1]+20)+"px")
+           .style("left",(coor[0]+20)+"px")
+      })
+      .on("mouseleave", function(){
+        tip.style("display","none").html("")
+      })
 }
 
 function svg2pdf(){

@@ -21,15 +21,22 @@ createHTML <- function(directory, styles, dependencies, json){
   html <- sub("titulo", name, html)
 
   scripts <- "<!--scripts-->"
-  if(length(styles))
+  if(length(styles)){
     dir.create(paste(directory, "styles", sep = "/"),FALSE)
+  }
   for(i in styles){
     scripts <- paste(scripts, paste0("<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/",i,"\"></link>"), sep = "\n")
     file.copy(paste(www, i, sep = "/"), paste(directory, "styles", sep = "/"))
+    if(i=="styles.css"){
+      for(font in c("Roboto-Regular-latin.woff2","Roboto-Regular-latin-ext.woff2")){
+        file.copy(paste(www, font, sep = "/"), paste(directory, "styles", sep = "/"))
+      }
+    }
   }
 
-  if(length(dependencies))
+  if(length(dependencies)){
     dir.create(paste(directory, "scripts", sep = "/"),FALSE)
+  }
   for(i in dependencies){
     scripts <- paste(scripts, paste0("<script src=\"scripts/",i,"\"></script>"), sep = "\n")
     file.copy(paste(www, i, sep = "/"), paste(directory, "scripts", sep = "/"))
@@ -85,7 +92,6 @@ toJSON <- function(x){
     n <- suppressWarnings(as.numeric(x))
     if(is.na(n)){
       x <- gsub("[[:cntrl:]]","",x)
-      x <- gsub("[^\u0001-\uffff]","",x)
       x <- deparse(x)
       if(l10n_info()[["Latin-1"]]){
         x <- gsub("([^\\])\\\\[0-7]{3}","\\1_",x)

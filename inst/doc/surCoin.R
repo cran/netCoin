@@ -4,6 +4,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(netCoin)
+library(htmltools)
 data("ess")
 
 ## -----------------------------------------------------------------------------

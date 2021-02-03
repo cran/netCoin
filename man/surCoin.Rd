@@ -20,34 +20,34 @@ surCoin(data,variables=names(data), commonlabel=NULL,
         igraph=FALSE, coin=FALSE, dir=NULL, ...)
 }
 \arguments{
-  \item{data}{a data frame}
-  \item{variables}{a vector of variables included in the previous data frame}
-  \item{commonlabel}{a vector of variables whose names are to be included in nodes labels}
-  \item{dichotomies}{a vector of dichotomous variables to appear as just one category}
-  \item{valueDicho}{value to be selected for dichotomous variables. Default is 1}
-  \item{metric}{a vector of metrics}
-  \item{exogenous}{a vector of variables whose relations amongst them are of no interest. None by default}
-  \item{weight}{a vector of weights. Optimal for data.framed tables}
-  \item{subsample}{retrict the analysis to scenarios with at least one event}
+  \item{data}{a data frame.}
+  \item{variables}{a vector of variables included in the previous data frame.}
+  \item{commonlabel}{a vector of variables whose names are to be included in nodes labels.}
+  \item{dichotomies}{a vector of dichotomous variables to appear as just one category.}
+  \item{valueDicho}{value or list of values (not vector) to be selected for dichotomous variables. Default is 1.}
+  \item{metric}{a vector of metrics.}
+  \item{exogenous}{a vector of variables whose relations amongst them are of no interest. None by default.}
+  \item{weight}{a vector of weights. Optimal for data.framed tables.}
+  \item{subsample}{retrict the analysis to scenarios with at least one event.}
   \item{pairwise}{Pairwise mode of handling missing values if TRUE. Listwise by default.}
-  \item{minimum}{minimum frequency to be considered}
-  \item{maximum}{maximum frequency to be considered}
-  \item{sort}{sort the coincidence matrix according to frequency of events}
-  \item{decreasing}{decreasing or increasing sort of the matrix}
+  \item{minimum}{minimum frequency to be considered.}
+  \item{maximum}{maximum frequency to be considered.}
+  \item{sort}{sort the coincidence matrix according to frequency of events.}
+  \item{decreasing}{decreasing or increasing sort of the matrix.}
   \item{frequency}{a logical value true if frequencies are to be shown. Default=FALSE.}
   \item{percentages}{a logical value true if percentages are to be shown. Default=TRUE.}
   \item{procedures}{a vector of statistics of similarity. See below.}
   \item{criteria}{statistic to be use for selection criteria.}
   \item{Bonferroni}{Bonferroni criterium of the signification test.}
-  \item{support}{minimum value of the frequency of the coincidence to be edged}
+  \item{support}{minimum value of the frequency of the coincidence to be edged.}
   \item{minL}{minimum value of the statistic to include the edge in the list.}
-  \item{maxL}{maximum value of the statistic to include the edge in the list.}
+  \item{maxL}{maximum value of the statistic to include the edge in the list. By default is +Inf, except if criteria="Z" or criteria="hyp", in which case it is .5. It is recommnended to change it to .05 if data has been sampled.}
   \item{directed}{includes same edges only once.}
-  \item{diagonal}{includes auto-links}
-  \item{sortL}{sort the list according to the values of a statistic. See below}
+  \item{diagonal}{includes auto-links.}
+  \item{sortL}{sort the list according to the values of a statistic. See below.}
   \item{decreasingL}{order in a decreasing way.}
   \item{igraph}{Produces an igraph object instead of a netCoin object if TRUE.}
-  \item{coin}{Only return the coincidences matrix if TRUE}
+  \item{coin}{Only return the coincidences matrix if TRUE.}
   \item{dir}{a "character" string representing the directory where the web files will be saved.}
   \item{...}{Any \link{netCoin} argument.}
 }
