@@ -14,11 +14,11 @@ netCoin(nodes = NULL, links = NULL, tree = NULL,
         community = NULL, layout = NULL,
         name = NULL, label = NULL, group = NULL, labelSize = NULL,
         size = NULL, color = NULL, shape = NULL, legend = NULL,
-        orderA = NULL, orderD = NULL, ntext = NULL, info = NULL,
-        image = NULL, imageNames = NULL,
+        sort = NULL, decreasing = FALSE, ntext = NULL, info = NULL,
+        image = NULL, imageNames = NULL, centrality = NULL,
         nodeBipolar = FALSE, nodeFilter = NULL, degreeFilter = NULL,
         lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
-        linkBipolar = FALSE, linkFilter = NULL,
+        intensity = NULL, linkBipolar = FALSE, linkFilter = NULL,
         repulsion = 25, distance = 10, zoom = 1,
         fixed = showCoordinates, limits = NULL,
         main = NULL, note = NULL, showCoordinates = FALSE, showArrows = FALSE,
@@ -36,6 +36,7 @@ netCoin(nodes = NULL, links = NULL, tree = NULL,
 \item{label}{name of the vector with labels in the nodes data frame.}
 \item{group}{name of the vector with groups in the nodes data frame.}
 \item{community}{algorithm to make communities: edge_betweenness("ed"), fast_greedy("fa"), label_prop("la"), leiden_eigen("le"), louvain("lo"), optimal("op"), spinglass("sp"), walktrap("wa")}
+\item{centrality}{calculates the centrality measures of a network. See \link{calCentr}.}
 \item{labelSize}{name of the vector with label size in the nodes data frame.}
 \item{size}{name of the vector with size in the nodes data frame.}
 \item{color}{name of the vector with color variable in the nodes data frame.}
@@ -43,8 +44,9 @@ netCoin(nodes = NULL, links = NULL, tree = NULL,
 \item{legend}{name of the vector with the variable to represent as a legend in the nodes data frame.}
 \item{ntext}{name of the vector with html text in the nodes data frame.}
 \item{info}{name of the vector with information to display in a panel in the nodes data frame.}
-\item{orderA}{name of the vector with node ascending order in the nodes data frame.}
-\item{orderD}{name of the vector with node descending order in the nodes data frame.}
+\item{sort}{name of the vector with node order in the nodes data frame (only for heatmap).}
+\item{decreasing}{decreasing or increasing sort of the nodes (only for heatmap).}
+\item{intensity}{name of the vector with intensity variable in the links data frame (only for heatmap).}
 \item{lwidth}{name of the vector with width variable in the links data frame.}
 \item{lweight}{name of the vector with weight variable in the links data frame.}
 \item{lcolor}{name of the vector with color variable in the links data frame.}
@@ -70,7 +72,7 @@ netCoin(nodes = NULL, links = NULL, tree = NULL,
 drl("da"), circle("ci"), Force-Atlas-2("fo"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kamada.kawai("ka"), lgl("lg"), mds("md"), random("ra"), reingold.tilford("re"), star("sta"), sugiyama("sug")}
 \item{limits}{vector indicating size references to display layout, must be a numeric vector of length 4: x1, y1, x2, y2.}
 \item{cex}{number indicating the amount by which plotting text should be scaled relative to the default. Default = 1.}
-\item{controls}{a numeric vector indicating which controls will be shown. 1 = sidebar, 2 = selection buttons, 3 = tables, 4 = export buttons. NULL hide all controls, negative values deny each control and 0 deny all.}
+\item{controls}{a numeric vector indicating which controls will be shown. 1 = sidebar, 2 = selection buttons, 3 = export buttons, 4 = nodes table, 5 = links table. NULL hide all controls, negative values deny each control and 0 deny all.}
 \item{mode}{a character vector indicating the graph mode allowed: network, heatmap or both (both by default).}
 \item{showCoordinates}{a logical value true if the coordinates are to be shown in tables and axes. Default = FALSE.}
 \item{showArrows}{a logical value true if the directional arrows are to be shown. Default = FALSE.}

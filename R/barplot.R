@@ -1,20 +1,3 @@
-barplotJSON <- function(bar){
-  return(toJSON(list(nodes=bar$nodes,links=bar$links,options=bar$options)))
-}
-
-barStart <- function(nodes, links, options){
-  lNames <- union(links$Source,links$Target)
-  notListed <- length(setdiff(lNames,nodes[[options$name]]))
-  if(notListed!=0)
-    stop(paste(notListed," node link(s) not defined in nodes data frame."))
-  structure(list(nodes=nodes, links=links, options=options), class="barCoin")
-}
-
-barCreate <- function(bar, dir = "barCoin"){
-  language <- getLanguageScript(bar)
-  createHTML(dir, c("reset.css","styles.css"), c("d3.min.js","jspdf.min.js","functions.js",language,"colorScales.js","barplot.js"), barplotJSON(bar))
-}
-
 barCoin<-function(data, variables = colnames(data), commonlabel = NULL,
         dichotomies = c("_all","_none"), valueDicho = 1, weight = NULL,
         subsample = FALSE, sort = NULL, decreasing = TRUE, nodes = NULL,
@@ -25,7 +8,7 @@ barCoin<-function(data, variables = colnames(data), commonlabel = NULL,
         Bonferroni = FALSE, support = 1, minL = -Inf, maxL = 1,
         language = c("en","es","ca"), cex = 1.0, dir = NULL)
 {
-
+  language <- language[1]
   name <- nameByLanguage(name = name, language =language, nodes = nodes)
   dicho<-function(input,variables,value) {
     datum<-as.data.frame(ifelse(input[,variables]==value,1,0))
@@ -50,7 +33,6 @@ barCoin<-function(data, variables = colnames(data), commonlabel = NULL,
 # names  
   if (inherits(nodes,"tbl_df")) nodes<-as.data.frame(nodes)
 
-  
 
 # classification of variables
   if("_all"  %in% dichotomies) dichotomies<-variables
@@ -129,49 +111,29 @@ barCoin<-function(data, variables = colnames(data), commonlabel = NULL,
     E<-edgeList(C, procedures, criteria, level, Bonferroni, minL, maxL, support, 
                 directed=FALSE, diagonal= FALSE, sort= NULL)
 
-# definition of options
-    options <-list(name = name, incidences = "incidences", coincidences = "coincidences", level = level, defaultColor = defaultColor)
-    if (expected || confidence) options[["expected"]] <- "expected"
+# definition of parameters
+    if (expected || confidence){
+      expected <- "expected"
+    }else{
+      expected <- NULL
+    }
     if (confidence){
       if(significance){
-        options[["confidence"]] <- "confidence"
+        confidence <- "confidence"
         E[,c("conf.L","conf.U")] <- NULL
       }else{
-        options[["confidence"]] <- c("conf.L","conf.U")
+        confidence <- c("conf.L","conf.U")
         E[,"confidence"] <- NULL
       }
-    }
-    if (significance){
-      options[["significance"]] <- criteriacolname
     }else{
+      confidence <- NULL
+    }
+    if(significance){
+      significance <- criteriacolname
+    }else{
+      significance <- NULL
       E[,criteriacolname] <- NULL
     }
-    options[["cex"]] <- as.numeric(cex)
-    options[["language"]] <- language[1]
-    if(!is.null(note))
-      options[["note"]] <- note
-    if(!is.null(label))
-      options[["label"]] <- label
-    if(!is.null(text))
-      options[["text"]] <- text
-    if(!is.null(color))
-      options[["color"]] <- color
-    if(!is.null(select)){
-      if(select %in% O[,name])
-        options[["select"]] <- select
-      else
-        warning("select: must be in 'nodes' name column")
-    }
-    options[["rev"]] <- as.integer(!decreasing)
-    if(!is.null(sort)){
-      if(sort %in% colnames(O)){
-        options[["order"]] <- sort
-        options[["rev"]] <- bitwXor(as.integer(is.numeric(O[,sort])),as.integer(decreasing))
-      }else
-        warning("sort: must be a 'nodes' column")
-    }
-    if(scalebar)
-      options[["scalebar"]] <- TRUE
 
 # convertion to percentages
     if (percentages) {
@@ -180,8 +142,15 @@ barCoin<-function(data, variables = colnames(data), commonlabel = NULL,
     }
         
 # preparing bar graph
-    bar <- barStart(O, E, options)
-    if (!is.null(dir)) barCreate(bar, dir)
+    bar <- barplot_rd3(O, E, name = name, select = select,
+        source = "Source", target = "Target",
+        label = label, text = text, color = color,
+        incidences = "incidences", coincidences = "coincidences",
+        expected = expected, confidence = confidence, level = level, significance = significance,
+        sort = sort, decreasing = decreasing,
+        scalebar = scalebar, defaultColor = defaultColor, note = note, cex = cex,
+        language = language, dir = dir)
+    class(bar) <- c("barCoin",class(bar))
     return(bar)
   }
   else warning("Input is not a dichotomous matrix of incidences")

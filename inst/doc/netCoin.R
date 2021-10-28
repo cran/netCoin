@@ -30,10 +30,6 @@ knitr::include_graphics("Dice.png")
 data("families")
 data("links")
 
-## ----message=FALSE, warning=FALSE, include=FALSE------------------------------
-
-library(igraph)
-
 ## ----message=FALSE, warning=FALSE, eval=FALSE---------------------------------
 #  G <- allNet(incidence=links[links$link=="Marriage",-17],
 #       nodes=families, layout="md", percentages= FALSE,

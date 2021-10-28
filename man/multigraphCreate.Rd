@@ -13,7 +13,7 @@ multigraphCreate(..., mode = c("default","parallel","frame"),
                  frame = 0, speed = 50, dir = "MultiGraph", show = TRUE)
 }
 \arguments{
-\item{...}{coin graphs (netCoin, barCoin, timeCoin) objects or html "directories".}
+\item{...}{rD3plot graphs (network_rd3, barplot_rd3, timeplot_rd3) objects or html "directories".}
 \item{mode}{a string specifying the displaying mode. The "default" displays graphs one by one, "parallel" splits screen and "frame" allows dinamic graphs in time.}
 \item{frame}{number of frame to start a dynamic network.}
 \item{speed}{a percentage for frame speed in dynamic networks.}

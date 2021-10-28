@@ -6,11 +6,11 @@ netCoin <- function(nodes = NULL, links = NULL, tree = NULL,
         community = NULL, layout = NULL,
         name = NULL, label = NULL, group = NULL, labelSize = NULL,
         size = NULL, color = NULL, shape = NULL, legend = NULL,
-        orderA = NULL, orderD = NULL, ntext = NULL, info = NULL,
-        image = NULL, imageNames = NULL,
+        sort = NULL, decreasing = FALSE, ntext = NULL, info = NULL,
+        image = NULL, imageNames = NULL, centrality = NULL,
         nodeBipolar = FALSE, nodeFilter = NULL, degreeFilter = NULL,
         lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
-        linkBipolar = FALSE, linkFilter = NULL,
+        intensity = NULL, linkBipolar = FALSE, linkFilter = NULL,
         repulsion = 25, distance = 10, zoom = 1,
         fixed = showCoordinates, limits = NULL,
         main = NULL, note = NULL, showCoordinates = FALSE, showArrows = FALSE,
@@ -28,241 +28,133 @@ netCoin <- function(nodes = NULL, links = NULL, tree = NULL,
     links <- nodes$links
     tree <- nodes$tree
     options <- nodes$options
-    name <- options$nodeName
     nodes <- nodes$nodes
+
+    arguments <- names(as.list(match.call()))
+
+    getOpt <- function(opt,item=opt){
+      if(item %in% arguments){
+        return(get0(item))
+      }else{
+        if(!is.null(options[[opt]])){
+          return(options[[opt]])
+        }else{
+          return(NULL)
+        }
+      }
+    }
+
+    name <- getOpt("nodeName","name")
+
+    cex <- getOpt("cex")
+    distance <- getOpt("distance")
+    repulsion <- getOpt("repulsion")
+    zoom <- getOpt("zoom")
+    scenarios <- getOpt("scenarios")
+    limits <- getOpt("limits")
+    main <- getOpt("main")
+    note <- getOpt("note")
+    help <- getOpt("help")
+    background <- getOpt("background")
+    language <- getOpt("language")
+    nodeBipolar <- getOpt("nodeBipolar")
+    linkBipolar <- getOpt("linkBipolar")
+    helpOn <- getOpt("helpOn")
+    frequencies <- getOpt("frequencies")
+    defaultColor <- getOpt("defaultColor")
+    controls <- getOpt("controls")
+    mode <- getOpt("mode")
+    axesLabels <- getOpt("axesLabels")
+    fixed <- getOpt("fixed")
+    showCoordinates <- getOpt("showCoordinates")
+    showArrows <- getOpt("showArrows")
+    showLegend <- getOpt("showLegend")
+    showAxes <- getOpt("showAxes")
+
+    label <- getOpt("nodeLabel","label")
+    labelSize <- getOpt("nodeLabelSize","labelSize")
+    group <- getOpt("nodeGroup","group")
+    size <- getOpt("nodeSize","size")
+    color <- getOpt("nodeColor","color")
+    shape <- getOpt("nodeShape","shape")
+    legend <- getOpt("nodeLegend","legend")
+    ntext <- getOpt("nodeText","ntext")
+    info <- getOpt("nodeInfo","info")
+    sort <- getOpt("nodeOrder","sort")
+    decreasing <- getOpt("decreasing")
+    image <- getOpt("imageItems","image")
+    imageNames <- getOpt("imageNames")
+
+    lwidth <- getOpt("linkWidth","lwidth")
+    lweight <- getOpt("linkWeight","lweight")
+    lcolor <- getOpt("linkColor","lcolor")
+    ltext <- getOpt("linkText","ltext")
+    intensity <- getOpt("linkIntensity","intensity")
   }else{
     name <- nameByLanguage(name,language,nodes)
     if(!is.null(nodes)){
       if (all(inherits(nodes,c("tbl_df","tbl","data.frame"),TRUE))) nodes<-as.data.frame(nodes) # convert haven objects
-      nodes[[name]] <- as.character(nodes[[name]])
     }
-    options <- list(nodeName=name)
-  }
-
-  if(!is.null(links)){
-    if (all(inherits(links,c("tbl_df","tbl","data.frame"),TRUE))) links<-as.data.frame(links) # convert haven objects
-    if(is.null(nodes)){
-      nodes <- data.frame(name=union(links$Source,links$Target))
-      names(nodes)[1] <- options$nodeName
-    }else{
-      links <- links[links$Source %in% nodes[[name]] & links$Target %in% nodes[[name]] & as.character(links$Target)!=as.character(links$Source),]
-    }
-    if(nrow(links)==0){
-      links <- NULL
-      warning("links: no row (Source and Target) matches the name column of the nodes")
+    if(!is.null(links)){
+      if (all(inherits(links,c("tbl_df","tbl","data.frame"),TRUE))) links<-as.data.frame(links) # convert haven objects
     }
   }
 
-  rownames(nodes) <- nodes[,name]
-  
-  no.option <- function(X){ # TRUE if no options or options are not as defaults
-    LR <- FALSE; LP <- TRUE
-    if(is.null(formals(netCoin)[[X]])) default <- -Inf
-    else default <- eval(formals(netCoin)[[X]])
-    if(!is.null(get0(X)) && isTRUE(all.equal(get0(X),default))) LP <- FALSE
-    if(!exists(X,options) & !is.null(X) | LP) LR <- TRUE
-    return(LR)
-  }
-  
-  # graph options
-  if(no.option("cex")) {
-  if(!is.numeric(cex)){
-    cex <- formals(netCoin)[["cex"]]
-    warning("cex: must be numeric")
-  }
-  options[["cex"]] <- cex
-  }
+  color <- setAttrByValueKey("color",color,nodes)
+  shape <- setAttrByValueKey("shape",shape,nodes)
+  lcolor <- setAttrByValueKey("lcolor",lcolor,links)
 
-  if (no.option("distance")) {
-    if(!(is.numeric(distance) && distance>=0 && distance<=100)){
-      distance <- formals(netCoin)[["distance"]]
-      warning("distance: must be numeric between 0 and 100")
-    }
-    options[["distance"]] <- distance
-  }
+  net <- network_rd3(nodes = nodes, links = links, tree = tree,
+        community = community, layout = layout,
+        name = name, label = label, group = group, labelSize = labelSize,
+        size = size, color = color, shape = shape, legend = legend,
+        sort = sort, decreasing = decreasing, ntext = ntext, info = info,
+        image = image, imageNames = imageNames,
+        nodeBipolar = nodeBipolar, nodeFilter = nodeFilter, degreeFilter = degreeFilter,
+        source = "Source", target = "Target",
+        lwidth = lwidth, lweight = lweight, lcolor = lcolor, ltext = ltext,
+        intensity = intensity, linkBipolar = linkBipolar, linkFilter = linkFilter,
+        repulsion = repulsion, distance = distance, zoom = zoom,
+        fixed = fixed, limits = limits,
+        main = main, note = note, showCoordinates = showCoordinates, showArrows = showArrows,
+        showLegend = showLegend, frequencies = frequencies, showAxes = showAxes,
+        axesLabels = axesLabels, scenarios = scenarios, help = help, helpOn = helpOn,
+        mode = mode, controls = controls, cex = cex,
+        background = background, defaultColor = defaultColor,
+        language = language, dir = dir)
+  class(net) <- c("netCoin",class(net))
 
-  if (no.option("repulsion")) {
-    if(!(is.numeric(repulsion) && repulsion>=0 && repulsion<=100)){
-      repulsion <- formals(netCoin)[["repulsion"]]
-      warning("repulsion: must be numeric between 0 and 100")
-    }
-    options[["repulsion"]] <- repulsion
-  }
-
-  if (no.option("zoom")) {
-    if(!(is.numeric(zoom) && zoom>=0.1 && zoom<=10)){
-    zoom <- formals(netCoin)[["zoom"]]
-    warning("zoom: must be numeric between 0.1 and 10")
-    }
-  options[["zoom"]] <- zoom
-  }
-
-  if (no.option("scenarios")) {
-    if(is.numeric(scenarios))
-      options[["scenarios"]] <- scenarios
-    else
-      if (!is.null(scenarios)) warning("scenarios: must be numeric")
-  }
-  if (!is.null(limits)){
-    if(length(limits)!=4)
-      print("limits: must be a numeric list of length 4")
-    else
-      options[["limits"]] <- as.numeric(limits)
-  }
-  if (!is.null(main)) options[["main"]] <- main
-  if (!is.null(note)) options[["note"]] <- note
-  if (!is.null(help)) options[["help"]] <- help
-  if (!is.null(background)) options[["background"]] <- background
-  
-  if (no.option("language")) {
-  language <- language[1]
-  if(!(language %in% languages)){
-      warning(paste0("language: '",language,"' is not supported"))
-      language <- "en"
-  }
-  options[["language"]] <- language
-}
-  if(is.null(help) && language=="es"){
-    options[["help"]] <- paste0(scan(file = paste(wwwDirectory(), "help_es.html", sep = "/"), what = character(0), sep = "\n", quiet = TRUE),collapse="")
-  }
-
-  options[["nodeBipolar"]] <- nodeBipolar
-  options[["linkBipolar"]] <- linkBipolar
-  options[["helpOn"]] <- helpOn
-  if(frequencies) options[["frequencies"]] <- TRUE
-  if (no.option("defaultColor") & !is.null(defaultColor)) options[["defaultColor"]] <- defaultColor
-  if (no.option("controls") & !is.null(controls)) options[["controls"]] <- as.numeric(controls)
-  if (no.option("mode") & !is.null(mode)) options[["mode"]] <- tolower(substr(as.character(mode),1,1))
-  if (!is.null(axesLabels)) options[["axesLabels"]] <- as.character(axesLabels)
-
-  if(fixed) options[["fixed"]] <- TRUE
-
-  if(showCoordinates) options[["showCoordinates"]] <- TRUE
-  if(showArrows) options[["showArrows"]] <- TRUE
-  if(no.option("showLegend")) options[["showLegend"]] <- FALSE
-  if(showLegend) options[["showLegend"]] <- TRUE
-  if(showAxes) options[["showAxes"]] <- TRUE
-
-  # node options
-  if(is.null(label))
-      options[["nodeLabel"]] <- name
-  else if(label!="")
-      options[["nodeLabel"]] <- label
-  if (!is.null(labelSize)) options[["nodeLabelSize"]] <- labelSize
-  if (!is.null(group)) options[["nodeGroup"]] <- group
-  if (!is.null(size)) options[["nodeSize"]] <- size
-  if (!is.null(color)) options[["nodeColor"]] <- color
-  if (!is.null(shape)) options[["nodeShape"]] <- shape
-  if (!is.null(legend)) options[["nodeLegend"]] <- legend
-  if (!is.null(ntext)) options[["nodeText"]] <- ntext
-  if (!is.null(info)) options[["nodeInfo"]] <- info
-  if (!is.null(orderA)) options[["nodeOrderA"]] <- orderA
-  if (!is.null(orderD)) options[["nodeOrderD"]] <- orderD
-  if (!is.null(image)){
-    if(length(setdiff(image,colnames(nodes)))){
-      warning("image: names must match in nodes colnames.")
-    }else{
-      options[["imageItems"]] <- image
-      if(!is.null(imageNames)){
-        if(length(imageNames)==length(image))
-          options[["imageNames"]] <- imageNames
-        else
-          warning("imageNames: length must match with 'image' vector")
-      }
+  if(!is.null(centrality)){
+    columns <- calCentr(net, centrality)$nodes
+    for(col in setdiff(colnames(columns),c("nodes","degree"))){
+      net$nodes[[col]] <- columns[[col]]
     }
   }
 
-  # link options
-  if (!is.null(lwidth)) options[["linkIntensity"]] <- options[["linkWidth"]] <- lwidth
-  if (!is.null(lweight)) options[["linkWeight"]] <- lweight
-  if (!is.null(lcolor)) options[["linkColor"]] <- lcolor
-  if (!is.null(ltext)) options[["linkText"]] <- ltext
-
-  # filters
-  if(!is.null(nodeFilter) || !is.null(linkFilter) || !is.null(degreeFilter)){
-    hideLinks <- function(){
-      if(!is.null(links)){
-        hiddenNodes <- as.character(nodes[nodes[,"hidden"],name])
-        links[(as.character(links[,"Source"]) %in% hiddenNodes) | (as.character(links[,"Target"]) %in% hiddenNodes),"hidden"] <<- TRUE
-      }
-    }
-
-    nodes[,"hidden"] <- FALSE
-    if (!is.null(links)){
-      links[,"hidden"] <- FALSE
-    }
-
-    if (!is.null(nodeFilter)){
-      nodes[,"hidden"] <- !with(nodes,eval(parse(text=nodeFilter)))
-      hideLinks()
-    }
-
-    if (!is.null(links) && !is.null(linkFilter)){
-      links[,"hidden"] <- links[,"hidden"] | !with(links,eval(parse(text=linkFilter)))
-    }
-
-    if (!is.null(degreeFilter)){
-      degreeFilter <- as.numeric(degreeFilter)
-      if(length(degreeFilter)==1){
-        degreeFilter <- c(degreeFilter,Inf)
-      }
-      if(is.null(links)){
-        if(min(degreeFilter)>0){
-          nodes[,"hidden"] <- TRUE
-        }
-      }else{
-        nodes[,"degree"] <- rep(0,nrow(nodes))
-        degrees <- table(c(as.character(links[!links[,"hidden"],"Source"]),as.character(links[!links[,"hidden"],"Target"])))
-        nodes[names(degrees),"degree"] <- degrees
-        nodes[,"hidden"] <- nodes[,"hidden"] | !(nodes[,"degree"]>=degreeFilter[1] & nodes[,"degree"]<=degreeFilter[2])
-        nodes[,"degree"] <- NULL
-        hideLinks()
-      }
-    }
-
-    if(!sum(nodes[,"hidden"]))
-      nodes[,"hidden"] <- NULL
-    if(!sum(links[,"hidden"]))
-      links[,"hidden"] <- NULL
-  }
-
-  #create net object
-  net <- structure(list(links=links,nodes=nodes,options=options),class="netCoin")
-
-  #check tree
-  if(!is.null(tree)){
-    tree <- tree[tree$Source %in% nodes[[name]] & tree$Target %in% nodes[[name]] & as.character(tree$Target)!=as.character(tree$Source),]
-    if(nrow(tree)==0)
-      warning("tree: no row (Source and Target) matches the name column of the nodes")
-    else
-      net$tree <- data.frame(Source=tree$Source,Target=tree$Target)
-  }
-
-  #layout
-  if (!is.null(layout)) {
-    if(is.character(layout)){ 
-      layoutName <- layoutControl(layout)
-      if(exists("layoutName")){
-        if(layoutName=="fo") layout <- coords[[layoutName]](toIgraph(net), criteria=lweight) 
-        else layout <- coords[[layoutName]](toIgraph(net))
-        if(layoutName=="su")layout=layout$layout
-      }
-    }
-    net <- netAddLayout(net,layout)
-  }
-
-  #community
-  community <- congloControl(community)
-  if (!is.null(community)) {
-    net$nodes$community <- membership(conglos[[community]](toIgraph(net)))
-    net$nodes$community <- paste0("G.",sprintf(paste0("%0",nchar(max(net$nodes$community)),"d"),net$nodes$community))
-    if (!"community" %in%   c(ifelse("nodeColor" %in% names(net$options), net$options$nodeColor,""),
-                            c(ifelse("nodeShape" %in% names(net$options), net$options$nodeShape,""))))
-       net$options$nodeGroup <- "community"
-  }
-
-  if (!is.null(dir)) netCreate(net,dir)
   return(net)
+}
+
+setAttrByValueKey <- function(name,item,items){
+    if(is.list(item) && !is.data.frame(item)){
+      checkedlist <- list()
+      for(k in names(item)){
+        if(!k %in% colnames(items) || !(is.character(items[[k]]) || is.factor(items[[k]]))){
+          warning(paste0(name,": the names in the list must match character columns of the items, but '",k,"' doesn't"))
+        }else{
+          if(!is.character(item[[k]]) || is.null(names(item[[k]]))){
+            warning(paste0(name,": each item in the list must be a named character vector describing value-",name,", but '",k,"' doesn't"))
+          }else{
+            checkedlist[[k]] <- unname(item[[k]][items[[k]]])
+          }
+        }
+      }
+      if(length(checkedlist)){
+        item <- as.data.frame(checkedlist)
+      }else{
+        item <- NULL
+      }
+    }
+    return(item)
 }
 
 
@@ -637,6 +529,7 @@ surScat <- function(data, variables=names(data), active=variables, type= c("mca"
   arguments$frequencies <- TRUE
   arguments$showAxes <- TRUE
   arguments$showCoordinates <- TRUE
+  arguments$degreeFilter <- NULL
   if(is.null(arguments$label)) arguments$label <- ""
   if(is.null(arguments$controls)) arguments$controls <- c(1,4)  
   return(do.call(netCoin, arguments))
@@ -1004,8 +897,8 @@ sim<-function (input, procedures="Jaccard", level=.95, distance=FALSE, minimum=1
   }
   if ("F" %in% method) s$coincidences <- a
   if ("X" %in% method) s$relative <- a/N*100
-  if ("I" %in% method) s$sConditional <-a/(a+b)*100
-  if ("0" %in% method) s$tConditional <-a/(a+c)*100
+  if ("I" %in% method) s$sConditional <-a/(a+c)*100
+  if ("0" %in% method) s$tConditional <-a/(a+b)*100
   if ("U" %in% method) {
     Z <- 1-pt(sqrt(N) * (a * d - b * c)/sqrt((a + b) * (a + c) * (b + d) *  (d + c)),N)
     s$c.conditional<-matrix(ifelse(b+c==0, 8,
@@ -1145,42 +1038,6 @@ print.cooc<-function(x, ...) {
   print(lower(x,0))
 }
 
-print.netCoin<-function(x, ...) {
-  printNet(x)
-}
-
-print.barCoin<-function(x, ...) {
-  printNet(x)
-}
-
-print.timeCoin<-function(x, ...) {
-  printNet(x)
-}
-
-print.gridGallery<-function(x, ...) {
-  printNet(x)
-}
-
-printNet <- function(x){
-  if(!is.null(x$options$main))
-    cat("Title:",x$options$main,"\n")
-    cat("\nNodes(",nrow(x$nodes),"):\n",sep="")
-  row.names(x$nodes)<-NULL
-  print(as.data.frame(head(x$nodes[,setdiff(names(x$nodes),c("hidden","chaine","fx","fy")),drop=FALSE])),row.names=F)
-  if (nrow(x$nodes)>6) cat("...\n")
-  if(!is.null(x$links)){
-    cat("\nLinks(",nrow(x$links),"):\n",sep="")
-    row.names(x$links)<-NULL
-    print(as.data.frame(head(x$links[,setdiff(names(x$links),c("hidden","chaine"))])),row.names=F)
-    if (nrow(x$links)>6) cat("...\n")
-  }
-  cat("\n")
-  if(!is.null(x$options$note)){
-    cat(x$options$note)
-    cat("\n")
-  }
-}
-
 tempDir <- function(){
   dir.create("temp", showWarnings = FALSE)
   return(paste("temp",round(as.numeric(Sys.time())),sep="/"))
@@ -1190,31 +1047,8 @@ plot.coin <- function(x, dir=tempDir(), language=c("en","es","ca"), ...){
     N <- asNodes(x, language = language)
     colnames(N)[2] <- "incidences"
     E <- edgeList(x,c("Frequencies","Expected"))
-    options <- list(name = names(N)[1], coincidences = "coincidences", incidences = "incidences", expected = "expected", cex = 1, language = language[1])
-    bar <- barStart(N, E, options)
-    barCreate(bar,dir)
+    barplot_rd3(N, E, name = names(N)[1], coincidences = "coincidences", incidences = "incidences", expected = "expected", cex = 1, language = language, dir = dir)
     browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
-}
-
-plot.netCoin <- function(x, dir = tempDir(), ...){
-  plotCoin(x, dir, netCreate)
-}
-
-plot.barCoin <- function(x, dir = tempDir(), ...){
-  plotCoin(x, dir, barCreate)
-}
-
-plot.timeCoin <- function(x, dir = tempDir(), ...){
-  plotCoin(x, dir, timeCreate)
-}
-
-plot.gridGallery <- function(x, dir = tempDir(), ...){
-  plotCoin(x, dir, galleryCreate)
-}
-
-plotCoin <- function(x,dir,callback){
-     callback(x,dir)
-     browseURL(normalizePath(paste(dir, "index.html", sep = "/")))
 }
 
 summary.coin <- function(object, ...){
@@ -1230,13 +1064,6 @@ summary.barCoin <- function(object, ...){
   summaryNet(object)
 }
 
-summary.timeCoin <- function(object, ...){
-  cat(dim(object$nodes)[1], "categories.\n")
-  cat(object$options$start, "'s distribution:","\n",sep="")
-  print(summary(object$nodes[[object$options$start]]))
-  cat(object$options$end, "'s distribution:","\n",sep="")
-  print(summary(object$nodes[[object$options$end]]))
-}
 
 summaryNet <- function(x){
   cat(dim(x$nodes)[1], "nodes and", dim(x$links)[1], "links.\n")
@@ -1325,116 +1152,6 @@ toColorScale <- function(items){
   }
 }
 
-# igraph -> netCoin
-fromIgraph <- function(G, ...){
-  if (inherits(G,"igraph")){
-
-    #arguments
-    arguments <- list(...)
-
-    #main
-    if(is.null(arguments$main) && !is.null(G$name))
-      arguments$main <- G$name
-
-    #network direction
-    if(is.null(arguments$showArrows) && igraph::is_directed(G))
-      arguments$showArrows <- TRUE
-
-    #nodes
-    nodeNames <- V(G)$name
-    if(is.null(nodeNames))
-      nodeNames <- as.character(seq_along(V(G)))
-    nodes <- data.frame(name=nodeNames)
-    if(is.null(arguments$name))
-      arguments$name <- nameByLanguage(NULL,arguments$language,NULL)
-    names(nodes)[1] <- arguments$name
-
-    #links
-    links <- get.edgelist(G)
-    links <- data.frame(Source=links[,1],Target=links[,2])
-
-    #vertex attributes
-    nargs <- c(label="label", label.cex="labelSize", size="size", color="color", shape="shape")
-    for(i in igraph::list.vertex.attributes(G)){
-      nodes[[i]] <- igraph::get.vertex.attribute(G,i)
-      if(i %in% names(nargs) && !(nargs[i] %in% names(arguments)))
-        arguments[[nargs[i]]] <- i
-    }
-
-    #edges attributes
-    largs <- c(width="lwidth", weight="lweight", color="lcolor", label="ltext")
-    for(i in igraph::list.edge.attributes(G)){
-      links[[i]] <- igraph::get.edge.attribute(G,i)
-      if(i %in% names(largs) && !(largs[i] %in% names(arguments)))
-        arguments[[largs[i]]] <- i
-    }
-
-    #net elaborarion
-    arguments$nodes <- nodes
-    arguments$links <- links
-    return(do.call(netCoin,arguments))
-  }else
-    warning("is not an igraph object")
-}
-
-# netCoin -> igraph
-toIgraph <- function(net){
-  if (inherits(net,"netCoin")){
-    nodes <- net$nodes
-    links <- net$links
-    if(is.null(links)){
-      links <- data.frame(Source=character(), Target=character())
-    }
-    options <- net$options
-
-    #network direction
-    if(exists("showArrows",net$options)){
-      directed <- net$options$showArrows
-    }else{
-      directed <- FALSE
-    }
-
-    #nodes
-    nargs <- c(name="nodeName", label="nodeLabel", label.cex="nodeLabelSize", size="nodeSize", color="nodeColor", shape="nodeShape")
-    for(n in names(nargs)){
-      col <- options[[nargs[[n]]]]
-      if(!is.null(col) && col %in% colnames(nodes)){
-        nodes[[n]] <- nodes[[col]]
-      }
-    }
-    if("fx" %in% colnames(nodes)){
-      colnames(nodes)[which(colnames(nodes)=="fx")] <- "x"
-    }
-    if("fy" %in% colnames(nodes)){
-      colnames(nodes)[which(colnames(nodes)=="fy")] <- "y"
-    }
-    nodes <- nodes[,c("name",setdiff(colnames(nodes),"name"))]
-
-    #links
-    links <- links[,union(c("Source","Target"),colnames(links))]
-    colnames(links)[1:2] <- c("from","to")
-    largs <- c(width="lwidth", weight="lweight", color="lcolor", label="ltext")
-    for(l in names(largs)){
-      col <- options[[largs[[l]]]]
-      if(!is.null(col) && col %in% colnames(links))
-        links[[l]] <- links[[col]]
-    }
-
-    #handle colors
-    if("color" %in% colnames(nodes)){
-      nodes[,"color"] <- toColorScale(nodes[,"color"])
-    }
-    if("color" %in% colnames(links)){
-      links[,"color"] <- toColorScale(links[,"color"])
-    }
-
-    #igraph network
-    return(igraph::graph_from_data_frame(links, directed=directed, vertices=nodes))
-  }else{
-    warning("Is not a netCoin object")
-  }
-}
-
 savePajek<-function(net, file="file.net", arcs=NULL, edges=NULL, partitions= NULL, vectors=NULL){
   if(length(setdiff(partitions,names(net[["nodes"]])))>0) stop("At least one partition is not amongst ",paste(names(net$nodes),collapse=", "),".")
   if(length(setdiff(vectors,names(net[["nodes"]])))>0) stop("At least one vector is not amongst ",paste(names(net$nodes),collapse=", "),".")
@@ -1487,11 +1204,11 @@ savePajek<-function(net, file="file.net", arcs=NULL, edges=NULL, partitions= NUL
   close(connec)
 }
 
-saveGhml <- function(netCoin, file="netCoin.graphml"){
-  if(!inherits(netCoin, "netCoin")) stop("This program only works with netCoin objects")
+saveGhml <- function(net, file="netCoin.graphml"){
+  if(!inherits(net, "netCoin")) stop("This program only works with netCoin objects")
   if(!grepl("\\.",file))file<-paste0(file,".graphml")
-  graph <- toIgraph(netCoin)
-  write_graph(netCoin, file=file, format="graphml")
+  graph <- toIgraph(net)
+  write_graph(graph, file=file, format="graphml")
 }
 
 expectedList<- function(data, names=NULL, min=1, confidence=FALSE) {
@@ -1575,61 +1292,6 @@ orderEdges<-function(links,nodes){ #Used in surCoin to order arrows
   return(links)
 }
 
-coords<-list(
-  da=function(...)layout.davidson.harel(...),
-  dr=function(...)layout.drl(...),
-  ci=function(...)layout.circle(...),
-  fo=function(...)layout.force.atlas.2(...),
-  fr=function(...)layout.fruchterman.reingold(...),
-  ge=function(...)layout.gem(...),
-  gr=function(...)layout.grid(...),
-  ka=function(...)layout.kamada.kawai(...),
-  lg=function(...)layout.lgl(...),
-  md=function(...)layout.mds(...),
-  ra=function(...)layout.random(...),
-  re=function(...)layout.reingold.tilford(...),
-  st=function(...)layout.star(...),
-  su=function(...)layout.sugiyama(...)
-)
-
-conglos<-list(
-  ed=function(...)cluster_edge_betweenness(...),
-  fa=function(...)cluster_fast_greedy(...),
-  la=function(...)cluster_label_prop(...),
-  le=function(...)cluster_leading_eigen(...),
-  lo=function(...)cluster_louvain(...),
-  op=function(...)cluster_optimal(...),
-  sp=function(...)cluster_spinglass(...),
-  wa=function(...)cluster_walktrap(...)
-)
-
-layoutControl<-function(layout){
-  if (!is.null(layout)){
-    layouts<-c("da","dr","ci","fo","fr","ge","gr","ka","lg","md","ra","re","st","su")
-    layout<-gsub("layout.","",layout)
-    layout<-(tolower(substr(layout,1,2)))
-    if (layout %in% layouts) return (layout)
-    else {
-      text<-paste(layout, "is not a valid layout")
-      warning(text)
-      return(NULL)
-    }
-  }
-}
-
-congloControl<-function(conglo){
-  if (!is.null(conglo)){
-    conglos<-c("ed","fa","la","le","lo","op","sp","wa")
-    conglo<-gsub("cluster_","",conglo)
-    conglo<-(tolower(substr(conglo,1,2)))
-    if (!(conglo %in% conglos)){
-      warning(paste(conglo, "is not a valid layout"))
-      conglo <- NULL
-    }
-  }
-  return(conglo)
-}
-
 dicho<-function(input,variables,value,newlabel=TRUE) {
   datum<-as.data.frame(ifelse(input[,variables, drop=FALSE]==value,1,0))
   j=0
@@ -1672,83 +1334,6 @@ getByLanguage <- function(varlist,language){
   else
     language <- "en"
   return(unname(varlist[language]))
-}
-
-layoutCircle <- function(N,nodes,deg=0,name=NULL){
-  N[,"x"] <- NA
-  N[,"y"] <- NA
-
-  if(!is.null(name)) rownames(N) <- N[[name]]
-  if(is.numeric(nodes)||is.character(nodes)){
-  if(is.numeric(nodes)) nodes <- intersect(nodes,seq_len(nrow(N)))
-  if(is.character(nodes)) nodes <- intersect(nodes,rownames(N))
-  if(length(nodes)<1){
-    warning("nodes: length of items present in 'N' must be greater than zero")
-  }else if(length(nodes)==1){
-    N[nodes,"x"] <- 0
-    N[nodes,"y"] <- 0
-  }else{
-    angle <- (seq_along(nodes) / (length(nodes)/2)) * pi
-    angle <- angle - angle[1] + (deg * pi / 180)
-    N[nodes,"x"] <- round(cos(angle),3)
-    N[nodes,"y"] <- round(sin(angle),3)
-  }
-  }else
-    warning("nodes: must be numeric or character")
-
-  return(as.matrix(N[,c("x","y")]))
-}
-
-layoutGrid <- function(N,string,name=NULL,byrow=FALSE){
-  N[,"x"] <- NA
-  N[,"y"] <- NA
-
-  if(!is.null(name)) rownames(N) <- N[[name]]
-  if(is.character(string)){
-    Levels <- as.list(unlist(strsplit(string,"\\.")))
-    xlen <- length(Levels)
-    ylen <- 0
-    for(i in seq_len(xlen)){
-      a <- gsub("\\*","",Levels[[i]])
-      a <- gsub(";",",,",a)
-      addToEnd <- substr(a,nchar(a),nchar(a))==","
-      a <- as.list(unlist(strsplit(a,"\\,")))
-      if(addToEnd) a[[length(a)+1]] <- ""
-      len <- length(a)
-      if(len>ylen)
-        ylen <- len
-      for(j in seq_len(len)){
-        index <- a[[j]]
-        if(index!=""){
-          N[index,"x"] <- i - 1
-          N[index,"y"] <- j - 1
-        }
-      }
-      Levels[[i]] <- a
-    }
-    for(i in seq_len(xlen)){
-      len <- length(Levels[[i]])
-      indices <- unlist(Levels[[i]])
-      indices <- indices[indices!=""]
-      if(len!=ylen){
-        N[indices,"y"] <- N[indices,"y"] + ((ylen - len)/2)
-      }
-    }
-    x <- N[,"x"]/(xlen-1)
-    y <- 1 - (N[,"y"]/(ylen-1))
-    if(byrow){
-      aux <- 1-x
-      x <- 1-y
-      y <- aux
-    }
-    N[,"x"] <- x
-    N[,"y"] <- y
-  }else
-    warning("string: must be character")
-
-  mat <- as.matrix(N[,c("x","y")])
-  mat[is.nan(mat)] <- 0
-  return(mat)
 }
 
 rbind.all.columns <- function(x, y) {
@@ -1876,134 +1461,6 @@ layoutPCA<-function(coin) { # Coordenadas a partir de Pearson: Haberman/raiz(n)
   return(C)
 }
 
-layout.force.atlas.2 <- function(graph, criteria = NULL, directed = TRUE, iterations = 100, linlog = FALSE, pos = NULL, nohubs = FALSE,
-                                 k = 400, gravity=1, ks=0.1, ksmax=10, delta = 1, center=NULL,
-                                 tolerance = 0.1, dim = 2, plotstep=0, plotlabels=TRUE){
-  
-  coincidences <- get.adjacency(graph, type="both", sparse=FALSE, attr=criteria)
-  #### Binary will be a matrix of simple incidence (0-not connected, 1-connected)
-  if(is.null(center)) center <- rep(0,dim)
-  nnodes <- nrow(coincidences)
-  Binary <- coincidences
-  Binary[Binary!=0] <- 1
-  #### Deg will be a vector of the degrees of vertices
-  Deg <- rowSums(Binary)
-  #### Forces1 will be a table containing all the sums of forces acting on points at a step
-  Forces1 <- matrix(0, nrow = dim, ncol = nnodes)
-  
-  #### If there are no initial coordinates of points,
-  #### they are chosen at random from 1000^dim square
-  if (is.null(pos))  {
-    difference <- 2000/(nnodes*dim)
-    position <- matrix(sample(seq(-1000,1000,difference),nnodes*dim),nnodes,dim)
-  }  else  {
-    position <- pos
-  }
-  
-  #### None of the nodes should be exactly at the center of gravity###
-  temp <- which(position[,1] == center[1])
-  for( index in 2:ncol(position)){
-    temp <- intersect(temp,which(position[,index] == center[index]))
-  }
-  position[temp,] <- center + 0.01
-  rm(index,temp)
-  
-  #### displacement will be a matrix of points' movement at the current iteration
-  displacement <- matrix(rep(0,dim*nnodes),dim,nnodes)
-  
-  m <- nrow(position)
-  
-  for (iteration in 1:iterations)
-  {
-    displacement <- displacement * 0
-    #### Forces2 is the table of the forces from previous step
-    #### Forces1 is the table of the forces from current step
-    Forces2 <- Forces1
-    Forces1 <- matrix(nrow = dim, ncol = 0)
-    
-    #### Calculate the Forces for each node
-    ### Distance matrix between all nodes
-    distances <- as.matrix(dist(position))
-    distances[which(distances < 0.01)] <- 0.01 #We impose a minimum distance
-    ### Each element of the list contains a matrix with the j = 1,2,..., dim dimension of the unitary vector 1
-    mylist <- vector("list",dim)
-    for (j in 1:dim){
-      mylist[[j]] <- (tcrossprod(position[,j],rep(1,m))-tcrossprod(rep(1,m),position[,j]))/distances
-    }
-    ### Calculate the repulsion Force
-    Fr <- k*((tcrossprod(rep(1,m),Deg)+1)*(tcrossprod(Deg,rep(1,m))+1))/distances
-    
-    #The classical attraction force is just based on distance
-    Fa <- distances
-    #The linlog mode calculates the attraction force as log(1+d(n1,n2))
-    if(linlog){
-      Fa <- log(1+Fa)
-    }
-    #Edge weights. The edges are weighted based on parameter delta. delta=0 implies no weight
-    Fa <- (coincidences^delta)*Fa
-    
-    #Dissuade Hubs. This mode is meant to grant authorities (nodes with high indegree)
-    #a more central position than hubs (nodes with high outdegree)
-    if(nohubs){
-      Fa <- Fa/(tcrossprod(Deg,rep(1,m))+1)
-    }
-    
-    ### Function to calculate the Attraction and Repulsion forces
-    Farfunction <- function(x) rowSums(x*(Fr-Fa),na.rm=T)
-    ### And we aggregate it over all dimensions
-    Far <- do.call(rbind,lapply(mylist,Farfunction))
-    ### Unitary Vector 2, the directions between each point and the center
-    uv2 <- apply(matrix(rep(center,m),nrow=m,byrow=T)-position,1,function(x) x/sqrt(sum(x^2)))
-    ### The gravity force
-    #Fg <- uv2*matrix(rep(gravity*(rowSums(A)+1),dim),nrow=dim,byrow=T)
-    Fg <- uv2*matrix(rep(gravity*(Deg+1),dim),nrow=dim,byrow=T)
-    ### Forces 1 is the sum between all forces: Far (Fa + Fr) and Fg
-    Forces1 <- Far+Fg
-    Forces1 <- round(Forces1,2) #Use the first two decimals for the Forces.
-    
-    #### Swing is the vector of the swingings of all points
-    swing <- abs(colSums((Forces1-Forces2)^2)^(1/2))
-    Global_swing <- sum((Deg + 1)*swing)
-    
-    #If the swing of all nodes is zero, then convergence is reached and we break.
-    if(all(swing==0)){
-      if(!plotstep==0&dim==2){
-        plot(position, main=paste0("iteration: ",iteration), xlab="", ylab="")
-        if(plotlabels) text(position, labels=igraph::V(graph)$name, cex= 0.7, pos=3)
-      }
-      break
-    }
-    
-    #### tra is the vector of the traction of all points
-    tra <- abs(colSums((Forces1+Forces2)^2)^(1/2))/2
-    Global_tra <- sum((Deg+1)*tra)
-    
-    #### Global speed calculation
-    Global_speed <- tolerance * Global_tra/Global_swing
-    #### speed is the vector of individual speeds of points
-    speed <- ks * Global_speed /  (1 + Global_speed * (swing)^(1/2))
-    
-    #### Imposing constrains on speed
-    speed_constrain <- ksmax/abs(colSums((Forces1^2))^(1/2))
-    speed <- ifelse(speed>=speed_constrain,speed_constrain,speed)
-    
-    #### calculating displacement and final position of points after iteration
-    displacement <- Forces1 * t(matrix(rep(speed,dim),nnodes,dim))
-    position <- position + t(displacement)
-    
-    #### Iteration plot. This is simply to see the evolution of the positions over iterations
-    #### Is much faster to visualize directly using R base plots instead of igraph plots
-    
-    if(!plotstep==0&dim==2){
-      if(iteration%%plotstep==0)  {
-        plot(position, main=paste0("iteration: ",iteration), xlab="", ylab="")
-        if(plotlabels) text(position, labels=row.names(coincidences), cex= 0.7, pos=3)
-      }
-    }
-  }
-  return(position)
-}
-
 mobileEdges<-function(data, name=1, number=2, difference=0) {
   if(!is.numeric(data[[number]])) data[[number]]<-as.numeric(paste(data[[number]]))
   DC<-matrix(NA,nrow=nrow(data),ncol=nrow(data))
@@ -2028,29 +1485,9 @@ incTime<-function(data, name="name", beginning="birth", end="death") {
   return(Datos)
 }
 
-shinyCoin <- function(x) UseMethod("shinyCoin", x)
-
-shinyCoin.netCoin <- function(x){
-    netCreate(x,"www")
-    insertIncludeFile("www")
+shinyCoin <- function(x){
+  shiny_rd3(x)
 }
-
-shinyCoin.barCoin <- function(x){
-    barCreate(x,"www")
-    insertIncludeFile("www")
-}
-
-shinyCoin.timeCoin <- function(x){
-    timeCreate(x,"www")
-    insertIncludeFile("www")
-}
-
-insertIncludeFile <- function(dir){
-    www <- wwwDirectory()
-    file.copy(paste0(www,"/include.html"),dir)
-    shiny::includeHTML(paste0(dir,"/include.html"))
-}
-
 
 # Atencion a lwidth y en lenguaje espanol o catalan
 glmCoin <- function(formulas, data, weights=NULL, pmax=.05, twotail=FALSE, showArrows=TRUE,

@@ -9,7 +9,7 @@ This function returns the input data frame of nodes with the resulting layout ap
 }
 
 \usage{
-layoutCircle(N,nodes,deg=0,name=NULL)
+layoutCircle(N,nodes=seq_len(nrow(N)),deg=0,name=NULL)
 }
 \arguments{
 \item{N}{a data frame of nodes.}
@@ -22,4 +22,11 @@ layoutCircle(N,nodes,deg=0,name=NULL)
 }
 \description{
 \code{layoutCircle} produces a circle layout of any number of nodes.
+}
+\examples{
+A <- data.frame(name=letters)
+
+L <- layoutCircle(A,name="name")
+
+netCoin(A,layout=L)
 }
