@@ -1,33 +1,37 @@
 Package: netCoin
 Type: Package
-Version: 2.0.20
-Date: 2021-10-27
+Version: 2.0.48
+Date: 2023-03-03
 Title: Interactive Analytic Networks
 Description: Create interactive analytic networks. It joins the data analysis power of R to obtain coincidences, co-occurrences and correlations, and the visualization libraries of 'JavaScript' in one package.
 License: GPL-2 | GPL-3
 Depends: R (>= 3.5.0)
-Imports: rD3plot (>= 1.0.0), igraph (>= 1.0.1), Matrix (>= 1.2-4),
-        haven (>= 1.1.0)
-Suggests: knitr, rmarkdown, lavaan, shiny, htmltools
+Imports: rD3plot (>= 1.0.68), igraph (>= 1.0.1), Matrix (>= 1.2-4),
+        haven (>= 1.1.0), MASS (>= 7.3), GPArotation(>= 2022.4),
+        methods
+Suggests: knitr, rmarkdown, lavaan, shiny, htmltools, openxlsx,
+        data.table, readr
 VignetteBuilder: knitr
 NeedsCompilation: no
 Authors@R: c( 
     person("Modesto", "Escobar", email = "modesto@usal.es", role = c("cre", "aut", "cph"), comment = c(ORCID = "0000-0003-2072-6071")), 
     person("David", "Barrios", email = "metal@usal.es", role = "aut"), 
-    person("Carlos", "Prieto", email = "cprietos@usal.es", role = "aut"),
+    person("Carlos", "Prieto", email = "cprietos@usal.es", role = "aut", comment = c(ORCID = "0000-0003-2064-4842")),
     person("Luis", "Martinez-Uribe", email = "lmartinez@usal.es", role = "aut", comment = c(ORCID = "0000-0002-7795-3972")),
-    person("Pablo", "Cabrera-Álvarez", email = "pablocal@usal.es", role = "aut")     
+    person("Pablo", "Cabrera-Álvarez", email = "pablocal@usal.es", role = "aut", comment= c(ORCID = "0000-0001-8105-5908")),
+    person("Cristina", "Calvo-López", email ="cristinacalvolopez@usal.es", role = "aut", comment= c(ORCID = "0000-0001-5039-1263"))
     )
 Maintainer: Modesto Escobar <modesto@usal.es>
 URL: https://modesto-escobar.github.io/netCoin-2.x/
 Encoding: UTF-8
 BugReports: https://github.com/Modesto-Escobar/netCoin-2.x/issues
-Packaged: 2021-10-28 16:47:37 UTC; Modesto
+Packaged: 2023-03-23 16:22:16 UTC; Modesto
 Author: Modesto Escobar [cre, aut, cph]
     (<https://orcid.org/0000-0003-2072-6071>),
   David Barrios [aut],
-  Carlos Prieto [aut],
+  Carlos Prieto [aut] (<https://orcid.org/0000-0003-2064-4842>),
   Luis Martinez-Uribe [aut] (<https://orcid.org/0000-0002-7795-3972>),
-  Pablo Cabrera-Álvarez [aut]
+  Pablo Cabrera-Álvarez [aut] (<https://orcid.org/0000-0001-8105-5908>),
+  Cristina Calvo-López [aut] (<https://orcid.org/0000-0001-5039-1263>)
 Repository: CRAN
-Date/Publication: 2021-10-28 17:20:05 UTC
+Date/Publication: 2023-03-23 22:40:02 UTC
