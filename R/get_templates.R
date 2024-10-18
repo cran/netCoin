@@ -1,6 +1,7 @@
 get_template <- function(data, title=NULL, title2=NULL, text=NULL, img=NULL, wiki=NULL, width=300, color="auto", cex=1, roundedImg=FALSE, mode=1) {
   autocolor <- ''
   colorstyle <- ''
+  fontcolor <- ''
   if(length(color)){
     color <- color[1]
     if(color=="auto"){
@@ -10,6 +11,8 @@ get_template <- function(data, title=NULL, title2=NULL, text=NULL, img=NULL, wik
         color <- data[[color]]
       }
       colorstyle <- paste0('background-color:',color,';')
+      fontcolor <- getFontColor(color)
+      fontcolor <- paste0('color:',fontcolor,';')
     }
   }
   if(length(width)){
@@ -28,14 +31,26 @@ get_template <- function(data, title=NULL, title2=NULL, text=NULL, img=NULL, wik
 
   borderRadius <- 'border-radius:12px 12px 0 0;'
   templateImg <- ''
-  if(is.character(img) && length(data[[img]])){
-    for(i in (1:nrow(data))){
-      if(file.exists(data[i,img])){
-        data[i,img] <- paste0("data:",mime(data[i,img]),";base64,",base64encode(data[i,img]))
+  if(is.character(img)){
+    src <- ""
+    if(img=="auto"){
+      src <- "_auto_"
+    }else if(length(data[[img]])){
+      for(i in (1:nrow(data))){
+        imgpath <- as.character(data[i,img])
+        if(file.exists(imgpath)){
+          data[i,img] <- paste0("data:",mime(imgpath),";base64,",base64encode(imgpath))
+        }
       }
+      src <- data[[img]]
     }
     if(mode==2){
-      templateImg <- paste0('<img style="display: block; width: 100%;" src="',data[[img]],'"/>')
+      if(roundedImg){
+        roundedImg <- 'border-radius:50%;object-fit:cover;aspect-ratio:1/1;'
+      }else{
+        roundedImg <- ''
+      }
+      templateImg <- paste0('<img style="display:block;width:100%;',roundedImg,'" src="',src,'"/>')
     }else{
       fit <- ''
       heightstyle <- ''
@@ -49,20 +64,28 @@ get_template <- function(data, title=NULL, title2=NULL, text=NULL, img=NULL, wik
         roundedImg <- borderRadius
       }
       borderRadius <- ''
-      templateImg <- paste0('<div style="',roundedImg,heightstyle,'overflow:hidden;"><img style="width:100%;height:100%;display:block;',fit,'" src="',data[[img]],'"/></div>')
+      templateImg <- paste0('<div style="',roundedImg,heightstyle,'overflow:hidden;"><img style="width:100%;height:100%;display:block;',fit,'" src="',src,'"/></div>')
     }
   }
   templateTitle <- ''
   if(is.character(title) && length(data[[title]])){
-    templateTitle <- paste0('<h2 ',autocolor,'style="font-size:2em;',colorstyle,padding,'margin:-3px 0 0 0;',borderRadius,'">',data[[title]],'</h2>')
+    templateTitle <- paste0('<h2 ',autocolor,'style="font-size:2em;',colorstyle,fontcolor,padding,'margin:-3px 0 0 0;',borderRadius,'">',data[[title]],'</h2>')
   }
   templateTitle2 <- ''
   if(is.character(title2) && length(data[[title2]])){
     templateTitle2 <- paste0('<h3>', data[[title2]],'</h3>')
   }
-  templateText <- '<p></p>'
-  if(is.character(text) && length(data[[text]])){
-    templateText <- paste0('<p>',gsub("\\|",", ",data[[text]]),'</p>')
+  templateText <- '<p class="template-text"></p>'
+  if(is.character(text) && !length(setdiff(text,names(data)))){
+    if(length(text)==1){
+      txt <- data[[text]]
+    }else{
+      txt <- apply(data,1,function(d){
+        paste0(d[text],collapse="<br/>")
+      })
+    }
+    txt <- gsub("\\|",", ",txt)
+    templateText <- paste0('<p class="template-text">',txt,'</p>')
   }
   templateWiki <- ''
   if(is.character(wiki) && length(data[[wiki]])){
@@ -70,16 +93,48 @@ get_template <- function(data, title=NULL, title2=NULL, text=NULL, img=NULL, wik
   }
   if(!identical(templateImg,'') && mode==2){
     celldiv <- '<div style="display: inline-block; width: 50%; vertical-align: top;">'
-    templateContent <- paste0(templateTitle,celldiv,'<div style="',padding,'">',templateTitle2,templateText,templateWiki,'</div></div>',celldiv,templateImg,'</div>')
+    templateContent <- paste0(templateTitle,celldiv,'<div style="max-height:300px;overflow-y:auto;',padding,'">',templateTitle2,templateText,templateWiki,'</div></div>',celldiv,templateImg,'</div>')
   }else{
     templateContent <- paste0(templateImg,templateTitle,'<div style="',padding,'">',templateTitle2,templateText,templateWiki,'</div>')
   }
   return(paste0('<div class="info-template" style="font-size:',as.numeric(cex),'em;',margin,widthstyle,'">',templateContent,'</div>'))
 }
 
+get_template2 <- function(data, title=NULL, title2=NULL, text=NULL, wiki=NULL) {
+  templateTitle <- ''
+  if(is.character(title) && length(data[[title]])){
+    templateTitle <- paste0('<h2>',data[[title]],'</h2>')
+  }
+  templateTitle2 <- ''
+  if(is.character(title2) && length(data[[title2]])){
+    templateTitle2 <- paste0('<h3>', data[[title2]],'</h3>')
+  }
+  templateText <- '<p class="template-text"></p>'
+  if(is.character(text) && !length(setdiff(text,names(data)))){
+    if(length(text)==1){
+      txt <- data[[text]]
+    }else{
+      txt <- apply(data,1,function(d){
+        paste0(d[text],collapse="<br/>")
+      })
+    }
+    txt <- gsub("\\|",", ",txt)
+    templateText <- paste0('<p class="template-text">',txt,'</p>')
+  }
+  templateWiki <- ''
+  if(is.character(wiki) && length(data[[wiki]])){
+    templateWiki <- paste0('<h3><img style="width:20px;vertical-align:bottom;margin-right:10px;" src="https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"/>Wikipedia: <a target="mainframe" href="',data[[wiki]],'">',wiki,'</a></h3>')
+  }
+
+  templateContent <- paste0(templateTitle,"<div>",templateTitle2,templateText,templateWiki,"</div>")
+
+  return(paste0('<div class="info-template">',templateContent,'</div>'))
+}
+
 get_panel_template <- function(data, title=NULL, description=NULL, img=NULL,  text=NULL, color="auto", cex=1, mode=1){
   autocolor <- ''
   colorstyle <- ''
+  fontcolor <- ''
   if(length(color)){
     color <- color[1]
     if(color=="auto"){
@@ -89,27 +144,33 @@ get_panel_template <- function(data, title=NULL, description=NULL, img=NULL,  te
         color <- data[[color]]
       }
       colorstyle <- paste0('background-color:',color,';')
+      fontcolor <- getFontColor(color)
+      fontcolor <- paste0('color:',fontcolor,';')
     }
   }
 
   images <- ""
-  if(is.character(img) && length(data[[img]])){
-    images <- data[[img]]
-    for(i in seq_along(images)){
-      if(is.na(images[i])){
-        images[i] <- ""
-      }else{
-        if(file.exists(images[i])){
-          images[i] <- paste0("data:",mime(images[i]),";base64,",base64encode(images[i]))
+  if(is.character(img)){
+    if(img=="auto"){
+      images <- paste0('<center><img style="max-width:100%;" src="_auto_"/></center>')
+    }else if(length(data[[img]])){
+      images <- data[[img]]
+      for(i in seq_along(images)){
+        if(is.na(images[i])){
+          images[i] <- ""
+        }else{
+          if(file.exists(images[i])){
+            images[i] <- paste0("data:",mime(images[i]),";base64,",base64encode(images[i]))
+          }
+          images[i] <- paste0('<center><img style="max-width:100%;" src="',images[i],'"/></center>')
         }
-        images[i] <- paste0('<center><img style="max-width:100%;" src="',images[i],'"/></center>')
       }
     }
   }
   if(mode==2){
-    return(paste0('<div class="panel-template',autocolor,' mode-2" style="font-size:',as.numeric(cex),'em;height:100%;"><h2 style="padding:24px 24px 12px 24px;color:#ffffff;font-weight:bold;',colorstyle,'">',data[[title]],'</h2><div style="padding:24px;"><p style="text-align:justify">',gsub("\\|",", ",data[[description]]),'</p>',images,'<p></p>',gsub("\\|",", ",data[[text]]),'</div></div>'))
+    return(paste0('<div class="panel-template',autocolor,' mode-2" style="font-size:',as.numeric(cex),'em;height:100%;"><h2 style="padding:24px 24px 12px 24px;',fontcolor,'font-weight:bold;font-size:2em;',colorstyle,'">',data[[title]],'</h2><div style="padding:24px;"><p style="text-align:justify">',gsub("\\|",", ",data[[description]]),'</p>',images,'<p></p>',gsub("\\|",", ",data[[text]]),'</div></div>'))
   }else{
-    return(paste0('<div class="panel-template',autocolor,' mode-1" style="padding:24px;min-height:calc(100% - 48px);font-size:',as.numeric(cex),'em;display:flex;flex-direction:column;',colorstyle,'"><h2 style="padding-bottom:12px;color:#ffffff;font-weight:bold;">',data[[title]],'</h2><div style="background-color:#ffffff;padding:12px;flex-grow:1;"><p style="text-align:justify">',gsub("\\|",", ",data[[description]]),'</p>',images,'<p></p>',gsub("\\|",", ",data[[text]]),'</div></div>'))
+    return(paste0('<div class="panel-template',autocolor,' mode-1" style="padding:24px;min-height:calc(100% - 48px);font-size:',as.numeric(cex),'em;display:flex;flex-direction:column;',colorstyle,'"><h2 style="padding-bottom:12px;',fontcolor,'font-weight:bold;font-size:2em;">',data[[title]],'</h2><div style="background-color:#ffffff;padding:12px;flex-grow:1;"><p style="text-align:justify">',gsub("\\|",", ",data[[description]]),'</p>',images,'<p></p>',gsub("\\|",", ",data[[text]]),'</div></div>'))
   }
 }
 
@@ -119,12 +180,16 @@ known_sites <- data.frame(
   icon=c("https://www.wikipedia.org/static/favicon/wikipedia.ico","https://www.wikidata.org/static/favicon/wikidata.ico","https://foundation.wikimedia.org/favicon.ico","https://abs.twimg.com/favicons/twitter.2.ico","https://static.xx.fbcdn.net/rsrc.php/yb/r/hLRJ1GG_y0J.ico")
 )
 
-renderLinks <- function(data,columns,target="_blank",sites=NULL){
+renderLinks <- function(data,columns,labels=NULL,target="_blank",sites=NULL){
   if(is.null(sites)){
     sites <- known_sites
   }
   if(!is.character(target)){
     target <- '_self'
+  }
+  if(!is.null(labels) && is.null(data[[labels]])){
+    labels <- NULL
+    warning("labels: missing column in 'data'")
   }
   html <- character(nrow(data))
   for(i in seq_len(nrow(data))){
@@ -141,11 +206,27 @@ renderLinks <- function(data,columns,target="_blank",sites=NULL){
         }
       }
     }
-    html[i] <- paste0('<ul>',paste0('<li><a target="',target,'" href="', links, '"><img style="width:30px;vertical-align:bottom;margin-right:5px;" src="', icons, '"/>', texts, '</a></li>', collapse=""),'</ul>')
+    if(!is.null(labels)){
+      label <- unlist(strsplit(data[i,labels],"|",fixed=TRUE))
+      if(length(label)==length(links)){
+        texts <- label
+      }
+    }
+    html[i] <- paste0('<ul>',paste0('<li><a target="',target,'" href="', links, '"><img style="width:30px;height:30px;object-fit:contain;vertical-align:middle;margin-right:5px;" src="', icons, '"/>', texts, '</a></li>', collapse=""),'</ul>')
   }
   return(html)
 }
 
+getFontColor <- function(color){
+  return(sapply(color,function(x){
+        rgb <- col2rgb(x)[,1]
+        if(((0.2126*rgb[1] + 0.7152*rgb[2] + 0.0722*rgb[3])/255)>0.75){
+          return("#000000")
+        }else{
+          return("#ffffff")
+        }
+  }))
+}
 
 base64encode <- function(filename) {
   to.read = file(filename, "rb")
@@ -170,4 +251,83 @@ mime <- function(name) {
   ext <- sub("^.*\\.","",name)
   mime <- unname(mimemap[tolower(ext)])
   return(mime)
+}
+
+translateColumns <- function(language){
+  language <- language[1]
+  if(language=="es"){
+    return(c("Q", "Nombre", "Descripci\uF3n", "Nacimiento", "Lugar nacimiento", "Pa\uEDs nacimiento", "Defunci\uF3n", "Lugar defunci\uF3n", "Pa\uEDs defunci\uF3n", "G\uE9nero", "Ocupaci\uF3n", "wiki"))
+  }else if(language=="ca"){
+    return(c("Q", "Nom", "Descripci\uF3", "Naixement", "Lloc naixement", "Pa\uEDs naixement", "Defunci\uF3", "Lloc defunci\uF3", "Pa\uEDs defunci\uF3", "G\uE8nere", "Ocupaci\uF3", "wiki"))
+  }
+  return(c("Q", "Name", "Description", "Birth", "Birth Place", "Birth Country", "Death", "Death Place", "Death Country", "Gender", "Occupation", "wiki"))
+}
+
+makeT <- function(data, imageDir=NULL, imageDefault=NULL, language=c("en","es","ca")) {  
+  f_D <- c("entity", "entityLabel", "entityDescription", "byear", "bactualplaceLabel", "bcountryLabel", "dyear", "dactualplaceLabel", "dcountryLabel", "gender", "occupation", "wikipedias")
+  if(length(setdiff(f_D,colnames(data)))){
+    stop("data: wrong data input, missing columns")
+  }
+  D <- as.data.frame(data[, f_D])
+
+  language <- language[1]
+  f_E <- translateColumns(language)
+  linksname <- "LINKS"
+  if(language=="es"){
+    linksname <- "ENLACES"
+  }else if(language=="ca"){
+    linksname <- "ENLLA\uC7OS"
+  }
+  names(D) <- f_E
+
+  D[[12]] <- gsub("\\|.*","", D[[12]]) # wiki
+  D$wikidata <- paste0("https://m.wikidata.org/wiki/", D[[1]])
+  D[[3]] <- paste0(toupper(substr(D[[3]], 1, 1)), substr(D[[3]], 2, nchar(D[[3]]))) # description
+
+  D$td <- ifelse(is.na(D[[7]]), 
+               paste0(D[[2]], " (", D[[4]],"-)"), 
+               paste0(D[[2]], " (", D[[4]],"-",D[[7]],")"))
+
+  D$img <- NA
+  if(!is.null(imageDir) && file.exists(imageDir)){
+    for(type in c("jpg","jpeg","gif","png","svg")){
+      subset <- is.na(D$img)
+      if(sum(subset)){
+        images <- file.path(imageDir,paste0(D[subset,1],".",type))
+        imgexists <- file.exists(images)
+        if(sum(imgexists)){
+          D$img[subset & imgexists] <- images[imgexists]
+        }
+      }
+    }
+  }
+  if(!is.null(imageDefault) && file.exists(imageDefault[1])){
+    D$img[is.na(D$img)] <- imageDefault[1]
+  }
+
+  D$links    <- paste0('</p><h3>',linksname,':</h3>', renderLinks(D, c("wikidata", "wiki"), NULL, "mainframe"))
+  D$info     <- get_template2(D, title="td", text="links")
+  
+  return(D[, c(f_E[c(-1,-12)], "img", "info")])
+}
+
+makeT2 <- function(entityLabel, image=NA, entityDescription=NA,
+    byear=NA, bplace=NA, bcountry=NA, dyear=NA, dplace=NA, dcountry= NA,
+    gender=NA, occupation=NA, language=c("en","es","ca")) {
+  if(!is.vector(entityLabel)) {
+    stop("entityLabel: must be a character vector")
+  }
+
+  entity <- NA
+  wikipedias <- NA
+  D <- data.frame(entity, entityLabel, entityDescription, byear, bplace, bcountry, dyear, dplace, dcountry, gender, occupation, wikipedias)
+
+  translatedColumns <- translateColumns(language)
+  names(D) <- translatedColumns
+
+  image[is.na(image) | !file.exists(image)] <- NA
+  D$img <- image
+  D$info <- get_template2(D, title=names(D)[2])
+
+  return(D[,c(-1,-12)])
 }

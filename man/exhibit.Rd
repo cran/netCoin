@@ -1,0 +1,44 @@
+\name{exhibit}
+\alias{exhibit}
+\alias{gallery2}
+\title{Images in a grid gallery.}
+\description{
+\code{exhibit} produces an interactive image gallery (alternative display).
+}
+\value{
+Object of class \code{gallery_rd3}.
+}
+
+\usage{
+exhibit(nodes, name = NULL, label = NULL, subtitle = NULL, order = NULL,
+  decreasing = FALSE, ntext = NULL, mainframeHeight = NULL, image = NULL,
+  zoom = NULL, main = NULL, note = NULL, export = FALSE, colorScheme = 0,
+  language = c("en", "es", "ca"), dir = NULL)
+}
+\arguments{
+\item{nodes}{a data frame with at least one column with the names of the gallery's elements.}
+\item{name}{name of the vector with names in the nodes data frame.}
+\item{label}{column name with image labels in the nodes data frame.}
+\item{subtitle}{column name with image subtitles in the nodes data frame.}
+\item{order}{name of the column with node order in the nodes data frame.}
+\item{decreasing}{decreasing or increasing sort of the nodes.}
+\item{ntext}{column name with html text in the nodes data frame.}
+\item{mainframeHeight}{a number between 0.1 and 1 to reduce mainframe height.}
+\item{image}{column name which indicates the image paths in the nodes data frame.}
+\item{zoom}{a number between 0.1 and 1 to reduce item sizes.}
+\item{main}{upper title of the graph.}
+\item{note}{lower title of the graph.}
+\item{export}{A button will appear to export gallery as excel.}
+\item{colorScheme}{Select a color theme for display (0-11).}
+\item{language}{a character string indicating the language of the graph (en=english (default); es=spanish; ca=catalan).}
+\item{dir}{a character string representing the directory where the web files will be saved.}
+}
+\author{
+Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
+}
+\examples{
+data("finches")
+finches$species <- system.file("extdata", finches$species,
+        package="netCoin") # copy path to the species field
+exhibit(finches, image="species")
+}

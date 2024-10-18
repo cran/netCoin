@@ -17,91 +17,24 @@ netCoin <- function(nodes = NULL, links = NULL, tree = NULL,
         main = NULL, note = NULL, showCoordinates = FALSE, showArrows = FALSE,
         showLegend = TRUE, frequencies = FALSE, showAxes = FALSE,
         axesLabels = NULL, scenarios = NULL, help = NULL, helpOn = FALSE,
-        mode = c("network","heatmap"), roundedItems = FALSE, controls = 1:4,
+        mode = c("network","heatmap"), roundedItems = FALSE, controls = 1:8,
         cex = 1, background = NULL, defaultColor = "#1f77b4",
         language = c("en","es","ca"), dir = NULL)
 {
   if(is.null(links) &&  is.null(nodes)){
-    stop("You must explicit a nodes or links data frame, or a netCoin object.")
+    stop("You must explicit a nodes or links data frame.")
   }
 
-  if(inherits(nodes,"netCoin")){
-    links <- nodes$links
-    tree <- nodes$tree
-    options <- nodes$options
-    nodes <- nodes$nodes
+  if(inherits(nodes, 'netCoin')){
+    stop("Using netCoin function to change netCoin object attributes is deprecated. Use addNetCoin instead.")
+  }
 
-    arguments <- names(as.list(match.call()))
-
-    getOpt <- function(opt,item=opt){
-      if(item %in% arguments){
-        return(get0(item))
-      }else{
-        if(!is.null(options[[opt]])){
-          return(options[[opt]])
-        }else{
-          return(NULL)
-        }
-      }
-    }
-
-    name <- getOpt("nodeName","name")
-
-    cex <- getOpt("cex")
-    distance <- getOpt("distance")
-    repulsion <- getOpt("repulsion")
-    zoom <- getOpt("zoom")
-    scenarios <- getOpt("scenarios")
-    limits <- getOpt("limits")
-    main <- getOpt("main")
-    note <- getOpt("note")
-    help <- getOpt("help")
-    background <- getOpt("background")
-    language <- getOpt("language")
-    nodeBipolar <- getOpt("nodeBipolar")
-    linkBipolar <- getOpt("linkBipolar")
-    helpOn <- getOpt("helpOn")
-    frequencies <- getOpt("frequencies")
-    defaultColor <- getOpt("defaultColor")
-    controls <- getOpt("controls")
-    mode <- getOpt("mode")
-    axesLabels <- getOpt("axesLabels")
-    fixed <- getOpt("fixed")
-    showCoordinates <- getOpt("showCoordinates")
-    showArrows <- getOpt("showArrows")
-    showLegend <- getOpt("showLegend")
-    showAxes <- getOpt("showAxes")
-    roundedItems <- getOpt("roundedItems")
-
-    label <- getOpt("nodeLabel","label")
-    labelSize <- getOpt("nodeLabelSize","labelSize")
-    group <- getOpt("nodeGroup","group")
-    groupText <- getOpt("groupText")
-    size <- getOpt("nodeSize","size")
-    color <- getOpt("nodeColor","color")
-    shape <- getOpt("nodeShape","shape")
-    border <- getOpt("nodeBorder","border")
-    legend <- getOpt("nodeLegend","legend")
-    ntext <- getOpt("nodeText","ntext")
-    info <- getOpt("nodeInfo","info")
-    sort <- getOpt("nodeOrder","sort")
-    decreasing <- getOpt("decreasing")
-    image <- getOpt("imageItems","image")
-    imageNames <- getOpt("imageNames")
-
-    lwidth <- getOpt("linkWidth","lwidth")
-    lweight <- getOpt("linkWeight","lweight")
-    lcolor <- getOpt("linkColor","lcolor")
-    ltext <- getOpt("linkText","ltext")
-    intensity <- getOpt("linkIntensity","intensity")
-  }else{
-    name <- nameByLanguage(name,language,nodes)
-    if(!is.null(nodes)){
+  name <- nameByLanguage(name,language,nodes)
+  if(!is.null(nodes)){
       if (all(inherits(nodes,c("tbl_df","tbl","data.frame"),TRUE))) nodes<-as.data.frame(nodes) # convert haven objects
-    }
-    if(!is.null(links)){
+  }
+  if(!is.null(links)){
       if (all(inherits(links,c("tbl_df","tbl","data.frame"),TRUE))) links<-as.data.frame(links) # convert haven objects
-    }
   }
 
   color <- setAttrByValueKey("color",color,nodes)
@@ -162,6 +95,85 @@ setAttrByValueKey <- function(name,item,items){
     return(item)
 }
 
+addNetCoin <- function(x, ...){
+    arguments <- list(...)
+
+    for(n in c("nodes","links","tree")){
+      if(!(n %in% names(arguments))){
+        arguments[[n]] <- x[[n]]
+      }
+    }
+
+    options <- x$options
+
+    getOpt <- function(opt,item=opt){
+      if(item %in% names(arguments)){
+        return(arguments[[item]])
+      }else{
+        if(!is.null(options[[opt]])){
+          return(options[[opt]])
+        }else{
+          return(NULL)
+        }
+      }
+    }
+
+    attributes <- c(
+      "name" = "nodeName",
+      "cex" = "cex",
+      "distance" = "distance",
+      "repulsion" = "repulsion",
+      "zoom" = "zoom",
+      "scenarios" = "scenarios",
+      "limits" = "limits",
+      "main" = "main",
+      "note" = "note",
+      "help" = "help",
+      "background" = "background",
+      "language" = "language",
+      "nodeBipolar" = "nodeBipolar",
+      "linkBipolar" = "linkBipolar",
+      "helpOn" = "helpOn",
+      "frequencies" = "frequencies",
+      "defaultColor" = "defaultColor",
+      "controls" = "controls",
+      "mode" = "mode",
+      "axesLabels" = "axesLabels",
+      "fixed" = "fixed",
+      "showCoordinates" = "showCoordinates",
+      "showArrows" = "showArrows",
+      "showLegend" = "showLegend",
+      "showAxes" = "showAxes",
+      "roundedItems" = "roundedItems",
+      "label" = "nodeLabel",
+      "labelSize" = "nodeLabelSize",
+      "group" = "nodeGroup",
+      "groupText" = "groupText",
+      "size" = "nodeSize",
+      "color" = "nodeColor",
+      "shape" = "nodeShape",
+      "border" = "nodeBorder",
+      "legend" = "nodeLegend",
+      "ntext" = "nodeText",
+      "info" = "nodeInfo",
+      "sort" = "nodeOrder",
+      "decreasing" = "decreasing",
+      "image" = "imageItems",
+      "imageNames" = "imageNames",
+      "lwidth" = "linkWidth",
+      "lweight" = "linkWeight",
+      "lcolor" = "linkColor",
+      "ltext" = "linkText",
+      "intensity" = "linkIntensity"
+    )
+
+    for(item in names(attributes)){
+      arguments[[item]] <- getOpt(attributes[[item]],item)
+    }
+
+    return(do.call(netCoin,arguments))
+}
+
 
 # Program to apply nets to correlations
 
@@ -173,38 +185,42 @@ netCorr<-function(variables, weight=NULL, pairwise=FALSE,
                   sortL=NULL, decreasingL=TRUE,
                   igraph=FALSE, ...)
 {
-  arguments <- list(...)
-  arguments$name <- nameByLanguage(arguments$name,arguments$language,arguments$nodes)
-  method <- r.method(method[1])
-  if(!("size" %in% names(arguments))) arguments$size <- "mean"
-  if(!("lwidth" %in% names(arguments))) arguments$lwidth <- "value"
-  if(!("lweight" %in% names(arguments))) arguments$lweight <- "value"
-  if(!pairwise) variables<-na.omit(variables)
-  cases<-nrow(variables)
-  if (criteria=="p" & maxL==Inf)  maxL<-.5
-  if (criteria=="p" & Bonferroni) maxL<-maxL/choose(cases,2)
-  if (criteria %in% c("pearson", "kendall", "spearman")) criteria <- "value"
-  statistics <-data.frame(name=colnames(variables),
-                          mean=round(apply(variables,2,mean, na.rm=TRUE),2),
-                          std=round(sqrt(apply(variables,2,var, na.rm=TRUE)),2),
-                          min=apply(variables,2,min, na.rm=TRUE),
-                          max=apply(variables,2,max, na.rm=TRUE))
-  colnames(statistics)[1] <- arguments$name
-  if(!is.null(arguments$nodes)) arguments$nodes <- merge(statistics, arguments$nodes, by=arguments$name, all.x=TRUE, sort=FALSE)
-  else arguments$nodes <- statistics
-  if (pairwise) use <- "pairwise.complete.obs"
-  else use <- "complete.obs"
-  R<-cor(variables[,arguments$nodes[,2]>=minimum & arguments$nodes[,2]<=maximum],method=method[1], use=use)
-  E<-edgeList(R, "shape", min=-1, max=1, directed=FALSE, diagonal=FALSE)
-  E$z<-E$value*sqrt(cases)
-  E$p<-1-pt(E$z,cases-1)
-  E<-E[E[[criteria]]>=minL & E[[criteria]]<=maxL,]
-  if (!is.null(sortL)) E<-E[order((-1*decreasingL+!decreasingL)*E[[sortL]]),]
-  arguments$links <- E
-  if(exists("layout", arguments) && is.character(arguments$layout) && tolower(substr(arguments$layout,1,2))=="pc") arguments$layout <- layoutPCA(R)
-  xNx <- do.call(netCoin,arguments)
-  if (igraph) return(toIgraph(xNx))
-  else return(xNx)
+    arguments <- list(...)
+    arguments$name <- nameByLanguage(arguments$name,arguments$language,arguments$nodes)
+    method <- r.method(method[1])
+    if(!("size" %in% names(arguments))) arguments$size <- "mean"
+    if(!("lwidth" %in% names(arguments))) arguments$lwidth <- "value"
+    if(!("lweight" %in% names(arguments))) arguments$lweight <- "value"
+    if(!pairwise) variables<-na.omit(variables)
+    if (inherits(weight,"character")) variables <- variables[, setdiff(names(variables), weight)]
+    cases<-nrow(variables)
+    if(exists("linkBipolar", arguments) && arguments$linkBipolar) xl <- 2
+    else xl <-1
+    if (criteria=="p" & maxL==Inf)  maxL<-.5*xl
+    if (criteria=="p" & Bonferroni) maxL<-maxL/choose(cases,2)
+    if (criteria %in% c("pearson", "kendall", "spearman")) criteria <- "value"
+    statistics <-data.frame(name=colnames(variables),
+                            mean=round(apply(variables,2,mean, na.rm=TRUE),2),
+                            std=round(sqrt(apply(variables,2,var, na.rm=TRUE)),2),
+                            min=apply(variables,2,min, na.rm=TRUE),
+                            max=apply(variables,2,max, na.rm=TRUE))
+    colnames(statistics)[1] <- arguments$name
+    if(!is.null(arguments$nodes)) arguments$nodes <- merge(statistics, arguments$nodes, by=arguments$name, all.x=TRUE, sort=FALSE)
+    else arguments$nodes <- statistics
+    if (pairwise) use <- "pairwise.complete.obs"
+    else use <- "complete.obs"
+    R<-cor(variables[,arguments$nodes[,2]>=minimum & arguments$nodes[,2]<=maximum],method=method[1], use=use)
+    E<-edgeList(R, "shape", min=-1, max=1, directed=FALSE, diagonal=FALSE)
+    E$z<-E$value/sqrt(1-E$value^2)*sqrt(cases-2)
+    if(exists("linkBipolar", arguments) && arguments$linkBipolar) E$p <- (1-pt(abs(E$z),40000-2))*2
+    else xl <- E$p<-1-pt(E$z,cases-2)
+    E<-E[E[[criteria]]>=minL & E[[criteria]]<=maxL,]
+    if (!is.null(sortL)) E<-E[order((-1*decreasingL+!decreasingL)*E[[sortL]]),]
+    arguments$links <- E
+    if(exists("layout", arguments) && is.character(arguments$layout) && tolower(substr(arguments$layout,1,2))=="pc") arguments$layout <- layoutPCA(R)
+    xNx <- do.call(netCoin,arguments)
+    if (igraph) return(toIgraph(xNx))
+    else return(xNx)
 }
 
 # Program to apply evolving nets to correlations.
@@ -231,12 +247,14 @@ d_netCorr <- function(variables, nodes= NULL, weight=NULL,
   g$lineplots <- c("component", "Degree", "closeness", "betweenness", "eigen", "ratio" )
   g$mode <- "frame"
   g$speed <- speed
-  g$dir  <-ifelse(is.null(dir), "./temp", dir)
+  if(!is.null(dir)){
+    g$dir <- dir
+  }
   ch=0
   if(length(textFilter)<2) textFilter[2]<- .99
   for(I in  sequence) {
     G$links$text <- ifelse(abs(G$links$value)>=min(textFilter[1], I+textFilter[2]), sprintf("%.2f", G$links$value), "")
-    H <- netCoin(G, linkFilter = paste0("value>",I), lwidth="value",
+    H <- addNetCoin(G, linkFilter = paste0("value>",I), lwidth="value",
                  ltext="text", size="mean", layout=C,
                  main=paste0("Correlation: ", I))
     if(exists("hidden", H$links)) H$links <- H$links[!H$links$hidden, ]
@@ -256,8 +274,8 @@ d_netCorr <- function(variables, nodes= NULL, weight=NULL,
     }
     ch <- cc
   }
-  if(!is.null(dir)) do.call(multigraphCreate, g)
-  else return(g)
+  multi <- do.call(multigraphCreate, g)
+  return(multi)
 }
 
 # Complete netCoin from an incidences matrix
@@ -280,6 +298,7 @@ allNet<-function(incidences, weight = NULL, subsample = FALSE, pairwise = FALSE,
       arguments$size <- "%"
   if (!("level" %in% names(arguments))) level<-.95 else level <-arguments$level
   if (!pairwise) incidences<-na.omit(incidences)
+  if (inherits(weight, "character")) incidences <- incidences[, setdiff(names(incidences), weight)]
   incidences <- incidences[,colSums(incidences)>0]
   if (all(is.na(incidences) | incidences==0 | incidences==1)) {
     C<-coin(incidences, minimum, maximum, sort, decreasing, weight=weight, subsample=subsample, pairwise = pairwise)
@@ -307,7 +326,7 @@ allNet<-function(incidences, weight = NULL, subsample = FALSE, pairwise = FALSE,
     arguments$links<-edgeList(C, procedures, criteria, level, Bonferroni, minL, maxL, support, 
                               directed, diagonal, sortL, decreasingL)
     for(lattr in c("lwidth","lweight","lcolor","ltext"))
-      if(!is.null(arguments[[lattr]])) arguments[[lattr]]<-i.method(c.method(arguments[[lattr]]))
+      if(!is.null(arguments[[lattr]])) arguments[[lattr]]<-i.method(c_method(arguments[[lattr]]))
     if(is.character(arguments$layout)){
       if(tolower(substr(arguments$layout,1,2))=="mc")arguments$layout<-layoutMCA(incidences)
       else if(tolower(substr(arguments$layout,1,2))=="pc")arguments$layout<-layoutPCA(C)
@@ -337,8 +356,8 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
   if((criteria=="Z" | criteria=="hyp") & maxL==Inf) maxL=.5
   varOrder  <- variables # To order variables later before coin
   #Check methods. No necessary because edgeList call these routines.
-  #procedures<-i.method(c.method(procedures))
-  #criteria<-i.method(c.method(criteria))
+  #procedures<-i.method(c_method(procedures))
+  #criteria<-i.method(c_method(criteria))
   procedures<-union(procedures,unlist(arguments[c("lwidth","lweight","lcolor","ltext")]))
   
   #Metrics 
@@ -450,7 +469,7 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
     E<-edgeList(C, procedures, criteria, level, Bonferroni, minL, maxL, support, 
                 directed, diagonal, sortL, decreasingL, pairwise)
     for(lattr in c("lwidth","lweight","lcolor","ltext"))
-      if(!is.null(arguments[[lattr]])) arguments[[lattr]]<-i.method(c.method(arguments[[lattr]]))
+      if(!is.null(arguments[[lattr]])) arguments[[lattr]]<-i.method(c_method(arguments[[lattr]]))
     
     if(!is.null(arguments$layout)) {
       layout2 <- layout <- arguments$layout
@@ -491,7 +510,7 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
         for(col in as.character(O2[[name]]))
           O2[as.character(O2[[name]])==col,colnames(nodes)] <- nodes[as.character(nodes[[name]])==col,]
       }
-      O<-rbind.all.columns(O,O2)
+      O<-rbind_all_columns(O,O2)
 
       #Metric links elaboration
       methods<-union(procedures,criteria)
@@ -519,7 +538,7 @@ surCoin<-function(data,variables=names(data), commonlabel=NULL,
       D<-D[D[criteria] > minL & D[criteria] < maxL,]
       colnames(D)<-sub("^Z$","p(Z)",colnames(D))
       if(is.null(E))E<-D
-      else E<-rbind.all.columns(E,D)
+      else E<-rbind_all_columns(E,D)
 
       #Layout
       if (inherits(layout,"matrix")){
@@ -620,7 +639,7 @@ cobCoin<- function(data, variables=names(data), degree=0, significance=.05, ...)
   if(!exists("lcolor", arguments)) arguments$lcolor<-"Haberman"
   if(!exists("linkBipolar", arguments)) arguments$linkBipolar <- TRUE
   arguments$groupText<-TRUE
-  arguments$data <- data
+  arguments$data <- data[,variables]
   arguments$maxL <- 1
   arguments$commonlabel <- ""
   N <- do.call(surCoin, arguments)
@@ -629,7 +648,7 @@ cobCoin<- function(data, variables=names(data), degree=0, significance=.05, ...)
   control[[2]] <- gsub(":.*","",control[[2]])
   N$links <- N$links[control[[1]]!=control[[2]],]
   N$links <- N$links[N$links$`p(Z)` < significance/2 | N$links$`p(Z)` > (1-significance/2),]
-  N <- netCoin(N, layout=layoutCircle(N$nodes, deg=degree, name=N$options$nodeName))
+  N <- addNetCoin(N, layout=layoutCircle(N$nodes, deg=degree, name=N$options$nodeName))
   return(N)
 }
 
@@ -768,9 +787,9 @@ edgeList <- function(data, procedures="Haberman", criteria="Z", level = .95, Bon
   }
   if (substr(tolower(procedures)[1],1,2)!="sh") { # For coin objects
     if (!inherits(data,"coin")) stop("Error: input must be a coin object (see coin function)")
-    funcs<-c.method(procedures)
-    if(!is.null(sort)) funcs<-union(c.method(sort),funcs)
-    criteria<-c.method(criteria)
+    funcs<-c_method(procedures)
+    if(!is.null(sort)) funcs<-union(c_method(sort),funcs)
+    criteria<-c_method(criteria)
     todas<-union(funcs,criteria)
     matrices<-sim(data,todas,level=level, pairwise=pairwise)
     funcs<-i.method(funcs)
@@ -817,17 +836,20 @@ edgeList <- function(data, procedures="Haberman", criteria="Z", level = .95, Bon
       Mat$c.probable<-factor(Mat$c.probable,levels=c(0:8),
                              labels=c("Null","Mere","Probable","Significant","Quite significant","Very significant","Subtotal","Suptotal","Total"))
     if (!is.null(sort)) {
-      if (substr(tolower(procedures)[1],1,2)!="sh") Mat<-Mat[order(Mat[[i.method(c.method(sort))]],decreasing = decreasing),]
+      if (substr(tolower(procedures)[1],1,2)!="sh") Mat<-Mat[order(Mat[[i.method(c_method(sort))]],decreasing = decreasing),]
       else Mat<-Mat[order(Mat$value,decreasing=decreasing),]
     }
   }
-  else return(NULL)
+  else {
+    warning("Check max and min values")
+    return(NULL)
+  }
   names(Mat)[names(Mat)=="Z"]<-"p(Z)"
   names(Mat)[names(Mat)=="Fisher"]<-"p(Fisher)"
   return(Mat)
 }
 
-c.method<-function(method) {
+c_method<-function(method) {
   if(is.null(method))return(NULL)
   method<-toupper(method)
   if ("ALL"==method[1]) method<-c("M","T","G","S","B","J","D","A","O","K","N","Y","P","V","C","R","E","L","H","Z","f","F","X","I","0","Q","U")
@@ -886,7 +908,7 @@ checkLevel <- function(level){
 sim<-function (input, procedures="Jaccard", level=.95, distance=FALSE, minimum=1, maximum=Inf, sort=FALSE, decreasing=FALSE, 
                weight=NULL, pairwise=FALSE) {
   level <- checkLevel(level)
-  method<-c.method(procedures)
+  method<-c_method(procedures)
   if (is.matrix(input) && !inherits(input,"coin")) {
     if (is.null(colnames(input))) dimnames(input)<-list(NULL,paste("X",1:ncol(input),sep=""))
     input<-as.data.frame(input)
@@ -1453,7 +1475,7 @@ getByLanguage <- function(varlist,language){
   return(unname(varlist[language]))
 }
 
-rbind.all.columns <- function(x, y) {
+rbind_all_columns <- function(x, y) {
   x.diff <- setdiff(colnames(x), colnames(y))
   y.diff <- setdiff(colnames(y), colnames(x))
   
@@ -1766,10 +1788,10 @@ family<-function(formula) {
   FAM <- ifelse(as.numeric(gregexpr(",",formula))==-1,
            "",
            substr(formula,start=as.numeric(gregexpr(",",formula))+1,1E6))
-  family<-c.family(FAM)
+  family<-c_family(FAM)
   return(family)
 }
-c.family<-function(method=NULL) {
+c_family<-function(method=NULL) {
   if (is.null(method) | method=="") family<-"GAU"
   else {
     family<-substr(toupper(method),1,3)  
@@ -1801,7 +1823,6 @@ extract <- function(formulas, data) {
   return(variables)
 }
 
-
 meanPer<-function(data, variables, frame, name=names(frame[1]), frequency= FALSE, percentage= TRUE, weights = NULL){
   if (is.null(weights)) weights <- rep(1, nrow(data))
   columns<-setdiff(names(frame),c(name, "n.","%"))
@@ -1810,17 +1831,21 @@ meanPer<-function(data, variables, frame, name=names(frame[1]), frequency= FALSE
   frame.order<-row.names(frame)
   quantitatives<-c(variables$D,variables$I)
   data<-na.omit(cbind(as.data.frame(data)[,unlist(variables)],weights))
-  if (length(variables$F)>0) {
-    data<-dichotomize(data, variables$F, "")
-    quantitatives<-setdiff(names(data),union(weights,variables$F))
+  for (varF in variables$F) {
+    beginF <- length(data)+1
+    data<-dichotomize(data, varF, "")
+    names(data)[beginF:length(data)] <- paste0(varF,":",names(data)[beginF:length(data)])
   }
-  sta<-data.frame(names=quantitatives)
+  setvariables <- setdiff(names(data),union(weights,variables$F))
+  sta<-data.frame(names=setvariables)
   row.names(sta)<-sta$names
-  if (frequency & !is.null(weights)) sta$N. <-round(apply(data[,quantitatives]*data$weights, 2, sum),0)
+  sta$N. <- 0
+  if (frequency & !is.null(weights)) sta$N. <-round(apply(data[,setvariables]*data$weights, 2, sum),0)
+  sta$N. <- ifelse(sta$names %in% quantitatives, nrow(data), sta$N.)
   if (percentage) {
-    means<-apply(data[,quantitatives], 2, weighted.mean, data$weights)
-    maxs <-apply(data[,quantitatives], 2, max)
-    mins <-apply(data[,quantitatives], 2, min)
+    means<-apply(data[,setvariables], 2, weighted.mean, data$weights)
+    maxs <-apply(data[,setvariables], 2, max)
+    mins <-apply(data[,setvariables], 2, min)
     sta$M.<-(means-mins)/(maxs-mins)*100
   }
   frame<-merge(frame,sta[,-1,drop=F], by="row.names", all.x = TRUE)[,-1]
@@ -1869,8 +1894,8 @@ logCoin<-function(data, variables=names(data), exogenous=NULL, noFirstCat=NULL, 
   formula   <- comb(setdiff(variables,exogenous), exogenous, "weight", order)
   varOrder  <- variables # To order variables later before coin
   #Check methods. No necessary because edgeList call these routines.
-  #procedures<-i.method(c.method(procedures))
-  #criteria<-i.method(c.method(criteria))
+  #procedures<-i.method(c_method(procedures))
+  #criteria<-i.method(c_method(criteria))
   #procedures<-union(procedures,unlist(arguments[c("lwidth","lweight","lcolor","ltext")]))
   
   #Names  
