@@ -1,7 +1,7 @@
 Package: netCoin
 Type: Package
-Version: 2.0.84
-Date: 2024-10-15
+Version: 2.1.0
+Date: 2025-01-10
 Title: Interactive Analytic Networks
 Description: Create interactive analytic networks. It joins the data analysis power of R to obtain coincidences, co-occurrences and correlations, and the visualization libraries of 'JavaScript' in one package.
 License: GPL-2 | GPL-3
@@ -25,7 +25,7 @@ Maintainer: Modesto Escobar <modesto@usal.es>
 URL: https://modesto-escobar.github.io/netCoin-2.x/
 Encoding: UTF-8
 BugReports: https://github.com/Modesto-Escobar/netCoin-2.x/issues
-Packaged: 2024-10-18 07:08:41 UTC; Modesto
+Packaged: 2025-01-14 22:08:37 UTC; Modesto
 Author: Modesto Escobar [cre, aut, cph]
     (<https://orcid.org/0000-0003-2072-6071>),
   David Barrios [aut],
@@ -34,4 +34,4 @@ Author: Modesto Escobar [cre, aut, cph]
   Pablo Cabrera-Álvarez [aut] (<https://orcid.org/0000-0001-8105-5908>),
   Cristina Calvo-López [aut] (<https://orcid.org/0000-0001-5039-1263>)
 Repository: CRAN
-Date/Publication: 2024-10-18 12:00:05 UTC
+Date/Publication: 2025-01-15 16:30:01 UTC

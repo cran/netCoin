@@ -1,4 +1,4 @@
-b68c1677eda1841a3f6f3d7e06e2cbd2 *DESCRIPTION
+c5d898a5716d2939bdd52190d0f91359 *DESCRIPTION
 d6716ce16b449256774cb4f2c4914e23 *NAMESPACE
 28f88990373f2333e90a899b836de797 *R/barplot.R
 cb827f0002c29f4a0a0263fcc0dd0c14 *R/calCentr.R
@@ -25,7 +25,7 @@ d2f61f0c32ebe06f6163541f8984bf9c *data/sociologists.RData
 a04f0b674390e157556046c14e6d32f5 *inst/CITATION
 f67d7a7a8b0d4ca097060f614267d542 *inst/doc/netCoin.R
 f4492f429731cc4e026f038af387ea75 *inst/doc/netCoin.Rmd
-4be94fb3cb62df8051e913d7df1c9f21 *inst/doc/netCoin.html
+9597055c716380193218c26df586a392 *inst/doc/netCoin.html
 5185880cfe58ca02e45fb1f0594ef154 *inst/doc/surCoin.R
 86c93a76288dc747150c14ff3724a16d *inst/doc/surCoin.Rmd
 1a34e99046bfe4622261f11a1b21985b *inst/doc/surCoin.html
@@ -91,7 +91,7 @@ f5ea25d661ee74322e5b618144d91b2d *man/finches.Rd
 83fecb4dfdd3c28a6ad69d3c54db9daa *man/gallery.Rd
 6626721e85387a1d11881f6248581ed0 *man/get_panel_template.Rd
 7b80187b19cdcc4708e46d07ad851abf *man/get_template.Rd
-c9b3d348bd34ae2af2e6766ad35d8c38 *man/get_template2.Rd
+a74dd94b35d4b8ab341eeb4d0515c040 *man/get_template2.Rd
 996521336a8a2e29f77a5ac9e06f0654 *man/glmCoin.Rd
 689448d82a72873c34598192afd472b2 *man/incTime.Rd
 8102371572ed69f1a94451928a436777 *man/layoutCircle.Rd
@@ -107,7 +107,7 @@ cb136673956b18dd5d29971afdd3a2dd *man/mobileEdges.Rd
 d338ac22c090b6ffa75d4507d54d2405 *man/netCoin-package.Rd
 b17ab605a30efd12fed42b7da3ec90fc *man/netCoin.Rd
 cb4895a25fb9cb1b223a719169233211 *man/netCorr.Rd
-a2713fdbb08d4e399af1fcc18a0f8482 *man/netExhibit.Rd
+a86ecf8544766d91d8f5293177694116 *man/netExhibit.Rd
 f88d4a66ad59b312e7c44b7876ab773d *man/netGallery.Rd
 2547a9be3f0afb6794366aaadd140fc6 *man/pathCoin.Rd
 ac58b237e5004d019d651bcd8a49bdfa *man/pieCoin.Rd
