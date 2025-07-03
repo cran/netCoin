@@ -1,12 +1,12 @@
 Package: netCoin
 Type: Package
-Version: 2.1.0
-Date: 2025-01-10
+Version: 2.1.9
+Date: 2025-06-27
 Title: Interactive Analytic Networks
-Description: Create interactive analytic networks. It joins the data analysis power of R to obtain coincidences, co-occurrences and correlations, and the visualization libraries of 'JavaScript' in one package.
+Description: Create interactive analytic networks. It joins the data analysis power of R to obtain coincidences, co-occurrences and correlations, and the visualization libraries of 'JavaScript' in one package. 
 License: GPL-2 | GPL-3
 Depends: R (>= 3.5.0)
-Imports: rD3plot (>= 1.1.0), igraph (>= 1.0.1), Matrix (>= 1.2-4),
+Imports: rD3plot (>= 1.1.37), igraph (>= 1.0.1), Matrix (>= 1.2-4),
         haven (>= 1.1.0), MASS (>= 7.3), GPArotation(>= 2022.4),
         methods
 Suggests: knitr, rmarkdown, lavaan, shiny, htmltools, openxlsx,
@@ -25,13 +25,20 @@ Maintainer: Modesto Escobar <modesto@usal.es>
 URL: https://modesto-escobar.github.io/netCoin-2.x/
 Encoding: UTF-8
 BugReports: https://github.com/Modesto-Escobar/netCoin-2.x/issues
-Packaged: 2025-01-14 22:08:37 UTC; Modesto
-Author: Modesto Escobar [cre, aut, cph]
-    (<https://orcid.org/0000-0003-2072-6071>),
+Acknowledgments: Grants CSO2013-49278-EXP, PGC2018-093755-B100,
+        PDC2022-133355-100, PID2023-147358NB-100 funded by
+        MICIU/AEI/10.13039/501100011033 and by “European Union
+        NextGenerationEU/PRTR”.
+Packaged: 2025-07-03 20:26:49 UTC; modes
+Author: Modesto Escobar [cre, aut, cph] (ORCID:
+    <https://orcid.org/0000-0003-2072-6071>),
   David Barrios [aut],
-  Carlos Prieto [aut] (<https://orcid.org/0000-0003-2064-4842>),
-  Luis Martinez-Uribe [aut] (<https://orcid.org/0000-0002-7795-3972>),
-  Pablo Cabrera-Álvarez [aut] (<https://orcid.org/0000-0001-8105-5908>),
-  Cristina Calvo-López [aut] (<https://orcid.org/0000-0001-5039-1263>)
+  Carlos Prieto [aut] (ORCID: <https://orcid.org/0000-0003-2064-4842>),
+  Luis Martinez-Uribe [aut] (ORCID:
+    <https://orcid.org/0000-0002-7795-3972>),
+  Pablo Cabrera-Álvarez [aut] (ORCID:
+    <https://orcid.org/0000-0001-8105-5908>),
+  Cristina Calvo-López [aut] (ORCID:
+    <https://orcid.org/0000-0001-5039-1263>)
 Repository: CRAN
-Date/Publication: 2025-01-15 16:30:01 UTC
+Date/Publication: 2025-07-03 21:10:01 UTC

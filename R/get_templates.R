@@ -1,4 +1,5 @@
 get_template <- function(data, title=NULL, title2=NULL, text=NULL, img=NULL, wiki=NULL, width=300, color="auto", cex=1, roundedImg=FALSE, mode=1) {
+  data <- as.data.frame(data)
   autocolor <- ''
   colorstyle <- ''
   fontcolor <- ''
@@ -90,6 +91,7 @@ get_template <- function(data, title=NULL, title2=NULL, text=NULL, img=NULL, wik
   templateWiki <- ''
   if(is.character(wiki) && length(data[[wiki]])){
     templateWiki <- paste0('<h3><img style="width:20px;vertical-align:bottom;margin-right:10px;" src="https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"/>Wikipedia: <a target="_blank" href="',data[[wiki]],'">',wiki,'</a></h3>')
+    templateWiki[!checkwiki(data[[wiki]])] <- ""
   }
   if(!identical(templateImg,'') && mode==2){
     celldiv <- '<div style="display: inline-block; width: 50%; vertical-align: top;">'
@@ -101,6 +103,7 @@ get_template <- function(data, title=NULL, title2=NULL, text=NULL, img=NULL, wik
 }
 
 get_template2 <- function(data, title=NULL, title2=NULL, text=NULL, wiki=NULL) {
+  data <- as.data.frame(data)
   templateTitle <- ''
   if(is.character(title) && length(data[[title]])){
     templateTitle <- paste0('<h2>',data[[title]],'</h2>')
@@ -124,6 +127,7 @@ get_template2 <- function(data, title=NULL, title2=NULL, text=NULL, wiki=NULL) {
   templateWiki <- ''
   if(is.character(wiki) && length(data[[wiki]])){
     templateWiki <- paste0('<h3><img style="width:20px;vertical-align:bottom;margin-right:10px;" src="https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"/>Wikipedia: <a target="mainframe" href="',data[[wiki]],'">',wiki,'</a></h3>')
+    templateWiki[!checkwiki(data[[wiki]])] <- ""
   }
 
   templateContent <- paste0(templateTitle,"<div>",templateTitle2,templateText,templateWiki,"</div>")
@@ -132,6 +136,7 @@ get_template2 <- function(data, title=NULL, title2=NULL, text=NULL, wiki=NULL) {
 }
 
 get_panel_template <- function(data, title=NULL, description=NULL, img=NULL,  text=NULL, color="auto", cex=1, mode=1){
+  data <- as.data.frame(data)
   autocolor <- ''
   colorstyle <- ''
   fontcolor <- ''
@@ -181,6 +186,7 @@ known_sites <- data.frame(
 )
 
 renderLinks <- function(data,columns,labels=NULL,target="_blank",sites=NULL){
+  data <- as.data.frame(data)
   if(is.null(sites)){
     sites <- known_sites
   }
@@ -197,11 +203,15 @@ renderLinks <- function(data,columns,labels=NULL,target="_blank",sites=NULL){
     links <- links[!is.na(links)]
     texts <- links
     icons <- rep('https://upload.wikimedia.org/wikipedia/commons/6/6a/External_link_font_awesome.svg',length(links))
+    targets <- target
     for(j in seq_along(links)){
       for(k in seq_len(nrow(sites))){
         if(grepl(sites[k,'url'],links[j])){
           texts[j] <- sites[k,'name']
           icons[j] <- sites[k,'icon']
+          if(!is.null(sites$target)){
+            targets[j] <- sites[k,'target']
+          }
           break
         }
       }
@@ -212,7 +222,7 @@ renderLinks <- function(data,columns,labels=NULL,target="_blank",sites=NULL){
         texts <- label
       }
     }
-    html[i] <- paste0('<ul>',paste0('<li><a target="',target,'" href="', links, '"><img style="width:30px;height:30px;object-fit:contain;vertical-align:middle;margin-right:5px;" src="', icons, '"/>', texts, '</a></li>', collapse=""),'</ul>')
+    html[i] <- paste0('<ul>',paste0('<li><a target="',targets,'" href="', links, '"><img style="width:30px;height:30px;object-fit:contain;vertical-align:middle;margin-right:5px;" src="', icons, '"/>', texts, '</a></li>', collapse=""),'</ul>')
   }
   return(html)
 }
@@ -331,3 +341,8 @@ makeT2 <- function(entityLabel, image=NA, entityDescription=NA,
 
   return(D[,c(-1,-12)])
 }
+
+checkwiki <- function(wikis){
+  grepl("^(http(s)?://)?[a-z][a-z](\\.m)?\\.wikipedia\\.org",wikis)
+}
+
