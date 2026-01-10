@@ -19,7 +19,7 @@ pathCoin(model, estimates=c("b","se","z","pvalue","beta"),
 \item{...}{Any \link{netCoin} argument.}
 }
 \author{
-Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
+Modesto Escobar, Department of Sociology and Communication, University of Salamanca.
 }
 \examples{
 # Classic Wheaton et al. model
@@ -31,7 +31,7 @@ lower <- '
 4.783 5.028 7.495 9.986
 -3.839 -3.889 -3.841 -3.625 9.610
 -21.899 -18.831 -21.748 -18.775 35.522 450.288 '
-wheaton.cov <- getCov(lower, 
+wheaton.cov <- lav_getcov(lower, 
                names = c("anomia67", "powerless67","anomia71", "powerless71",
                          "education", "sei"))
 wheaton.model <- '

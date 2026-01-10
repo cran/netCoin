@@ -11,7 +11,8 @@ Object of class \code{gallery_rd3}.
 \usage{
 gallery(nodes, name = NULL, label = NULL, color = NULL,
     border = NULL, ntext = NULL, info = NULL, infoFrame = c("right","left"),
-    image = NULL, zoom = 1, itemsPerRow = NULL, main = NULL, note = NULL,
+    image = NULL, imageCopy = NULL, noFilterCols = NULL,
+    zoom = 1, itemsPerRow = NULL, main = NULL, note = NULL,
     showLegend = TRUE, frequencies = FALSE, labelTooltip = TRUE,
     cexTooltip = 1, help = NULL, helpOn = FALSE, tutorial = FALSE,
     description = NULL, descriptionWidth = NULL, roundedItems = FALSE,
@@ -28,6 +29,8 @@ gallery(nodes, name = NULL, label = NULL, color = NULL,
 \item{info}{column name with information to display in a panel in the nodes data frame.}
 \item{infoFrame}{In which panel should the information be displayed? The left panel is only available if frequencies are not showing.}
 \item{image}{column name which indicates the image paths in the nodes data frame.}
+\item{imageCopy}{column name which indicates the image copyright and attribution in the nodes data frame.}
+\item{noFilterCols}{disable filtering by especified column names.}
 \item{zoom}{a number between 0.1 and 10 as initial displaying zoom.}
 \item{itemsPerRow}{number of items in each row.}
 \item{main}{upper title of the graph.}
@@ -50,7 +53,7 @@ gallery(nodes, name = NULL, label = NULL, color = NULL,
 \item{dir}{a character string representing the directory where the web files will be saved.}
 }
 \author{
-Modesto Escobar, Department of Sociology and Communication, University of Salamanca. See \url{https://sociocav.usal.es/blog/modesto-escobar/}
+Modesto Escobar, Department of Sociology and Communication, University of Salamanca.
 }
 \examples{
 data("finches")
