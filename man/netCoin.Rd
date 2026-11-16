@@ -17,16 +17,19 @@ netCoin(nodes = NULL, links = NULL, tree = NULL,
         border = NULL, legend = NULL, sort = NULL, decreasing = FALSE,
         ntext = NULL, info = NULL, image = NULL, imageNames = NULL,
         centrality = NULL,
-        nodeBipolar = FALSE, nodeFilter = NULL, degreeFilter = NULL,
+        nodeBipolar = FALSE, nodeScaleLimits = NULL, nodeFilter = NULL,
+        degreeFilter = NULL,
         lwidth = NULL, lweight = NULL, lcolor = NULL, ltext = NULL,
-        intensity = NULL, linkBipolar = FALSE, linkFilter = NULL,
+        intensity = NULL, linkBipolar = FALSE, linkScaleLimits = NULL,
+        linkFilter = NULL,
         repulsion = 25, distance = 10, zoom = 1,
         fixed = showCoordinates, limits = NULL,
         main = NULL, note = NULL, showCoordinates = FALSE, showArrows = FALSE,
-        showLegend = TRUE, frequencies = FALSE, showAxes = FALSE,
-        axesLabels = NULL, scenarios = NULL, help = NULL, helpOn = FALSE,
-        mode = c("network","heatmap"), roundedItems = FALSE, controls = 1:8,
-        cex = 1, background = NULL, defaultColor = "#1f77b4",
+        showLegend = TRUE, frequencies = FALSE, statistics = FALSE,
+        showAxes = FALSE, axesLabels = NULL,
+        nodesLabel = NULL, linksLabel = NULL, scenarios = NULL, help = NULL,
+        helpOn = FALSE, mode = c("network","heatmap"), roundedItems = FALSE,
+        controls = 1:8, cex = 1, background = NULL, defaultColor = "#1f77b4",
         language = c("en","es","ca"), dir = NULL)
 }
 \arguments{
@@ -58,7 +61,9 @@ netCoin(nodes = NULL, links = NULL, tree = NULL,
 \item{linkFilter}{condition for filtering links.}
 \item{degreeFilter}{numeric vector to filter the resulting network by degree.}
 \item{nodeBipolar}{a logical value that polarizes negative and positive node values in the graphical representation. Default = FALSE.}
+\item{nodeScaleLimits}{vector indicating the node scale limits, must be a numeric vector of length 2 or 3.}
 \item{linkBipolar}{a logical value that polarizes negative and positive link values in the graphical representation. Default = FALSE.}
+\item{linkScaleLimits}{vector indicating the link scale limits, must be a numeric vector of length 2 or 3.}
 \item{defaultColor}{a character vector giving a valid html color.}
 \item{repulsion}{a percentage for repulsion between nodes.}
 \item{distance}{a percentage for distance of links.}
@@ -68,11 +73,12 @@ netCoin(nodes = NULL, links = NULL, tree = NULL,
 \item{main}{upper title of the graph.}
 \item{note}{lower title of the graph.}
 \item{frequencies}{a logical value true if the frequencies can be shown in barplots. Default = FALSE.}
+\item{statistics}{a logical value true if the possibility of calculating statistics with the nodes will be added to the final graph.}
 \item{help}{help text of the graph.}
 \item{helpOn}{Should the help be shown at the beginning?}
 \item{background}{background color or image of the graph.}
 \item{layout}{a matrix with two columns or an algorithm to elaborate the coordinates: davidson.harel
-drl("da"), circle("ci"), Force-Atlas-2("fo"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kamada.kawai("ka"), lgl("lg"), mds("md"), random("ra"), reingold.tilford("re"), star("sta"), sugiyama("sug")}
+drl("da"), circle("ci"), Force-Atlas-2("fo"), fruchterman.reingold("fr"), gem("ge"), grid("gr"), kamada.kawai("ka"), lgl("lg"), mds("md"), random("ra"), reingold.tilford("re"), star("sta"), sugiyama("sug"). Several layouts can be given as a vector of algorithm names, as in \code{c("fo", "fr", "ka")}, or as a list mixing names and matrices; each becomes a plane of the plot, named as given in the list or after its algorithm.}
 \item{limits}{vector indicating size references to display layout, must be a numeric vector of length 4: x1, y1, x2, y2.}
 \item{cex}{number indicating the amount by which plotting text should be scaled relative to the default. Default = 1.}
 \item{roundedItems}{Display items with rounded borders.}
@@ -83,6 +89,8 @@ drl("da"), circle("ci"), Force-Atlas-2("fo"), fruchterman.reingold("fr"), gem("g
 \item{showLegend}{a logical value true if the legend is to be shown. Default = TRUE.}
 \item{showAxes}{a logical value true if the axes are to be shown. Default = FALSE.}
 \item{axesLabels}{a character vector giving the axes names.}
+\item{nodesLabel}{How should the nodes in this network be named?}
+\item{linksLabel}{How should the links in this network be named?}
 \item{language}{a character vector (es=spanish; en=english; ca=catalan).}
 \item{image}{name of the vector with image files in the nodes data frame.}
 \item{imageNames}{name of the vector with names for image files in the nodes data frame.}

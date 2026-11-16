@@ -1,35 +1,36 @@
 Package: netCoin
 Type: Package
-Version: 2.1.19
-Date: 2026-01-09
+Version: 2.1.49
+Date: 2026-11-06
 Title: Interactive Analytic Networks
-Description: Create interactive analytic networks. It joins the data analysis power of R to obtain coincidences, co-occurrences and correlations, and the visualization libraries of 'JavaScript' in one package. 
+Description: Combines the data analysis capabilities of R with the interactive visualization libraries of JavaScript to create networks of coincidences, co-occurrences, correlations and regressions that can be explored directly in a browser, embedded in HTML files or integrated into Shiny applications. It also generates networked HTML galleries and other plots of coincidences. 
 License: GPL-2 | GPL-3
 Depends: R (>= 3.5.0)
-Imports: rD3plot (>= 1.1.37), igraph (>= 1.0.1), Matrix (>= 1.2-4),
+Imports: rD3plot (>= 1.1.71), igraph (>= 1.0.1), Matrix (>= 1.2-4),
         haven (>= 1.1.0), MASS (>= 7.3), GPArotation(>= 2022.4),
-        methods
+        marginaleffects, methods, nnet
 Suggests: knitr, rmarkdown, lavaan, shiny, htmltools, openxlsx,
-        data.table, readr
+        data.table, readr, tidyLPA, clue, NMF, Rtsne, cluster,
+        dendextend, fpc, parallelDist, uwot, mclust, poLCA
 VignetteBuilder: knitr
 NeedsCompilation: no
 Authors@R: c( 
     person("Modesto", "Escobar", email = "modesto@usal.es", role = c("cre", "aut", "cph"), comment = c(ORCID = "0000-0003-2072-6071")), 
     person("David", "Barrios", email = "metal@usal.es", role = "aut"), 
     person("Carlos", "Prieto", email = "cprietos@usal.es", role = "aut", comment = c(ORCID = "0000-0003-2064-4842")),
-    person("Luis", "Martinez-Uribe", email = "lmartinez@usal.es", role = "aut", comment = c(ORCID = "0000-0002-7795-3972")),
-    person("Pablo", "Cabrera-Álvarez", email = "pablocal@usal.es", role = "aut", comment= c(ORCID = "0000-0001-8105-5908")),
-    person("Cristina", "Calvo-López", email ="cristinacalvolopez@usal.es", role = "aut", comment= c(ORCID = "0000-0001-5039-1263"))
+    person("Luis", "Martinez-Uribe", email = "lmartinez@march.es", role = "aut", comment = c(ORCID = "0000-0002-7795-3972")),
+    person("Pablo", "Cabrera-Álvarez", email = "pcabre@essex.ac.uk", role = "aut", comment= c(ORCID = "0000-0001-8105-5908")),
+    person("Cristina", "Calvo-López", email ="cristina.calvo@poli.uned.es", role = "aut", comment= c(ORCID = "0000-0001-5039-1263"))
     )
 Maintainer: Modesto Escobar <modesto@usal.es>
-URL: https://modesto-escobar.github.io/netCoin-2.x/
+URL: https://modesto-escobar.github.io/netCoin/
 Encoding: UTF-8
-BugReports: https://github.com/Modesto-Escobar/netCoin-2.x/issues
+BugReports: https://github.com/Modesto-Escobar/netCoin/issues
 Acknowledgments: Grants CSO2013-49278-EXP, PGC2018-093755-B100,
         PDC2022-133355-100, PID2023-147358NB-100 funded by
         MICIU/AEI/10.13039/501100011033 and by “European Union
         NextGenerationEU/PRTR”.
-Packaged: 2026-01-09 17:06:11 UTC; Modesto
+Packaged: 2026-11-10 15:18:33 UTC; Modesto
 Author: Modesto Escobar [cre, aut, cph] (ORCID:
     <https://orcid.org/0000-0003-2072-6071>),
   David Barrios [aut],
@@ -41,4 +42,4 @@ Author: Modesto Escobar [cre, aut, cph] (ORCID:
   Cristina Calvo-López [aut] (ORCID:
     <https://orcid.org/0000-0001-5039-1263>)
 Repository: CRAN
-Date/Publication: 2026-01-10 09:30:08 UTC
+Date/Publication: 2026-11-16 10:30:02 UTC

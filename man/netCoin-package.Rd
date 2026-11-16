@@ -3,7 +3,7 @@
 \docType{package}
 \title{The netCoin package.}
 \description{
-Create interactive networked coincidences. It joins the data analysis power of \R to study coincidences and the visualization libraries of JavaScript in one package.
+netCoin combines the data analysis capabilities of R with the interactive visualization libraries of JavaScript to create \bold{networks of coincidences, co-occurrences, correlations and regressions} that can be explored directly in a browser, embedded in HTML files or integrated into Shiny applications. It also generates \bold{networked HTML galleries} and other \bold{plots of coincidences}.
 }
 \details{
 Coincidence analysis detects what events, characters, objects, attributes, or characteristics tend to occur together within certain limits.
@@ -75,5 +75,8 @@ Escobar, M. (2009): "Redes Semanticas en Textos Periodisticos: Propuestas Tecnic
 Escobar, M.(2015): "Studying Coincidences with Network Analysis and Other Multivariate Tools", in \emph{The Stata Journal}, 15(4), 1118-1156.
 
 Escobar, M. and J. Gomez Isla (2015): "The Expression of Identity through the Image: The Photographic Archives of Miguel de Unamuno and Joaquin Turina", en \emph{Revista Espanola de Investigaciones Sociologicas}, 152, 23-46.
+
+Escobar, M. and L. Martínez-Uribe (2020): "Network Coincidence Analysis: The netCoin R Package", en \emph{Journal of Statistical Software}, 93(11), 1-31.
+
 }
 

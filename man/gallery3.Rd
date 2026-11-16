@@ -13,8 +13,9 @@ gallery3(nodes, name = NULL, label = NULL, subtitle = NULL, order = NULL,
     decreasing = FALSE, ntext = NULL,
     mainframeHeight = NULL, mainframeWidth = NULL, mainframeImage = 0,
     image = NULL, imageCopy = NULL, imageRatio = NULL, noFilterCols = NULL,
-    zoom = NULL, main = NULL, note = NULL, search = TRUE,
-    cex = 1, language = c("en", "es", "ca"), dir = NULL)
+    zoom = NULL, scale = NULL, main = NULL, note = NULL,
+    tableButton = FALSE, export = FALSE,
+    search = TRUE, cex = 1, language = c("en", "es", "ca"), dir = NULL)
 }
 \arguments{
 \item{nodes}{a data frame with at least one column with the names of the gallery's elements.}
@@ -31,10 +32,13 @@ gallery3(nodes, name = NULL, label = NULL, subtitle = NULL, order = NULL,
 \item{imageCopy}{column name which indicates the image copyright and attribution in the nodes data frame.}
 \item{imageRatio}{the aspect ratio of the images. Is the ratio of its width to its height. 3/4 by default.}
 \item{noFilterCols}{disable filtering by especified column names.}
-\item{zoom}{a number between 0.1 and 1 to reduce item sizes.}
+\item{zoom}{Deprecated. Replaced by argument 'scale'.}
+\item{scale}{a number between 0.1 and 1 as initial displaying scale.}
 \item{main}{upper title of the graph.}
 \item{note}{lower title of the graph.}
 \item{search}{Should gallery search be displayed? (default: TRUE)}
+\item{tableButton}{A button will appear to show the data as a table.}
+\item{export}{A button will appear to export gallery as excel.}
 \item{cex}{number indicating the amount by which plotting text should be scaled relative to the default.}
 \item{language}{a character string indicating the language of the graph (en=english (default); es=spanish; ca=catalan).}
 \item{dir}{a character string representing the directory where the web files will be saved.}

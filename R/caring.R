@@ -60,8 +60,6 @@ caring_create_graphs <- function(data, arguments){
     arguments[['weight']] <- arguments[['weight']][1]
     if((!arguments[['weight']] %in% colnames(data)) || !is.numeric(data[,arguments[['weight']]])){
       arguments[['weight']] <- NULL
-    }else{
-      arguments[['variables']] <- setdiff(arguments[['variables']],arguments[['weight']])
     }
   }
 
@@ -89,15 +87,8 @@ caring_create_graphs <- function(data, arguments){
     }
   }
 
-  variables <- arguments[['variables']]
-  if(!is.null(arguments[['dichotomies']])){
-    variables <- setdiff(variables,arguments[['dichotomies']])
-    if(!is.null(arguments[['metric']])){
-      arguments[['metric']] <- setdiff(arguments[['metric']],arguments[['dichotomies']])
-    }
-  }
-  if(!is.null(arguments[['metric']])){
-    arguments[['variables']] <- setdiff(arguments[['variables']],arguments[['metric']])
+  if(!is.null(arguments[['dichotomies']]) && !is.null(arguments[['metric']])){
+    arguments[['metric']] <- setdiff(arguments[['metric']],arguments[['dichotomies']])
   }
 
   arguments[['frequency']] <- TRUE
@@ -117,6 +108,12 @@ caring_create_graphs <- function(data, arguments){
       corrArgs[['variables']] <- arguments[['data']][,arguments[['metric']]]
       keys <- union(names(formals(netCorr)),names(formals(netCoin)))
       corrArgs <- corrArgs[intersect(names(corrArgs),keys)]
+      # frequency is set to TRUE above for the coincidence nets; netCorr decides it by pairwise
+      corrArgs[['frequency']] <- NULL
+      # weight arrives as the name of a column of data, but variables only holds the metric ones
+      if(!is.null(corrArgs[['weight']])) corrArgs[['weight']] <- arguments[['data']][[corrArgs[['weight']]]]
+      # the criteria of the coincidences (Z, hyp) are tests of probability: p in netCorr
+      if(!is.null(corrArgs[['criteria']]) && tolower(corrArgs[['criteria']]) %in% c("z","hyp")) corrArgs[['criteria']] <- "p"
       net1 <- do.call(netCorr,corrArgs)
     }else{
       keys <- union(names(formals(surCoin)),names(formals(netCoin)))
@@ -127,11 +124,60 @@ caring_create_graphs <- function(data, arguments){
   }
   if("surScat" %in% plots){
     scatArgs <- arguments[intersect(names(arguments),union(formalArgs("surScat"),formalArgs("netCoin")))]
-    if(!length(scatArgs[['nclusters']])){
-      scatArgs[['nclusters']] <- min(nrow(data)-1,6):2
+    if(!is.null(arguments[['alignedAxes']]) && arguments[['alignedAxes']]){
+      scatArgs[['suffix']] <- "*"
+    }
+    if(!is.null(scatArgs[['patterns']])){
+      scatArgs[['vPatterns']] <- scatArgs[['patterns']]
+      scatArgs[['patterns']] <- TRUE
+    }
+    if(length(arguments[['nclustersMin']]) || length(arguments[['nclustersMax']]) || length(arguments[['nclustersDef']]) || isTRUE(arguments[['nclustersAuto']])){
+      nclusters <- NULL
+      if(length(arguments[['nclustersMin']]) && length(arguments[['nclustersMax']])){
+        nclusters <- seq(from=arguments[['nclustersMin']],to=arguments[['nclustersMax']])
+      }else{
+        if(length(arguments[['nclustersMin']])){
+          nclusters <- arguments[['nclustersMin']]
+        }
+        if(length(arguments[['nclustersMax']])){
+          nclusters <- arguments[['nclustersMax']]
+        }
+      }
+      # "auto" as default number of groups (or nclustersAuto) lets surScat choose it within the
+      # range by clusterIndex, keeping the whole range, or that number alone when no range is set
+      if(isTRUE(arguments[['nclustersAuto']]) || identical(tolower(as.character(arguments[['nclustersDef']])),"auto")){
+        nclusters <- c("auto",nclusters)
+      }else if(length(arguments[['nclustersDef']])){
+        if(length(nclusters)){
+          nclusters <- nclusters[nclusters!=arguments[['nclustersDef']]]
+          nclusters <- c(nclusters,arguments[['nclustersDef']])
+        }else{
+          nclusters <- arguments[['nclustersDef']]
+        }
+      }
+      scatArgs[['nclusters']] <- nclusters
+    }
+    if(length(scatArgs[['type']]) && scatArgs[['type']]==""){
+      scatArgs[['type']] <- NULL
     }
     scatArgs[['degreeFilter']] <- NULL
+    # surScat draws no links, so a network layout means nothing to it: its layout takes the
+    # dimensionality reductions of looking4clusters, computed on the cases themselves,
+    # which its argument layouts takes
+    scatArgs[['layout']] <- NULL
+    if(length(scatArgs[['clusters']]) && "all" %in% scatArgs[['clusters']]){
+      scatArgs[['clusters']] <- TRUE
+    }
+    if(length(scatArgs[['layouts']]) && "all" %in% scatArgs[['layouts']]){
+      scatArgs[['layouts']] <- TRUE
+    }
     net2 <- do.call(surScat,scatArgs)
+    # the latent profiles (LPA) or classes (LCA) come from surScat itself, by clusters=TRUE,
+    # computed on the cases rather than on the nodes, which may be patterns or a sample
+    if(length(scatArgs[['clusters']]) && length(scatArgs[['active']])>1 && !length(setdiff(scatArgs[['active']],arguments[['metric']]))
+       && !length(setdiff(scatArgs[['variables']],arguments[['metric']]))){
+      net2 <- addCommunities(net2, scatArgs[['data']][,scatArgs[['variables']]], community=c("lo", "fa", "wa", "la"))
+    }
     multiArgs[[plots[which(plots=="surScat")+1]]] = net2
   }
   logs <- intersect(c("logCoin2","logCoin3","logCoin4","logCoin5"),plots)
@@ -156,6 +202,9 @@ caring_create_graphs <- function(data, arguments){
       }
       logArgs[['color']] <- "var"
       logArgs[['order']] <- as.numeric(sub("logCoin","",log,fixed=TRUE))
+      if(!is.null(arguments[['metric']])){
+        logArgs[['variables']] <- setdiff(logArgs[['variables']],arguments[['metric']])
+      }
       net3 <- do.call(logCoin,logArgs)
       multiArgs[[plots[which(plots==log)+1]]] = net3
     }
@@ -197,23 +246,26 @@ caring_create_graphs <- function(data, arguments){
       for(i in seq_along(dichotomies)){
         dic <- dichotomies[i]
         value <- arguments[['valueDicho']][i]
-        newvar <- gsub(" ","",paste0(dic,"_",value))
+        newvar <- gsub(" ","",paste0(dic,":",value))
         glmArgs[['data']][,newvar] <- ifelse(glmArgs[['data']][,dic]==value, 1, 0)
         glmArgs[['data']][,dic] <- NULL
-        family[initialvariables==dic] <- "binomial"
         finalvariables[initialvariables==dic] <- newvar
       }
     }
 
     initialchaine <- chaine
     if(!is.null(textvariables)){
-      for(dic in textvariables){
+      textfamilies <- vapply(textvariables,function(dic){
+        return(family[initialvariables==dic])
+      },character(1))
+      for(i in seq_along(textvariables)){
+        dic <- textvariables[i]
         values <- unique(glmArgs[['data']][,dic])
         for(value in values){
-          newvar <- gsub(" ","",paste0(dic,"_",value))
+          newvar <- gsub(" ","",paste0(dic,":",value))
           glmArgs[['data']][,newvar] <- ifelse(glmArgs[['data']][,dic]==value, 1, 0)
           chaine <- c(chaine,initialchaine[initialvariables==dic])
-          family <- c(family,"binomial")
+          family <- c(family,textfamilies[i])
           finalvariables <- c(finalvariables,newvar)
         }
         keep <- finalvariables!=dic

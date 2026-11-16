@@ -14,7 +14,8 @@ exhibit(nodes, name = NULL, label = NULL, subtitle = NULL, order = NULL,
     decreasing = FALSE, ntext = NULL,
     mainframeHeight = NULL, mainframeWidth = NULL, mainframeImage = 0,
     image = NULL, imageCopy = NULL, noFilterCols = NULL,
-    zoom = NULL, main = NULL, note = NULL,
+    zoom = NULL, scale = NULL, main = NULL, note = NULL,
+    logo = TRUE, pages = c("bottom","dynamic","top"), mainposition = c("dynamic","fixed"),
     frequencies = FALSE, tutorial = FALSE, tableButton = FALSE, export = FALSE,
     search = TRUE, colorScheme = 0,  language = c("en", "es", "ca"), dir = NULL)
 }
@@ -32,9 +33,13 @@ exhibit(nodes, name = NULL, label = NULL, subtitle = NULL, order = NULL,
 \item{image}{column name which indicates the image paths in the nodes data frame.}
 \item{imageCopy}{column name which indicates the image copyright and attribution in the nodes data frame.}
 \item{noFilterCols}{disable filtering by especified column names.}
-\item{zoom}{a number between 0.1 and 1 to reduce item sizes.}
+\item{zoom}{Deprecated. Replaced by argument 'scale'.}
+\item{scale}{a number between 0.1 and 1 as initial displaying scale.}
 \item{main}{upper title of the graph.}
 \item{note}{lower title of the graph.}
+\item{logo}{switch to FALSE if you want to hide netCoin logo.}
+\item{pages}{position of pagination info. In the header (top), footer (bottom), or depending on the scroll (dynamic).}
+\item{mainposition}{If 'fixed', the upper title will always be visible in the header, by default ('dynamic'), it will be hidden when scrolling.}
 \item{frequencies}{a logical value true if barplots representing node attributes frequencies will be added to the final graph.}
 \item{tutorial}{Should tutorial be displayed?}
 \item{tableButton}{A button will appear to show the data as a table.}

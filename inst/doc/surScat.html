@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Modesto Escobar" />
+
+
+<title>surScat</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">surScat</h1>
+<h4 class="author">Modesto Escobar</h4>
+
+
+
+<p>Where <code>surCoin()</code> puts the categories of the variables on
+the graph, <code>surScat()</code> puts the <strong>cases
+themselves</strong>. Each case becomes a node, placed on a factorial
+plane extracted from the variables and coloured by the group it falls
+into. The result is a <code>netCoin</code> object holding the nodes,
+their coordinates and the options, which can be plotted as an
+interactive scattergram.</p>
+<div id="the-data" class="section level1">
+<h1>The data</h1>
+<p><code>iris</code> holds 150 flowers, four measurements of each and
+the species it belongs to. The species is what makes it useful here: it
+is held out of the analysis as an <strong>illustrative
+variable</strong>, so it does not shape the plane, but it travels with
+the cases and can be compared afterwards against whatever grouping is
+found.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">head</span>(iris, <span class="dv">3</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; 1          5.1         3.5          1.4         0.2  setosa</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; 2          4.9         3.0          1.4         0.2  setosa</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; 3          4.7         3.2          1.3         0.2  setosa</span></span></code></pre></div>
+</div>
+<div id="a-first-scattergram" class="section level1">
+<h1>A first scattergram</h1>
+<p><code>variables</code> are the columns that travel with the cases;
+<code>active</code> are the ones that build the plane.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">surScat</span>(iris, <span class="at">variables =</span> <span class="fu">names</span>(iris), <span class="at">active =</span> <span class="fu">names</span>(iris)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>])</span></code></pre></div>
+<p>All four active variables are numeric, so <code>surScat()</code> runs
+a <strong>principal component analysis</strong>. Had any of them been a
+factor it would have run a multiple correspondence analysis instead;
+<code>type</code> states it explicitly. Each axis is labelled with the
+share of variance it accounts for:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>S<span class="sc">$</span>options<span class="sc">$</span>axesLabels</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;PC1 (73.0%)&quot; &quot;PC2 (22.9%)&quot;</span></span></code></pre></div>
+<p>The node table holds one row per case: its variables, the coordinates
+<code>fx</code> and <code>fy</code> on the plane, and the clusterization
+<code>surScat()</code> computes on its own, of
+<code>nclusters = 2</code> groups by default.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">head</span>(S<span class="sc">$</span>nodes[, <span class="fu">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Groups(2)&quot;</span>, <span class="st">&quot;fx&quot;</span>, <span class="st">&quot;fy&quot;</span>)], <span class="dv">3</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;   Species Groups(2)        fx         fy</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; 1  setosa  Group: 1 -1.321232 -0.5004175</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 2  setosa  Group: 1 -1.214037  0.7027698</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; 3  setosa  Group: 1 -1.379296  0.3564318</span></span></code></pre></div>
+<p>It also holds <code>ntext</code>, the HTML description behind every
+node’s tooltip, and <code>name</code>, its identifier. Printing the
+object itself (<code>S</code>, or <code>print(S)</code>) does not dump
+the node table: it summarizes it instead, leaving out <code>ntext</code>
+and the k-means group columns, which are named on their own line.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>S</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; &lt;netCoin object&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Nodes: 150  (Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, Species, name, fx, fy)</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Links: 0</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; Clusterizations: Groups(2)</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; Planes: PCA</span></span></code></pre></div>
+<p>Two groups are enough to tell one species from the other two, which
+is as far as two groups can go:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">table</span>(S<span class="sc">$</span>nodes[[<span class="st">&quot;Groups(2)&quot;</span>]], S<span class="sc">$</span>nodes<span class="sc">$</span>Species)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;           </span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;            setosa versicolor virginica</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   Group: 1     50          0         0</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   Group: 2      0         50        50</span></span></code></pre></div>
+<p>The interactive scattergram opens in the browser, where the cases can
+be hovered, filtered and recoloured by any column of the node table:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">plot</span>(S)</span></code></pre></div>
+<p>Drawn statically from those same coordinates, the plane looks like
+this, with the default grouping on the left and the species on the
+right:</p>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="adding-clusterizations" class="section level1">
+<h1>Adding clusterizations</h1>
+<p><code>addClusters()</code> takes a clusterization computed elsewhere
+and adds it as one more column, so that several ways of grouping the
+same cases can be compared on one plane. A <code>kmeans</code> object is
+understood as it comes:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>km <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(<span class="fu">scale</span>(iris[, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]), <span class="dv">3</span>, <span class="at">nstart =</span> <span class="dv">25</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">addClusters</span>(S, km, <span class="at">name =</span> <span class="st">&quot;kmeans(3)&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">table</span>(S<span class="sc">$</span>nodes[[<span class="st">&quot;kmeans(3)&quot;</span>]], S<span class="sc">$</span>nodes<span class="sc">$</span>Species)</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;            </span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;             setosa versicolor virginica</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;   Kmeans: 1     50          0         0</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;   Kmeans: 2      0         39        14</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;   Kmeans: 3      0         11        36</span></span></code></pre></div>
+<p>An <code>hclust</code> has to be cut first, since the number of
+groups is not part of it:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>hc <span class="ot">&lt;-</span> <span class="fu">cutree</span>(<span class="fu">hclust</span>(<span class="fu">dist</span>(<span class="fu">scale</span>(iris[, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))), <span class="dv">3</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">addClusters</span>(S, hc, <span class="at">name =</span> <span class="st">&quot;hclust(3)&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">table</span>(S<span class="sc">$</span>nodes[[<span class="st">&quot;hclust(3)&quot;</span>]], S<span class="sc">$</span>nodes<span class="sc">$</span>Species)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;            </span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;             setosa versicolor virginica</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt;   Hclust: 1     49          0         0</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt;   Hclust: 2      1         21         2</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;   Hclust: 3      0         29        48</span></span></code></pre></div>
+<p>Every column is an ordered factor whose groups are numbered by their
+mean coordinate on the first axis, so that group 1 always sits on the
+left. The labels take the name of the column without its number of
+groups, so <code>&quot;kmeans(3)&quot;</code> reads <code>&quot;Kmeans: 1&quot;</code> and
+on.</p>
+<div id="several-solutions-at-once" class="section level2">
+<h2>Several solutions at once</h2>
+<p>An object holding more than one solution is taken apart into one
+column per solution, each named after the method and its number of
+groups. A <code>tidyLPA</code> estimated for two, three and four
+profiles yields <code>LPA(2)</code>, <code>LPA(3)</code> and
+<code>LPA(4)</code> in a single call:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>mod <span class="ot">&lt;-</span> tidyLPA<span class="sc">::</span><span class="fu">estimate_profiles</span>(iris[, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>                                  <span class="at">variances =</span> <span class="st">&quot;equal&quot;</span>, <span class="at">covariances =</span> <span class="st">&quot;zero&quot;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">addClusters</span>(S, mod)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">table</span>(S<span class="sc">$</span>nodes[[<span class="st">&quot;LPA(3)&quot;</span>]], S<span class="sc">$</span>nodes<span class="sc">$</span>Species)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;         </span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt;          setosa versicolor virginica</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;   LPA: 1     50          0         0</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt;   LPA: 2      0         49         6</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt;   LPA: 3      0          1        44</span></span></code></pre></div>
+<p>Of the three ways of cutting the cases in three, the latent profiles
+are the one that comes closest to the species.</p>
+</div>
+</div>
+<div id="communities-of-the-cases" class="section level1">
+<h1>Communities of the cases</h1>
+<p><code>addCommunities()</code> groups the cases by a different route.
+It correlates them <strong>with one another</strong> over the variables,
+which is a transposed reading of the data frame: each case becomes a
+column and each variable a row, so that a link joins two cases whose
+profiles run parallel. The communities of that network are then a
+grouping of the cases, and reach the node table as any other one
+does.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">addCommunities</span>(S, iris, <span class="at">variables =</span> <span class="fu">names</span>(iris)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">community =</span> <span class="fu">c</span>(<span class="st">&quot;lo&quot;</span>, <span class="st">&quot;wa&quot;</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; Gathered into the residual group -- louvain(6): 2 communities (2 of fewer than 2 cases), 2 cases in all; walktrap(10): 2 communities (2 of fewer than 2 cases), 2 cases in all. Set minSize=1 to keep every community apart.</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>lou <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;^louvain&quot;</span>, <span class="fu">names</span>(S<span class="sc">$</span>nodes), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="fu">table</span>(S<span class="sc">$</span>nodes[[lou]], S<span class="sc">$</span>nodes<span class="sc">$</span>Species)</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt;                </span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt;                 setosa versicolor virginica</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;   Louvain: 1        49          1         0</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt;   Louvain: 2         1          9        10</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt;   Louvain: 3         0         24        26</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt;   Louvain: 4         0         14        12</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt;   Louvain: 5         0          0         2</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt;   Louvain: rest      0          2         0</span></span></code></pre></div>
+<p>Note what this does and does not recover. One species comes out
+almost clean, while the other two stay mixed together across the
+communities. That is the method speaking, not a failure: a correlation
+between two cases centres each of them on <strong>its own mean across
+the variables</strong>, so what it compares is the <em>shape</em> of a
+profile, not its size. One species has a distinctly shaped flower, with
+petals small relative to its sepals; the other two share that shape and
+differ mostly in magnitude, which this reading deliberately sets
+aside.</p>
+<p>Three arguments govern the result:</p>
+<ul>
+<li><code>scale</code> standardizes the variables before transposing. It
+is on by default, because without it the variable of widest range writes
+the profile on its own.</li>
+<li><code>minL</code> is how high a correlation two cases need to be
+linked. Raising it makes the network sparser, and the communities more
+and smaller.</li>
+<li><code>minSize</code> gathers the communities below it into a
+residual group, since a network of cases leaves isolated ones behind and
+igraph returns each of them as a community of its own. That group is
+pinned last and labelled with a word instead of a number, so it reads
+apart from the real ones.</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">levels</span>(S<span class="sc">$</span>nodes[[lou]])</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Louvain: 1&quot;    &quot;Louvain: 2&quot;    &quot;Louvain: 3&quot;    &quot;Louvain: 4&quot;   </span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; [5] &quot;Louvain: 5&quot;    &quot;Louvain: rest&quot;</span></span></code></pre></div>
+<p>Eight methods are available, by code or by name:
+<code>edgeBetweenness</code> (<code>ed</code>), <code>fastGreedy</code>
+(<code>fa</code>), <code>labelProp</code> (<code>la</code>),
+<code>leadingEigen</code> (<code>le</code>), <code>louvain</code>
+(<code>lo</code>), <code>optimal</code> (<code>op</code>),
+<code>spinglass</code> (<code>sp</code>) and <code>walktrap</code>
+(<code>wa</code>). Their costs do not grow alike, and each carries the
+size it can meet: <code>louvain</code> answers on thousands of cases in
+seconds, whereas <code>optimal</code> solves the exact maximum by
+integer programming and does not reach the 150 of <code>iris</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">addCommunities</span>(S, iris, <span class="at">variables =</span> <span class="fu">names</span>(iris)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="at">community =</span> <span class="st">&quot;op&quot;</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; Error in `addCommunities()`:</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt; ! optimal does not answer on a network of 150 nodes; it bears 100. Choose one of fastGreedy, labelProp, leadingEigen, louvain, walktrap, cap the nodes with maxN in surScat, or raise maxNodes to wait for it anyway.</span></span></code></pre></div>
+</div>
+<div id="a-second-plane" class="section level1">
+<h1>A second plane</h1>
+<p>The scattergram is drawn on one plane, but others can be added to it
+and picked from a selector. <code>addAxes()</code> takes two further
+coordinates, either factorial or observed, and adds them under a name of
+their own:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">addAxes</span>(S, iris[, <span class="fu">c</span>(<span class="st">&quot;Petal.Length&quot;</span>, <span class="st">&quot;Sepal.Width&quot;</span>)], <span class="at">name =</span> <span class="st">&quot;petals&quot;</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">names</span>(S<span class="sc">$</span>layouts)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;PCA&quot;    &quot;petals&quot;</span></span></code></pre></div>
+<p>Each clusterization stays as it is; only the coordinates change under
+it, which is what makes the two planes comparable.</p>
+</div>
+<div id="cluster-centroids" class="section level1">
+<h1>Cluster centroids</h1>
+<p><code>$clusters</code> holds the (weighted) centroid of every group
+of every clusterization the object holds, on every plane it holds: a
+flat list with one entry per clusterization-plane pair, its name joining
+the two with a dot, and one row per group.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>S<span class="sc">$</span>clusters</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt; &lt;netCoin clusters&gt; 8 clusterizations x 2 planes (16 sets of centroids) </span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; Clusterizations: Groups(2), kmeans(3), hclust(3), LPA(2), LPA(3), LPA(4), louvain(6), walktrap(10) </span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; Planes: PCA, petals</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>S<span class="sc">$</span>clusters[[<span class="st">&quot;Groups(2).PCA&quot;</span>]]</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt;          PC1 (73.0%) PC2 (22.9%)</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; Group: 1  -1.2979252  -0.3012007</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; Group: 2   0.6489626   0.1506003</span></span></code></pre></div>
+<p>Printing it, on its own or as part of the object, only says how many
+clusterizations and planes it covers, rather than dumping every
+matrix.</p>
+<p><code>addAxes</code> extends every clusterization already there to
+the plane it just added, and <code>addClusters</code> computes the
+centroids of whatever it adds on every plane already there, so the two
+stay in step automatically. <code>kmeans(3)</code> was added earlier,
+before <code>petals</code> existed, yet its centroids are there on that
+plane too:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>S<span class="sc">$</span>clusters[[<span class="st">&quot;kmeans(3).petals&quot;</span>]]</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co">#&gt;           Petal.Length Sepal.Width</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; Kmeans: 1     1.462000    3.428000</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; Kmeans: 2     4.369811    2.673585</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; Kmeans: 3     5.510638    3.095745</span></span></code></pre></div>
+</div>
+<div id="larger-data" class="section level1">
+<h1>Larger data</h1>
+<p>Two arguments matter once the cases are many. <code>patterns</code>
+collapses the cases that share the same values into a single node, whose
+size is how many they are; a clusterization computed case by case is
+then reduced to the commonest group of each pattern. And
+<code>maxN</code>, 2000 by default, caps the nodes by drawing a random
+sample of them, since a scattergram of tens of thousands of points is
+neither readable nor quick. The object records which cases were drawn,
+so that <code>addCommunities()</code> can build its network on them.</p>
+</div>
+<div id="saving-and-exporting" class="section level1">
+<h1>Saving and exporting</h1>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">plot</span>(S, <span class="at">dir =</span> <span class="st">&quot;./temp/iris/&quot;</span>)   <span class="co"># write the interactive page to a directory</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">saveGhml</span>(S, <span class="at">file =</span> <span class="st">&quot;iris.graphml&quot;</span>)</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
